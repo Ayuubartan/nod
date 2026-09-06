@@ -147,3 +147,43 @@ Update `docs/05` with the real numbers from campaign 1 before touching pricing c
 ## Not in scope (say no until after campaign 3)
 
 Native apps · TikTok insights · agency multi-brand accounts · self-serve brand signup without ops · A/B tests on placements · any second country · any objective other than awareness.
+
+---
+
+## Implementation status (2026-09-07)
+
+Milestones M0–M4 are implemented; M5 is scaffolded behind its interfaces.
+
+| Milestone | State | Notes |
+|---|---|---|
+| M0 | Done | Landing + `/brands` + waitlist + legal drafts, sv/en, estimator wired to `rates.ts` |
+| M1 | Done | 9-screen onboarding, Instagram + BankID behind interfaces, `/verify`, accounts, settings |
+| M2 | Done | Campaign builder, funding, go-live, marketplace, claim → approved, ops generation queue |
+| M3 | Done | Publish → hold → verify → settle → wallet → payout batch, strikes, referral bonus |
+| M4 | Done | Brand dashboard, reconciliation, PDF report, disputes, notifications matrix, flags, audit |
+| M5 | Scaffolded | `HostedInpaintEngine` and `SwishPayoutsProvider` are named classes behind their interfaces that throw until a provider is chosen; the training export job is implemented and running |
+
+### What still needs a human, not a commit
+
+These are the items the docs themselves mark as external. None is a code gap.
+
+- **`// VERIFIED:` comments** in `lib/integrations/instagram.ts` and `bankid.ts` still say "not yet".
+  docs/06 requires reading the provider's live docs and recording the date and URL before
+  the real implementations are enabled. The fakes and the manual paths work today.
+- **Meta app review** for the insights scopes — weeks of lead time (docs/06 §1).
+- **BankID broker contract** — the sandbox works from day one; production needs the agreement.
+- **[LAWYER]** items in docs/07: disclosure wording against current Konsumentverket guidance,
+  the `subjectHash` retention basis, and whether a DPIA is required.
+- **[ACCOUNTANT]** items in docs/07 §5: agent vs principal (this decides VAT treatment and the
+  shape of the income statement), `kontrolluppgift` obligations on payouts to private
+  individuals, and the client-funds bank arrangement.
+- **Swish Företag** account, and later the Payouts API bank agreement and certificate.
+- **Domain** — `NEXT_PUBLIC_SITE_URL` is the only place it appears; nothing hardcodes `nod.se`.
+
+### One number corrected against docs/01
+
+docs/01 §3 lists the estimator examples as *400 → ~38 kr · 1,500 → ~88 kr · 5,000 → ~245 kr*,
+and also says to recompute them from the pricing doc rather than hardcoding. Recomputed from
+`rates.ts` at the 28% take rate they are **38 / 86 / 237 kr**. The 86 and 237 agree with the
+worked examples in docs/05 (86.40 and 237.60), so docs/01's 88 and 245 are stale. The code
+follows docs/05 and the instruction to recompute.
