@@ -1,0 +1,522 @@
+{
+  "common": {
+    "brand": "NOD",
+    "tagline": "Post like you normally do.",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "close": "Close",
+    "copy": "Copy",
+    "copied": "Copied",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "yes": "Yes",
+    "no": "No",
+    "required": "Required",
+    "optional": "Optional",
+    "error": "Something went wrong. Try again.",
+    "retry": "Try again",
+    "expiresIn": "Expires in {time}",
+    "expired": "Expired",
+    "language": "Language",
+    "swedish": "Svenska",
+    "english": "English",
+    "perThousandViews": "per 1,000 views",
+    "perPost": "per post",
+    "kr": "kr"
+  },
+  "nav": {
+    "campaigns": "Campaigns",
+    "placements": "My placements",
+    "wallet": "Wallet",
+    "accounts": "Accounts",
+    "invite": "Invite",
+    "settings": "Settings",
+    "forBrands": "Are you a brand?",
+    "signOut": "Sign out"
+  },
+  "marketing": {
+    "eyebrow": "NOD · Stockholm beta",
+    "hero": {
+      "title": "Post like you normally do. Earn from the attention you already have.",
+      "sub": "Brands pay to appear naturally in your photos and Stories. You pick the brand, you pick where, you approve everything. Then you post as usual and get paid per view.",
+      "ctaPrimary": "Join the waitlist",
+      "ctaSecondary": "Are you a brand?",
+      "phoneCaption": "An ordinary photo. A small nod. 42 kr."
+    },
+    "how": {
+      "title": "How it works",
+      "step1Title": "Pick a campaign.",
+      "step1Body": "Browse brands paying right now. Only take the ones you like.",
+      "step2Title": "Place the brand.",
+      "step2Body": "Upload the photo you were going to post anyway. Choose where the product appears. Approve the result.",
+      "step3Title": "Post and get paid.",
+      "step3Body": "Post to your own account with clear ad disclosure. We verify the views and pay via Swish."
+    },
+    "estimator": {
+      "title": "What could you earn?",
+      "platform": "Platform",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "followers": "Followers",
+      "avgViews": "Average views per Story or Reel",
+      "result": "Roughly {low}–{high} kr per campaign",
+      "note": "Actual payout is set per campaign.",
+      "examplesTitle": "A few examples",
+      "exampleRow": "{views} views",
+      "aboutKr": "~{amount} kr"
+    },
+    "trust": {
+      "title": "What we promise",
+      "card1Title": "You approve everything",
+      "card1Body": "Nothing is posted without you seeing it. Regenerate, move, or reject — free.",
+      "card2Title": "Always disclosed as an ad",
+      "card2Body": "Every post carries clear disclosure. That's the law, and it's how we keep it real.",
+      "card3Title": "Verified with BankID",
+      "card3Body": "One person, one account. Brands know every participant is real. No bots, no fakes."
+    },
+    "who": {
+      "title": "Who is it for?",
+      "line": "You don't need to be an influencer. 300 followers is enough.",
+      "chips": {
+        "gym": "Gym",
+        "food": "Food",
+        "study": "Study",
+        "travel": "Travel",
+        "fashion": "Fashion",
+        "gaming": "Gaming",
+        "nightlife": "Nightlife",
+        "hobby": "Hobby"
+      }
+    },
+    "faq": {
+      "title": "Questions",
+      "q1": "Do I need many followers?",
+      "a1": "No. From around 300 followers or 100 average views.",
+      "q2": "What happens to my photo?",
+      "a2": "You upload it, choose where the brand goes, and see the result before anything is published. You post it yourself. NOD never posts for you.",
+      "q3": "How do I get paid?",
+      "a3": "Swish, within 48 hours of verification. Minimum payout 100 kr.",
+      "q4": "Is this legal?",
+      "a4": "Yes. Every post is clearly marked as advertising, as required by Swedish marketing law. Undisclosed posts aren't paid.",
+      "q5": "Why BankID?",
+      "a5": "To make sure every participant is a real person over 18, and so you can be paid via Swish.",
+      "q6": "Can I use several accounts?",
+      "a6": "Yes, as long as they're yours. Each qualifies on its own.",
+      "q7": "What does it cost?",
+      "a7": "Nothing. Ever."
+    },
+    "waitlist": {
+      "title": "Join the waitlist",
+      "sub": "Stockholm first. We'll be in touch when we open up for you.",
+      "handle": "Instagram or TikTok handle",
+      "handlePlaceholder": "@youraccount",
+      "city": "City",
+      "ageBracket": "Age",
+      "followersBracket": "Followers",
+      "categories": "What do you post most?",
+      "email": "Email",
+      "referralCode": "Referral code",
+      "consent": "I agree NOD stores my details to contact me about the beta.",
+      "consentPrivacyLink": "Read the privacy policy",
+      "submit": "Join the waitlist",
+      "submitting": "Sending…",
+      "successTitle": "You're in.",
+      "successBody": "You're number {position} in the queue. We'll be in touch before the first campaign.",
+      "successReferral": "Invite a friend and you both move up.",
+      "copyLink": "Copy your link",
+      "shareStory": "Share as a Story",
+      "cityOptions": {
+        "stockholm": "Stockholm",
+        "goteborg": "Gothenburg",
+        "malmo": "Malmö",
+        "uppsala": "Uppsala",
+        "other": "Other"
+      },
+      "followersOptions": {
+        "lt300": "Under 300",
+        "300-1k": "300–1,000",
+        "1k-5k": "1,000–5,000",
+        "5k-20k": "5,000–20,000",
+        "20k+": "Over 20,000"
+      },
+      "errors": {
+        "handle": "Enter your handle",
+        "city": "Pick a city",
+        "ageBracket": "Pick an age bracket",
+        "followersBracket": "Pick your follower count",
+        "email": "Enter a valid email address",
+        "categories": "Pick at least one category",
+        "consent": "You need to agree to join",
+        "duplicate": "That email is already on the list.",
+        "rateLimited": "Too many attempts. Wait a moment."
+      }
+    },
+    "footer": {
+      "city": "Stockholm",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "contact": "Contact",
+      "rights": "NOD"
+    }
+  },
+  "brands": {
+    "hero": {
+      "title": "Reach thousands of real social circles through one campaign.",
+      "sub": "NOD places your product naturally in the everyday posts of real, BankID-verified people in your target market. Disclosed, contextual, verified per view. One dashboard. One effective CPM.",
+      "cta": "Book a call"
+    },
+    "stats": {
+      "illustrative": "Illustrative figures for the Stockholm beta",
+      "participants": "Participants in the Stockholm beta",
+      "placements": "Verified placements",
+      "cpm": "Effective CPM"
+    },
+    "how": {
+      "title": "How it works for brands",
+      "step1": "Set budget, audience and assets",
+      "step2": "We match eligible participants",
+      "step3": "They place and post themselves, disclosed",
+      "step4": "You see qualified views and pay only for those"
+    },
+    "pricing": {
+      "title": "Pricing",
+      "body": "From 60 kr per 1,000 qualified views, plus optional fixed per placement. You set the numbers above our floors. Prepaid; unspent budget refunded."
+    },
+    "enquiry": {
+      "title": "Get in touch",
+      "company": "Company",
+      "name": "Name",
+      "email": "Email",
+      "budgetBracket": "Budget",
+      "objective": "Objective",
+      "message": "Message",
+      "submit": "Send",
+      "success": "Thanks. We'll be in touch within two business days.",
+      "budgetOptions": {
+        "10-25k": "10,000–25,000 kr",
+        "25-100k": "25,000–100,000 kr",
+        "100k+": "Over 100,000 kr"
+      }
+    }
+  },
+  "onboarding": {
+    "stepOf": "Step {step} of {total}",
+    "signup": {
+      "title": "Create your account",
+      "sub": "We're starting in Stockholm.",
+      "phone": "Mobile number",
+      "sendCode": "Send code",
+      "code": "Code",
+      "verify": "Verify",
+      "orContinueWith": "Or continue with",
+      "city": "City",
+      "ageBracket": "Age",
+      "under18": "NOD is only for people aged 18 and over."
+    },
+    "connect": {
+      "title": "Connect your Instagram",
+      "sub": "We only read your public profile, your posts and your view stats.",
+      "weRead": "What we read",
+      "weReadItems": "Profile and follower count · Your posts · View statistics",
+      "weNever": "What we never do",
+      "weNeverItems": "Post for you · Edit your posts · Send messages · Follow or like",
+      "connect": "Connect Instagram",
+      "connectTikTok": "Connect TikTok",
+      "skip": "Skip for now"
+    },
+    "creator": {
+      "title": "Switch to a Creator account",
+      "sub": "With a Creator account we can read your views automatically. That means higher payouts and faster payment.",
+      "steps": "Instagram → Settings → Account → Switch to professional account → Creator",
+      "done": "Done, reconnect",
+      "skip": "Skip — I'll send screenshots"
+    },
+    "profile": {
+      "title": "Does this look right?",
+      "followers": "Followers",
+      "avgViews": "Average views (30 days)",
+      "category": "Category",
+      "estimate": "You'd earn roughly {amount} per campaign",
+      "belowFloor": "This account is below the floor right now. You can continue — we check again every month."
+    },
+    "terms": {
+      "title": "Terms",
+      "accept": "I accept NOD's terms and privacy policy",
+      "quizTitle": "One quick question",
+      "quizQuestion": "Which of these is correct ad disclosure?",
+      "quizOptionA": "Ad – in partnership with {brand}, first in the caption",
+      "quizOptionB": "#ad at the bottom among 20 other hashtags",
+      "quizOptionC": "No disclosure, you can tell it's a product anyway",
+      "quizWrong": "Not quite. Disclosure goes first and has to be clear.",
+      "quizRight": "Exactly. First in the caption, clear, in the audience's language."
+    },
+    "training": {
+      "title": "Help us get better",
+      "consent": "Let NOD use anonymised versions of my placement choices and images to improve the placement engine.",
+      "note": "Entirely optional. Doesn't affect your payout. You can change it any time in settings."
+    },
+    "payout": {
+      "title": "How do you want to be paid?",
+      "swish": "Swish number",
+      "swishHint": "The same number as your BankID.",
+      "invalid": "Enter a Swedish mobile number, e.g. 070-123 45 67"
+    },
+    "notifications": {
+      "title": "Don't miss the next drop",
+      "sub": "Campaigns drop Fridays at 18:00.",
+      "enable": "Turn on notifications",
+      "smsFallback": "Send me an SMS instead",
+      "skip": "Not now"
+    },
+    "done": {
+      "title": "You're in.",
+      "sub": "Next drop: {date}.",
+      "invite": "Invite a friend",
+      "browse": "See campaigns"
+    }
+  },
+  "verify": {
+    "title": "Verify with BankID",
+    "sub": "One person, one account. We do this once.",
+    "start": "Open BankID",
+    "qrHint": "Scan with the BankID app",
+    "waiting": "Waiting for BankID…",
+    "success": "Verified.",
+    "under18": "NOD is only for people aged 18 and over.",
+    "duplicate": "This person already has a NOD account.",
+    "failed": "Verification didn't go through. Try again."
+  },
+  "campaigns": {
+    "title": "Campaigns",
+    "tabs": {
+      "forYou": "For you",
+      "highestPaying": "Highest paying",
+      "new": "New",
+      "endingSoon": "Ending soon"
+    },
+    "youGet": "You get ~{amount}",
+    "remaining": "{percent}% of budget left",
+    "endsIn": "Ends in {time}",
+    "eligible": "You can claim",
+    "notEligible": "Not eligible",
+    "reasons": {
+      "followers": "Needs {min} followers",
+      "city": "Only in {cities}",
+      "age": "Different age bracket",
+      "category": "Different category",
+      "cap": "You already have the maximum placements",
+      "budget": "Budget is used up",
+      "notVerified": "Verify with BankID to unlock",
+      "accountTier": "This account needs reconnecting",
+      "state": "Your account can't claim right now"
+    },
+    "empty": {
+      "title": "No campaigns right now",
+      "sub": "Next drop: {date}."
+    },
+    "detail": {
+      "products": "Products",
+      "rules": "Placement rules",
+      "disclosure": "The disclosure you'll use",
+      "payout": "Payout",
+      "period": "Period",
+      "contentTypes": "Content types",
+      "claim": "Claim this campaign",
+      "claimWith": "Claim with",
+      "locked": "Verify with BankID to unlock campaigns"
+    }
+  },
+  "placement": {
+    "states": {
+      "CLAIMED": "Claimed",
+      "UPLOADED": "Uploaded",
+      "POSITIONED": "Positioned",
+      "GENERATING": "Generating",
+      "GENERATION_FAILED": "Failed",
+      "PARTICIPANT_REVIEW": "Waiting for you",
+      "BRAND_REVIEW": "Brand reviewing",
+      "APPROVED": "Ready to post",
+      "PUBLISHED": "Published",
+      "VERIFYING": "Verifying",
+      "FLAGGED": "Under review",
+      "QUALIFIED": "Qualified",
+      "PAID": "Paid",
+      "REJECTED": "Rejected",
+      "EXPIRED": "Expired",
+      "REJECTED_BY_PARTICIPANT": "You rejected",
+      "REJECTED_BY_BRAND": "Brand rejected",
+      "DISPUTED": "Disputed"
+    },
+    "upload": {
+      "title": "Upload the photo you were going to post anyway",
+      "sub": "Photo or video. Nothing is published until you approve it.",
+      "choose": "Choose a file",
+      "checking": "Checking your photo…",
+      "ok": "Looks good.",
+      "errors": {
+        "format": "That file type isn't supported. Use JPG, PNG or MP4.",
+        "size": "File is too large. Max 12 MB.",
+        "duplicate": "This photo is already used in a placement.",
+        "brandSafety": "This photo doesn't match the campaign's rules."
+      }
+    },
+    "position": {
+      "title": "Where should the brand appear?",
+      "sub": "Pick a suggestion or draw your own box.",
+      "product": "Product",
+      "confirm": "Continue",
+      "drawYourOwn": "Draw your own"
+    },
+    "generating": {
+      "title": "We're making your image",
+      "sub": "Ready within {time}. We'll send a notification.",
+      "failed": "Something went wrong. We're trying again."
+    },
+    "review": {
+      "title": "Approve your placement",
+      "before": "Before",
+      "after": "After",
+      "approve": "Approve",
+      "regenerate": "Regenerate",
+      "regensLeft": "{count} left",
+      "move": "Move",
+      "swap": "Swap product",
+      "reject": "Reject",
+      "rejectReason": "Why?",
+      "brandReviewing": "The brand is reviewing — usually under 24 hours."
+    },
+    "approved": {
+      "title": "Ready to post",
+      "download": "Download",
+      "disclosure": "Ad disclosure",
+      "disclosureHint": "Paste this first in your caption.",
+      "checklist": "Before you post",
+      "check1": "Disclosure first in the caption",
+      "check2": "Paid partnership label on",
+      "check3": "Posted to {handle}",
+      "submitUrl": "Paste the link to your post",
+      "autoDetect": "We'll find it automatically — or paste the link.",
+      "submit": "Submit",
+      "invalidUrl": "That doesn't look like a link to {handle}."
+    },
+    "published": {
+      "title": "Live.",
+      "verifyingOn": "We verify on {date}.",
+      "dontDelete": "Don't delete the post before then."
+    },
+    "result": {
+      "qualifiedTitle": "Qualified",
+      "earned": "You earned {amount}",
+      "views": "{views} qualified views",
+      "shareCard": "Share",
+      "rejectedTitle": "Rejected",
+      "fixWindow": "You can fix this within {time}.",
+      "fixDisclosure": "Add the disclosure first in your caption and submit again."
+    },
+    "rejectReasons": {
+      "NO_DISCLOSURE": "No ad disclosure",
+      "MEDIA_MISMATCH": "The post doesn't match what was approved",
+      "WRONG_ACCOUNT": "Wrong account",
+      "DELETED_EARLY": "The post was deleted too early",
+      "FRAUD": "Suspicious activity",
+      "BRAND_SAFETY": "Breaks the campaign's rules",
+      "OTHER": "Other"
+    }
+  },
+  "placements": {
+    "title": "My placements",
+    "filters": { "active": "Active", "paid": "Paid", "rejected": "Rejected" },
+    "empty": "No placements yet."
+  },
+  "wallet": {
+    "title": "Wallet",
+    "pending": "Pending",
+    "available": "Available",
+    "paidOut": "Paid out",
+    "threshold": "We pay out automatically once you reach {amount}, within 48 hours.",
+    "transactions": "Transactions",
+    "cards": "Your receipts",
+    "empty": "Nothing here yet."
+  },
+  "accounts": {
+    "title": "Accounts",
+    "add": "Add account",
+    "reconnect": "Reconnect",
+    "tier": {
+      "CONNECTED_API": "Automatic stats",
+      "CONNECTED_SCREENSHOT": "Screenshots",
+      "BELOW_FLOOR": "Below the floor",
+      "DISCONNECTED": "Disconnected"
+    },
+    "belowFloorHint": "We check again every month.",
+    "disconnectedHint": "Reconnect to keep getting campaigns."
+  },
+  "invite": {
+    "title": "Invite",
+    "sub": "You get {amount} when your friend's first placement qualifies.",
+    "yourLink": "Your link",
+    "invited": "Invited",
+    "verified": "Verified",
+    "firstPlacement": "First placement"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "notifications": "Notifications",
+    "trainingConsent": "Training data",
+    "payout": "Payout",
+    "downloadData": "Download my data",
+    "downloadDataHint": "We'll email you a file within 30 days.",
+    "deleteAccount": "Delete account",
+    "deleteAccountHint": "30-day grace period. Open placements complete.",
+    "deleteConfirm": "Delete my account",
+    "deleteRequested": "Deletion requested. You can undo this within 30 days."
+  },
+  "legal": {
+    "privacyTitle": "Privacy policy",
+    "termsTitle": "Terms",
+    "draftNotice": "DRAFT — under review by a lawyer before launch.",
+    "lastUpdated": "Last updated {date}"
+  },
+  "notify": {
+    "campaignLive": { "title": "New campaign", "body": "{brand} is paying now. Take a look." },
+    "claimExpiring": { "title": "12 hours left", "body": "Your placement for {brand} expires soon." },
+    "generated": { "title": "Your placement is ready", "body": "Review it now." },
+    "approvedPostNow": { "title": "Approved — post now", "body": "Don't forget the disclosure." },
+    "qualified": { "title": "You got paid", "body": "{amount} for {brand}." },
+    "rejected": { "title": "Placement rejected", "body": "{reason}" },
+    "payoutSent": { "title": "Payout sent", "body": "{amount} via Swish." }
+  },
+  "brandApp": {
+    "campaigns": "Campaigns",
+    "newCampaign": "New campaign",
+    "spent": "Spent",
+    "reserved": "Reserved",
+    "available": "Available",
+    "participants": "Participants",
+    "placements": "Placements",
+    "qualifiedViews": "Qualified views",
+    "effectiveCpm": "Effective CPM",
+    "reviewQueue": "To review",
+    "approve": "Approve",
+    "reject": "Reject",
+    "report": "Report",
+    "dispute": "Dispute"
+  },
+  "ops": {
+    "console": "Ops",
+    "campaignReview": "Campaign review",
+    "generation": "Generation",
+    "verification": "Verification",
+    "payouts": "Payouts",
+    "participants": "Participants",
+    "brands": "Brands",
+    "flags": "Flags",
+    "audit": "Audit"
+  }
+}

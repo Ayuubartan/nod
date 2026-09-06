@@ -1,0 +1,650 @@
+// NOD data model — docs/04-data-model.md
+// Money is always Int in öre (SEK x 100). Never float, never Decimal.
+// Every table has createdAt / updatedAt / deletedAt (soft delete only, CLAUDE.md rule 9).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------------------------- enums
+// Enums mirror docs/03-workflows.md exactly.
+
+enum Role {
+  PARTICIPANT
+  BRAND
+  OPS
+}
+
+enum ParticipantState {
+  SIGNED_UP
+  ONBOARDED
+  VERIFIED
+  ACTIVE
+  FLAGGED
+  SUSPENDED
+  REMOVED
+}
+
+enum AccountPlatform {
+  INSTAGRAM
+  TIKTOK
+}
+
+enum AccountTier {
+  CONNECTED_API
+  CONNECTED_SCREENSHOT
+  BELOW_FLOOR
+  DISCONNECTED
+}
+
+enum CampaignState {
+  DRAFT
+  SUBMITTED
+  RETURNED
+  AWAITING_FUNDS
+  FUNDED
+  LIVE
+  FILLING
+  EXHAUSTED
+  EXPIRED
+  PAUSED
+  RECONCILING
+  CLOSED
+}
+
+enum ReviewTier {
+  A
+  B
+}
+
+enum PayoutKind {
+  FIXED
+  CPM
+  HYBRID
+  HYBRID_BONUS
+}
+
+enum PlacementState {
+  CLAIMED
+  UPLOADED
+  POSITIONED
+  GENERATING
+  GENERATION_FAILED
+  PARTICIPANT_REVIEW
+  BRAND_REVIEW
+  APPROVED
+  PUBLISHED
+  VERIFYING
+  FLAGGED
+  QUALIFIED
+  PAID
+  REJECTED
+  EXPIRED
+  REJECTED_BY_PARTICIPANT
+  REJECTED_BY_BRAND
+  DISPUTED
+}
+
+enum RejectReason {
+  NO_DISCLOSURE
+  MEDIA_MISMATCH
+  WRONG_ACCOUNT
+  DELETED_EARLY
+  FRAUD
+  BRAND_SAFETY
+  OTHER
+}
+
+enum LedgerType {
+  DEPOSIT
+  RESERVE
+  RELEASE_RESERVATION
+  SETTLE
+  PAYOUT_ACCRUE
+  TAKE
+  PAYOUT_SENT
+  REFUND
+  ROLLOVER
+  CREDIT_TERMS_FEE
+  ADJUSTMENT
+}
+
+enum StrikeSeverity {
+  MINOR
+  SERIOUS
+}
+
+enum DisputeState {
+  OPEN
+  UPHELD
+  REJECTED
+}
+
+enum PayoutBatchState {
+  OPEN
+  EXPORTED
+  SETTLED
+}
+
+// ---------------------------------------------------------------- people
+
+model User {
+  id                  String           @id @default(cuid())
+  authId              String           @unique
+  email               String?
+  role                Role             @default(PARTICIPANT)
+  state               ParticipantState @default(SIGNED_UP)
+  locale              String           @default("sv")
+  city                String?
+  ageBracket          String?
+  swishNumber         String? // E.164, AES-256-GCM encrypted at rest
+  trainingConsent     Boolean          @default(false)
+  disclosureQuizAt    DateTime?
+  termsAcceptedAt     DateTime?
+  pushSubscription    Json?
+  smsOptIn            Boolean          @default(false)
+  referralCode        String           @unique
+  referredById        String?
+  reputation          Int              @default(0)
+  onboardingStep      Int              @default(1)
+  deletionRequestedAt DateTime?
+
+  identity   Identity?
+  accounts   SocialAccount[]
+  wallet     Wallet?
+  placements Placement[]
+  strikes    Strike[]
+
+  referredBy       User?      @relation("UserReferrals", fields: [referredById], references: [id])
+  referredUsers    User[]     @relation("UserReferrals")
+  referralsMade    Referral[] @relation("ReferralReferrer")
+  referralReceived Referral?  @relation("ReferralReferred")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([state])
+  @@index([referredById])
+}
+
+// BankID — minimum data. Personnummer is NEVER stored (docs/07 section 3).
+model Identity {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  subjectHash String   @unique // sha256(provider subject + BANKID_SUBJECT_SALT)
+  birthYear   Int
+  verifiedAt  DateTime
+  provider    String
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model SocialAccount {
+  id             String          @id @default(cuid())
+  userId         String
+  platform       AccountPlatform
+  handle         String
+  platformUserId String
+  tier           AccountTier
+  accountType    String? // personal | creator | business
+  isPrivate      Boolean         @default(false)
+  followers      Int             @default(0)
+  avgViews30d    Int             @default(0)
+  categories     String[]        @default([])
+  accessToken    String? // encrypted
+  refreshToken   String? // encrypted
+  tokenExpiresAt DateTime?
+  lastSyncedAt   DateTime?
+  disconnectedAt DateTime?
+
+  user       User        @relation(fields: [userId], references: [id])
+  placements Placement[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([platform, platformUserId])
+  @@index([userId])
+}
+
+model Strike {
+  id          String         @id @default(cuid())
+  userId      String
+  severity    StrikeSeverity
+  reason      String
+  placementId String?
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([userId])
+}
+
+model Referral {
+  id               String    @id @default(cuid())
+  referrerId       String
+  referredId       String    @unique
+  firstPlacementAt DateTime?
+  bonusPaidAt      DateTime?
+
+  referrer User @relation("ReferralReferrer", fields: [referrerId], references: [id])
+  referred User @relation("ReferralReferred", fields: [referredId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([referrerId])
+}
+
+// ---------------------------------------------------------------- brands
+
+model Brand {
+  id                 String  @id @default(cuid())
+  name               String
+  orgNumber          String?
+  stripeCustomerId   String?
+  invoiceWhitelisted Boolean @default(false)
+  rolloverPreference String  @default("refund") // refund | rollover
+
+  users     BrandUser[]
+  campaigns Campaign[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model BrandUser {
+  id      String  @id @default(cuid())
+  brandId String
+  authId  String  @unique
+  email   String
+  name    String?
+  role    String  @default("member") // admin | member
+
+  brand Brand @relation(fields: [brandId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([brandId])
+}
+
+model Campaign {
+  id        String        @id @default(cuid())
+  brandId   String
+  name      String
+  state     CampaignState @default(DRAFT)
+  objective String        @default("awareness")
+  startsAt  DateTime?
+  endsAt    DateTime?
+  goLiveAt  DateTime?
+
+  // audience
+  countries    String[] @default(["SE"])
+  cities       String[] @default([])
+  ageBrackets  String[] @default([])
+  minFollowers Int      @default(300)
+  maxFollowers Int?
+  categories   String[] @default([])
+  exclusions   String[] @default([])
+
+  // rules
+  rulesText      String?
+  brandSafety    String[]   @default([])
+  reviewTier     ReviewTier @default(B)
+  disclosureText String     @default("Reklam – i samarbete med {brand}")
+  perPersonCap   Int        @default(2)
+
+  // money (öre)
+  budget            Int     @default(0)
+  perPlacementMax   Int     @default(50000)
+  fundedVia         String? // card | invoice
+  creditTermsFeeBps Int     @default(0)
+
+  // lifecycle bookkeeping
+  submittedAt         DateTime?
+  returnedNotes       String?
+  fundedAt            DateTime?
+  liveAt              DateTime?
+  exhaustedAt         DateTime?
+  reopenedAt          DateTime?
+  reconcilingAt       DateTime?
+  closedAt            DateTime?
+  pausedAt            DateTime?
+  disputeWindowEndsAt DateTime?
+  stripeSessionId     String?
+  reportPath          String?
+
+  brand          Brand           @relation(fields: [brandId], references: [id])
+  payoutTemplate PayoutTemplate?
+  assets         CampaignAsset[]
+  placements     Placement[]
+  ledger         LedgerEntry[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([brandId, state])
+  @@index([state, goLiveAt])
+}
+
+// Brand-facing (all-in) numbers. Participant share is derived via take rate.
+model PayoutTemplate {
+  id           String     @id @default(cuid())
+  campaignId   String     @unique
+  kind         PayoutKind
+  fixedOre     Int        @default(0)
+  cpmOre       Int        @default(0)
+  bonusAtViews Int?
+  bonusOre     Int?
+  viewFloor    Int        @default(100)
+  takeRateBps  Int        @default(2800) // snapshot at funding; never changed after
+
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model CampaignAsset {
+  id             String   @id @default(cuid())
+  campaignId     String
+  name           String
+  storagePath    String
+  placementTypes String[] @default([])
+
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([campaignId])
+}
+
+// ---------------------------------------------------------------- placements
+
+model Placement {
+  id              String         @id @default(cuid())
+  campaignId      String
+  userId          String
+  socialAccountId String
+  state           PlacementState @default(CLAIMED)
+  rejectReason    RejectReason?
+  rejectNote      String?
+  reservationOre  Int
+  claimedAt       DateTime       @default(now())
+  deadlineAt      DateTime
+  clockPausedAt   DateTime?
+  pausedMs        Int            @default(0)
+
+  contentType      String? // story | reel | post
+  originalPath     String?
+  originalHash     String? // perceptual hash: duplicates + media match
+  regionJson       Json?
+  assetId          String?
+  regenCount       Int     @default(0)
+  currentVersionId String?
+
+  postUrl              String?
+  postPlatformId       String?
+  publishedAt          DateTime?
+  holdEndsAt           DateTime?
+  disclosureTextIssued String?
+  disclosureToken      String?   @unique
+  fixWindowEndsAt      DateTime?
+  brandSampled         Boolean   @default(false)
+  settledAt            DateTime?
+  paidAt               DateTime?
+
+  campaign     Campaign           @relation(fields: [campaignId], references: [id])
+  user         User               @relation(fields: [userId], references: [id])
+  account      SocialAccount      @relation(fields: [socialAccountId], references: [id])
+  versions     PlacementVersion[]
+  events       PlacementEvent[]
+  verification Verification?
+  dispute      Dispute?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([campaignId, state])
+  @@index([userId, state])
+  @@index([deadlineAt])
+  @@index([holdEndsAt])
+  @@index([originalHash])
+}
+
+model PlacementVersion {
+  id          String @id @default(cuid())
+  placementId String
+  storagePath String
+  engine      String
+  params      Json?
+
+  placement Placement @relation(fields: [placementId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([placementId])
+}
+
+// Training signal — docs/06 section 6, docs/07 section 2
+model PlacementEvent {
+  id          String @id @default(cuid())
+  placementId String
+  type        String // CANDIDATES_SHOWN | REGION_PICKED | REGEN | MOVE | SWAP | APPROVE | REJECT_P | REJECT_B | BRAND_SAMPLE_OK
+  payload     Json
+
+  placement Placement @relation(fields: [placementId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([placementId, type])
+}
+
+model Verification {
+  id             String    @id @default(cuid())
+  placementId    String    @unique
+  accountMatch   Boolean?
+  disclosureOk   Boolean?
+  labelOk        Boolean?
+  mediaMatch     Float?
+  views          Int?
+  viewsSource    String? // api | screenshot
+  screenshotPath String?
+  fraudScore     Float?
+  fraudFactors   Json?
+  geoFactor      Float     @default(1)
+  qualifiedViews Int?
+  decidedBy      String? // system | ops:<id>
+  decidedAt      DateTime?
+  attempt        Int       @default(1)
+
+  placement Placement      @relation(fields: [placementId], references: [id])
+  snapshots ViewSnapshot[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model ViewSnapshot {
+  id             String   @id @default(cuid())
+  verificationId String
+  at             DateTime @default(now())
+  views          Int
+  reach          Int?
+  source         String
+
+  verification Verification @relation(fields: [verificationId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([verificationId])
+}
+
+model Dispute {
+  id          String       @id @default(cuid())
+  placementId String       @unique
+  state       DisputeState @default(OPEN)
+  raisedBy    String
+  reason      String
+  resolution  String?
+  resolvedAt  DateTime?
+
+  placement Placement @relation(fields: [placementId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+// ---------------------------------------------------------------- money
+
+model Wallet {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  user    User          @relation(fields: [userId], references: [id])
+  entries LedgerEntry[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+// Append-only. Never updated, never deleted. Balances are sums (docs/04 Derived numbers).
+model LedgerEntry {
+  id          String     @id @default(cuid())
+  type        LedgerType
+  amountOre   Int
+  campaignId  String?
+  walletId    String?
+  placementId String?
+  batchId     String?
+  memo        String?
+  externalRef String?    @unique
+
+  campaign Campaign?    @relation(fields: [campaignId], references: [id])
+  wallet   Wallet?      @relation(fields: [walletId], references: [id])
+  batch    PayoutBatch? @relation(fields: [batchId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([campaignId, type])
+  @@index([walletId, type])
+  @@index([placementId])
+}
+
+model PayoutBatch {
+  id         String           @id @default(cuid())
+  state      PayoutBatchState @default(OPEN)
+  exportedAt DateTime?
+  settledAt  DateTime?
+  totalOre   Int              @default(0)
+  note       String?
+
+  entries LedgerEntry[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+// ---------------------------------------------------------------- marketing
+
+model WaitlistEntry {
+  id               String          @id @default(cuid())
+  handle           String
+  platform         AccountPlatform
+  city             String
+  ageBracket       String
+  followersBracket String
+  categories       String[]        @default([])
+  email            String
+  referralCode     String          @unique
+  referredBy       String?
+  consentAt        DateTime
+  position         Int             @default(0)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([email])
+  @@index([referredBy])
+}
+
+model BrandEnquiry {
+  id            String  @id @default(cuid())
+  company       String
+  name          String
+  email         String
+  budgetBracket String
+  objective     String?
+  message       String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+// ---------------------------------------------------------------- system
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  entity    String
+  entityId  String
+  fromState String?
+  toState   String?
+  event     String
+  actor     String
+  reason    String?
+  payload   Json?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+model Flag {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model IdempotencyKey {
+  key       String   @id
+  scope     String
+  createdAt DateTime @default(now())
+
+  @@index([scope])
+}

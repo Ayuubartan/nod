@@ -1,0 +1,226 @@
+@import 'tailwindcss';
+
+/*
+ * NOD design tokens — docs/10-brand.md.
+ *
+ * Lighter and warmer than a fintech dashboard on purpose: these pages render inside
+ * an Instagram in-app browser next to people's own photos.
+ */
+
+@theme {
+  /* surfaces */
+  --color-bg: #faf7f2;
+  --color-surface: #ffffff;
+  --color-ink: #14110f;
+  --color-ink-2: #5c554d;
+  --color-ink-3: #a39b91;
+  --color-line: #e8e2da;
+
+  /* accent */
+  --color-amber: #f5a524;
+  --color-amber-dk: #c77e0a;
+  --color-green: #1f9d6b;
+  --color-red: #d6453d;
+  --color-blue: #2f6fe4;
+
+  --radius-card: 12px;
+
+  --font-display: 'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* Dark mode: invert the surfaces, keep the amber (docs/10). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-bg: #14110f;
+    --color-surface: #1c1815;
+    --color-ink: #faf7f2;
+    --color-ink-2: #b8afa4;
+    --color-ink-3: #7a736a;
+    --color-line: #2e2823;
+  }
+}
+
+:root[data-theme='dark'] {
+  --color-bg: #14110f;
+  --color-surface: #1c1815;
+  --color-ink: #faf7f2;
+  --color-ink-2: #b8afa4;
+  --color-ink-3: #7a736a;
+  --color-line: #2e2823;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  /* Amounts and IDs always use tabular figures (docs/10). */
+  .tabular,
+  .amount {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-amber);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-amber);
+    color: #14110f;
+  }
+}
+
+@layer components {
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* The amber "nod" marker: a filled circle with a soft ring (docs/10). */
+  .nod-marker {
+    position: relative;
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 9999px;
+    background: var(--color-amber);
+  }
+
+  .nod-marker::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 9999px;
+    border: 2px solid var(--color-amber);
+    opacity: 0.35;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+    min-height: 44px; /* touch target */
+  }
+
+  .btn-primary {
+    background: var(--color-amber);
+    color: #14110f;
+  }
+
+  .btn-primary:hover {
+    background: var(--color-amber-dk);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-ink);
+    border: 1px solid var(--color-line);
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-line);
+  }
+
+  .field {
+    width: 100%;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    padding: 0.75rem 0.875rem;
+    color: var(--color-ink);
+    font-size: 16px; /* iOS does not zoom at 16px */
+    min-height: 44px;
+  }
+
+  .field:disabled {
+    opacity: 0.6;
+  }
+
+  .label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-ink-2);
+    margin-bottom: 0.375rem;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    border: 1px solid var(--color-line);
+    padding: 0.375rem 0.875rem;
+    font-size: 0.875rem;
+    background: var(--color-surface);
+    min-height: 36px;
+  }
+
+  .chip[aria-pressed='true'] {
+    background: var(--color-amber);
+    border-color: var(--color-amber);
+    color: #14110f;
+    font-weight: 600;
+  }
+
+  .section {
+    padding-block: 3.5rem;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 64rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  .error-text {
+    color: var(--color-red);
+    font-size: 0.8125rem;
+    margin-top: 0.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

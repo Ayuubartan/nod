@@ -1,0 +1,13 @@
+{
+  "name": "NOD",
+  "short_name": "NOD",
+  "description": "Posta som vanligt. Tjäna på uppmärksamheten du redan har.",
+  "start_url": "/campaigns",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#F5A524",
+  "lang": "sv",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,522 @@
+{
+  "common": {
+    "brand": "NOD",
+    "tagline": "Posta som vanligt.",
+    "loading": "Laddar…",
+    "save": "Spara",
+    "cancel": "Avbryt",
+    "back": "Tillbaka",
+    "next": "Nästa",
+    "done": "Klart",
+    "close": "Stäng",
+    "copy": "Kopiera",
+    "copied": "Kopierat",
+    "search": "Sök",
+    "filter": "Filtrera",
+    "all": "Alla",
+    "yes": "Ja",
+    "no": "Nej",
+    "required": "Obligatoriskt",
+    "optional": "Valfritt",
+    "error": "Något gick fel. Försök igen.",
+    "retry": "Försök igen",
+    "expiresIn": "Går ut om {time}",
+    "expired": "Har gått ut",
+    "language": "Språk",
+    "swedish": "Svenska",
+    "english": "English",
+    "perThousandViews": "per 1 000 visningar",
+    "perPost": "per inlägg",
+    "kr": "kr"
+  },
+  "nav": {
+    "campaigns": "Kampanjer",
+    "placements": "Mina placeringar",
+    "wallet": "Plånbok",
+    "accounts": "Konton",
+    "invite": "Bjud in",
+    "settings": "Inställningar",
+    "forBrands": "Är du ett brand?",
+    "signOut": "Logga ut"
+  },
+  "marketing": {
+    "eyebrow": "NOD · Stockholm beta",
+    "hero": {
+      "title": "Posta som vanligt. Tjäna på uppmärksamheten du redan har.",
+      "sub": "Brands betalar för att synas naturligt i dina bilder och stories. Du väljer brand, du väljer var, du godkänner allt. Sen postar du som vanligt och får betalt per visning.",
+      "ctaPrimary": "Ställ dig i kön",
+      "ctaSecondary": "Är du ett brand?",
+      "phoneCaption": "En vanlig bild. En liten nod. 42 kr."
+    },
+    "how": {
+      "title": "Så funkar det",
+      "step1Title": "Välj en kampanj.",
+      "step1Body": "Bläddra bland brands som betalar just nu. Ta bara de du gillar.",
+      "step2Title": "Placera brandet.",
+      "step2Body": "Ladda upp bilden du ändå skulle posta. Välj var produkten ska synas. Godkänn resultatet.",
+      "step3Title": "Posta och få betalt.",
+      "step3Body": "Posta till ditt eget konto med tydlig reklammärkning. Vi verifierar visningarna och betalar via Swish."
+    },
+    "estimator": {
+      "title": "Vad kan du tjäna?",
+      "platform": "Plattform",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "followers": "Följare",
+      "avgViews": "Snittvisningar per story eller reel",
+      "result": "Ungefär {low}–{high} kr per kampanj",
+      "note": "Faktisk ersättning sätts per kampanj.",
+      "examplesTitle": "Några exempel",
+      "exampleRow": "{views} visningar",
+      "aboutKr": "~{amount} kr"
+    },
+    "trust": {
+      "title": "Det här lovar vi",
+      "card1Title": "Du godkänner allt",
+      "card1Body": "Inget publiceras utan att du sett det. Generera om, flytta eller neka – gratis.",
+      "card2Title": "Alltid märkt som reklam",
+      "card2Body": "Varje inlägg har tydlig reklammärkning. Det är lagen, och det är så vi håller det ärligt.",
+      "card3Title": "Verifierat med BankID",
+      "card3Body": "En person, ett konto. Brands vet att varje deltagare är verklig. Inga bottar, inga fejkkonton."
+    },
+    "who": {
+      "title": "Vem kan vara med?",
+      "line": "Du behöver inte vara influencer. 300 följare räcker.",
+      "chips": {
+        "gym": "Gym",
+        "food": "Mat",
+        "study": "Plugg",
+        "travel": "Resor",
+        "fashion": "Outfit",
+        "gaming": "Gaming",
+        "nightlife": "Utekväll",
+        "hobby": "Hobby"
+      }
+    },
+    "faq": {
+      "title": "Vanliga frågor",
+      "q1": "Måste jag ha många följare?",
+      "a1": "Nej. Från cirka 300 följare eller 100 snittvisningar.",
+      "q2": "Vad händer med min bild?",
+      "a2": "Du laddar upp den, väljer var brandet ska synas och ser resultatet innan något publiceras. Du postar den själv. NOD postar aldrig åt dig.",
+      "q3": "Hur får jag betalt?",
+      "a3": "Swish, inom 48 timmar efter verifiering. Minsta utbetalning 100 kr.",
+      "q4": "Är det lagligt?",
+      "a4": "Ja. Varje inlägg är tydligt märkt som reklam, enligt marknadsföringslagen. Omärkta inlägg betalas inte.",
+      "q5": "Varför BankID?",
+      "a5": "För att säkerställa att varje deltagare är en verklig person över 18 år, och för att du ska kunna få betalt via Swish.",
+      "q6": "Kan jag använda flera konton?",
+      "a6": "Ja, så länge de är dina. Varje konto kvalificerar för sig.",
+      "q7": "Vad kostar det?",
+      "a7": "Ingenting. Aldrig."
+    },
+    "waitlist": {
+      "title": "Ställ dig i kön",
+      "sub": "Stockholm först. Vi hör av oss när vi öppnar för dig.",
+      "handle": "Instagram- eller TikTok-handle",
+      "handlePlaceholder": "@dittkonto",
+      "city": "Stad",
+      "ageBracket": "Ålder",
+      "followersBracket": "Följare",
+      "categories": "Vad postar du mest?",
+      "email": "E-post",
+      "referralCode": "Inbjudningskod",
+      "consent": "Jag godkänner att NOD sparar mina uppgifter för att kontakta mig om betan.",
+      "consentPrivacyLink": "Läs integritetspolicyn",
+      "submit": "Ställ dig i kön",
+      "submitting": "Skickar…",
+      "successTitle": "Du är med.",
+      "successBody": "Du är nummer {position} i kön. Vi hör av oss innan första kampanjen.",
+      "successReferral": "Bjud in en kompis så flyttas ni båda fram.",
+      "copyLink": "Kopiera din länk",
+      "shareStory": "Dela som story",
+      "cityOptions": {
+        "stockholm": "Stockholm",
+        "goteborg": "Göteborg",
+        "malmo": "Malmö",
+        "uppsala": "Uppsala",
+        "other": "Annan"
+      },
+      "followersOptions": {
+        "lt300": "Under 300",
+        "300-1k": "300–1 000",
+        "1k-5k": "1 000–5 000",
+        "5k-20k": "5 000–20 000",
+        "20k+": "Över 20 000"
+      },
+      "errors": {
+        "handle": "Ange din handle",
+        "city": "Välj stad",
+        "ageBracket": "Välj åldersgrupp",
+        "followersBracket": "Välj antal följare",
+        "email": "Ange en giltig e-postadress",
+        "categories": "Välj minst en kategori",
+        "consent": "Du måste godkänna för att gå med",
+        "duplicate": "Den här e-posten står redan i kön.",
+        "rateLimited": "För många försök. Vänta en stund."
+      }
+    },
+    "footer": {
+      "city": "Stockholm",
+      "privacy": "Integritetspolicy",
+      "terms": "Villkor",
+      "contact": "Kontakt",
+      "rights": "NOD"
+    }
+  },
+  "brands": {
+    "hero": {
+      "title": "Nå tusentals verkliga sociala nätverk med en kampanj.",
+      "sub": "NOD placerar din produkt naturligt i vardagsinlägg från riktiga, BankID-verifierade personer i din målgrupp. Märkt som reklam, kontextuellt, verifierat per visning. En dashboard. En effektiv CPM.",
+      "cta": "Boka ett samtal"
+    },
+    "stats": {
+      "illustrative": "Illustrativa siffror för Stockholm-betan",
+      "participants": "Deltagare i Stockholm-betan",
+      "placements": "Verifierade placeringar",
+      "cpm": "Effektiv CPM"
+    },
+    "how": {
+      "title": "Så funkar det för brands",
+      "step1": "Sätt budget, målgrupp och material",
+      "step2": "Vi matchar behöriga deltagare",
+      "step3": "De placerar och postar själva, märkt som reklam",
+      "step4": "Du ser kvalificerade visningar och betalar bara för dem"
+    },
+    "pricing": {
+      "title": "Pris",
+      "body": "Från 60 kr per 1 000 kvalificerade visningar, plus valfri fast ersättning per placering. Du sätter siffrorna över våra golv. Förskottsbetalning; outnyttjad budget återbetalas."
+    },
+    "enquiry": {
+      "title": "Hör av dig",
+      "company": "Företag",
+      "name": "Namn",
+      "email": "E-post",
+      "budgetBracket": "Budget",
+      "objective": "Mål",
+      "message": "Meddelande",
+      "submit": "Skicka",
+      "success": "Tack. Vi hör av oss inom två arbetsdagar.",
+      "budgetOptions": {
+        "10-25k": "10 000–25 000 kr",
+        "25-100k": "25 000–100 000 kr",
+        "100k+": "Över 100 000 kr"
+      }
+    }
+  },
+  "onboarding": {
+    "stepOf": "Steg {step} av {total}",
+    "signup": {
+      "title": "Skapa konto",
+      "sub": "Vi börjar i Stockholm.",
+      "phone": "Mobilnummer",
+      "sendCode": "Skicka kod",
+      "code": "Kod",
+      "verify": "Verifiera",
+      "orContinueWith": "Eller fortsätt med",
+      "city": "Stad",
+      "ageBracket": "Ålder",
+      "under18": "NOD är endast för dig som fyllt 18."
+    },
+    "connect": {
+      "title": "Koppla ditt Instagram",
+      "sub": "Vi läser bara offentlig profil, dina inlägg och statistik.",
+      "weRead": "Vad vi läser",
+      "weReadItems": "Profil och följarantal · Dina inlägg · Visningsstatistik",
+      "weNever": "Vad vi aldrig gör",
+      "weNeverItems": "Postar åt dig · Ändrar dina inlägg · Skickar meddelanden · Följer eller gillar",
+      "connect": "Koppla Instagram",
+      "connectTikTok": "Koppla TikTok",
+      "skip": "Hoppa över just nu"
+    },
+    "creator": {
+      "title": "Byt till Creator-konto",
+      "sub": "Med ett Creator-konto kan vi läsa dina visningar automatiskt. Det ger högre ersättning och snabbare utbetalning.",
+      "steps": "Instagram → Inställningar → Konto → Byt till proffskonto → Creator",
+      "done": "Klart, koppla om",
+      "skip": "Hoppa över – jag skickar skärmbilder"
+    },
+    "profile": {
+      "title": "Ser det här rätt ut?",
+      "followers": "Följare",
+      "avgViews": "Snittvisningar (30 dagar)",
+      "category": "Kategori",
+      "estimate": "Du skulle tjäna ungefär {amount} per kampanj",
+      "belowFloor": "Kontot ligger under gränsen just nu. Du kan fortsätta – vi kollar igen varje månad."
+    },
+    "terms": {
+      "title": "Villkor",
+      "accept": "Jag godkänner NODs villkor och integritetspolicy",
+      "quizTitle": "En snabb fråga",
+      "quizQuestion": "Vilket av dessa är korrekt reklammärkning?",
+      "quizOptionA": "Reklam – i samarbete med {brand}, först i bildtexten",
+      "quizOptionB": "#ad längst ner bland 20 andra hashtags",
+      "quizOptionC": "Ingen märkning, det syns ju att det är en produkt",
+      "quizWrong": "Inte riktigt. Märkningen ska stå först och vara tydlig.",
+      "quizRight": "Precis. Först i bildtexten, tydligt och på svenska."
+    },
+    "training": {
+      "title": "Hjälp oss bli bättre",
+      "consent": "Låt NOD använda anonymiserade versioner av mina placeringsval och bilder för att förbättra placeringsmotorn.",
+      "note": "Helt frivilligt. Påverkar inte din ersättning. Du kan ändra det när som helst i inställningar."
+    },
+    "payout": {
+      "title": "Hur vill du få betalt?",
+      "swish": "Swish-nummer",
+      "swishHint": "Samma nummer som ditt BankID.",
+      "invalid": "Ange ett svenskt mobilnummer, t.ex. 070-123 45 67"
+    },
+    "notifications": {
+      "title": "Missa inte nästa drop",
+      "sub": "Kampanjer släpps fredagar 18:00.",
+      "enable": "Slå på notiser",
+      "smsFallback": "Skicka SMS istället",
+      "skip": "Inte nu"
+    },
+    "done": {
+      "title": "Du är med.",
+      "sub": "Nästa drop: {date}.",
+      "invite": "Bjud in en kompis",
+      "browse": "Se kampanjer"
+    }
+  },
+  "verify": {
+    "title": "Verifiera med BankID",
+    "sub": "En person, ett konto. Det här gör vi en gång.",
+    "start": "Öppna BankID",
+    "qrHint": "Skanna med BankID-appen",
+    "waiting": "Väntar på BankID…",
+    "success": "Verifierad.",
+    "under18": "NOD är endast för dig som fyllt 18 år.",
+    "duplicate": "Den här personen har redan ett NOD-konto.",
+    "failed": "Verifieringen gick inte igenom. Försök igen."
+  },
+  "campaigns": {
+    "title": "Kampanjer",
+    "tabs": {
+      "forYou": "För dig",
+      "highestPaying": "Betalar mest",
+      "new": "Nya",
+      "endingSoon": "Slutar snart"
+    },
+    "youGet": "Du får ~{amount}",
+    "remaining": "{percent}% av budgeten kvar",
+    "endsIn": "Slutar om {time}",
+    "eligible": "Du kan söka",
+    "notEligible": "Inte behörig",
+    "reasons": {
+      "followers": "Kräver {min} följare",
+      "city": "Bara i {cities}",
+      "age": "Annan åldersgrupp",
+      "category": "Annan kategori",
+      "cap": "Du har redan max antal placeringar",
+      "budget": "Budgeten är slut",
+      "notVerified": "Verifiera med BankID för att låsa upp",
+      "accountTier": "Kontot behöver kopplas om",
+      "state": "Ditt konto kan inte söka just nu"
+    },
+    "empty": {
+      "title": "Inga kampanjer just nu",
+      "sub": "Nästa drop: {date}."
+    },
+    "detail": {
+      "products": "Produkter",
+      "rules": "Regler för placeringen",
+      "disclosure": "Reklammärkning du ska använda",
+      "payout": "Ersättning",
+      "period": "Period",
+      "contentTypes": "Innehållstyper",
+      "claim": "Ta kampanjen",
+      "claimWith": "Ta med",
+      "locked": "Verifiera med BankID för att låsa upp kampanjer"
+    }
+  },
+  "placement": {
+    "states": {
+      "CLAIMED": "Tagen",
+      "UPLOADED": "Uppladdad",
+      "POSITIONED": "Placerad",
+      "GENERATING": "Skapas",
+      "GENERATION_FAILED": "Misslyckades",
+      "PARTICIPANT_REVIEW": "Väntar på dig",
+      "BRAND_REVIEW": "Brandet granskar",
+      "APPROVED": "Redo att posta",
+      "PUBLISHED": "Publicerad",
+      "VERIFYING": "Verifieras",
+      "FLAGGED": "Granskas",
+      "QUALIFIED": "Godkänd",
+      "PAID": "Betald",
+      "REJECTED": "Nekad",
+      "EXPIRED": "Utgången",
+      "REJECTED_BY_PARTICIPANT": "Du nekade",
+      "REJECTED_BY_BRAND": "Brandet nekade",
+      "DISPUTED": "Bestrids"
+    },
+    "upload": {
+      "title": "Ladda upp bilden du ändå skulle posta",
+      "sub": "Bild eller video. Den blir inte publicerad förrän du godkänt.",
+      "choose": "Välj fil",
+      "checking": "Kollar bilden…",
+      "ok": "Ser bra ut.",
+      "errors": {
+        "format": "Filformatet stöds inte. Använd JPG, PNG eller MP4.",
+        "size": "Filen är för stor. Max 12 MB.",
+        "duplicate": "Den här bilden är redan använd i en placering.",
+        "brandSafety": "Bilden matchar inte kampanjens regler."
+      }
+    },
+    "position": {
+      "title": "Var ska brandet synas?",
+      "sub": "Välj ett förslag eller rita en egen ruta.",
+      "product": "Produkt",
+      "confirm": "Fortsätt",
+      "drawYourOwn": "Rita egen ruta"
+    },
+    "generating": {
+      "title": "Vi gör din bild",
+      "sub": "Klart inom {time}. Vi skickar en notis.",
+      "failed": "Något gick fel. Vi försöker igen."
+    },
+    "review": {
+      "title": "Godkänn din placering",
+      "before": "Före",
+      "after": "Efter",
+      "approve": "Godkänn",
+      "regenerate": "Generera om",
+      "regensLeft": "{count} kvar",
+      "move": "Flytta",
+      "swap": "Byt produkt",
+      "reject": "Neka",
+      "rejectReason": "Varför?",
+      "brandReviewing": "Brandet granskar – oftast under 24 timmar."
+    },
+    "approved": {
+      "title": "Redo att posta",
+      "download": "Ladda ner",
+      "disclosure": "Reklammärkning",
+      "disclosureHint": "Klistra in den här först i bildtexten.",
+      "checklist": "Innan du postar",
+      "check1": "Reklammärkning först i bildtexten",
+      "check2": "Betalt samarbete-etikett påslagen",
+      "check3": "Postat till {handle}",
+      "submitUrl": "Klistra in länken till inlägget",
+      "autoDetect": "Vi hittar det automatiskt – eller klistra in länken.",
+      "submit": "Skicka in",
+      "invalidUrl": "Det ser inte ut som en länk till {handle}."
+    },
+    "published": {
+      "title": "Live.",
+      "verifyingOn": "Vi verifierar {date}.",
+      "dontDelete": "Ta inte bort inlägget innan dess."
+    },
+    "result": {
+      "qualifiedTitle": "Godkänd",
+      "earned": "Du tjänade {amount}",
+      "views": "{views} kvalificerade visningar",
+      "shareCard": "Dela",
+      "rejectedTitle": "Nekad",
+      "fixWindow": "Du kan fixa det inom {time}.",
+      "fixDisclosure": "Lägg till reklammärkningen först i bildtexten och skicka in igen."
+    },
+    "rejectReasons": {
+      "NO_DISCLOSURE": "Ingen reklammärkning",
+      "MEDIA_MISMATCH": "Inlägget matchar inte det godkända",
+      "WRONG_ACCOUNT": "Fel konto",
+      "DELETED_EARLY": "Inlägget togs bort för tidigt",
+      "FRAUD": "Misstänkt aktivitet",
+      "BRAND_SAFETY": "Bryter mot kampanjens regler",
+      "OTHER": "Annat"
+    }
+  },
+  "placements": {
+    "title": "Mina placeringar",
+    "filters": { "active": "Pågående", "paid": "Betalda", "rejected": "Nekade" },
+    "empty": "Inga placeringar än."
+  },
+  "wallet": {
+    "title": "Plånbok",
+    "pending": "På väg",
+    "available": "Tillgängligt",
+    "paidOut": "Utbetalt",
+    "threshold": "Vi betalar ut automatiskt när du når {amount}, inom 48 timmar.",
+    "transactions": "Händelser",
+    "cards": "Dina kvitton",
+    "empty": "Inga händelser än."
+  },
+  "accounts": {
+    "title": "Konton",
+    "add": "Lägg till konto",
+    "reconnect": "Koppla om",
+    "tier": {
+      "CONNECTED_API": "Automatisk statistik",
+      "CONNECTED_SCREENSHOT": "Skärmbilder",
+      "BELOW_FLOOR": "Under gränsen",
+      "DISCONNECTED": "Frånkopplad"
+    },
+    "belowFloorHint": "Vi kollar igen varje månad.",
+    "disconnectedHint": "Koppla om för att fortsätta få kampanjer."
+  },
+  "invite": {
+    "title": "Bjud in",
+    "sub": "Du får {amount} när din kompis första placering godkänns.",
+    "yourLink": "Din länk",
+    "invited": "Inbjudna",
+    "verified": "Verifierade",
+    "firstPlacement": "Första placering"
+  },
+  "settings": {
+    "title": "Inställningar",
+    "language": "Språk",
+    "notifications": "Notiser",
+    "trainingConsent": "Träningsdata",
+    "payout": "Utbetalning",
+    "downloadData": "Ladda ner mina uppgifter",
+    "downloadDataHint": "Vi mejlar en fil inom 30 dagar.",
+    "deleteAccount": "Radera konto",
+    "deleteAccountHint": "30 dagars ångerfrist. Pågående placeringar slutförs.",
+    "deleteConfirm": "Radera mitt konto",
+    "deleteRequested": "Radering begärd. Du kan ångra dig inom 30 dagar."
+  },
+  "legal": {
+    "privacyTitle": "Integritetspolicy",
+    "termsTitle": "Villkor",
+    "draftNotice": "UTKAST – granskas av jurist före lansering.",
+    "lastUpdated": "Senast uppdaterad {date}"
+  },
+  "notify": {
+    "campaignLive": { "title": "Ny kampanj", "body": "{brand} betalar nu. Kolla in den." },
+    "claimExpiring": { "title": "12 timmar kvar", "body": "Din placering för {brand} går ut snart." },
+    "generated": { "title": "Din placering är klar", "body": "Granska den nu." },
+    "approvedPostNow": { "title": "Godkänd – posta nu", "body": "Glöm inte reklammärkningen." },
+    "qualified": { "title": "Du fick betalt", "body": "{amount} för {brand}." },
+    "rejected": { "title": "Placeringen nekades", "body": "{reason}" },
+    "payoutSent": { "title": "Utbetalning skickad", "body": "{amount} via Swish." }
+  },
+  "brandApp": {
+    "campaigns": "Kampanjer",
+    "newCampaign": "Ny kampanj",
+    "spent": "Spenderat",
+    "reserved": "Reserverat",
+    "available": "Tillgängligt",
+    "participants": "Deltagare",
+    "placements": "Placeringar",
+    "qualifiedViews": "Kvalificerade visningar",
+    "effectiveCpm": "Effektiv CPM",
+    "reviewQueue": "Att granska",
+    "approve": "Godkänn",
+    "reject": "Neka",
+    "report": "Rapport",
+    "dispute": "Bestrid"
+  },
+  "ops": {
+    "console": "Ops",
+    "campaignReview": "Kampanjgranskning",
+    "generation": "Generering",
+    "verification": "Verifiering",
+    "payouts": "Utbetalningar",
+    "participants": "Deltagare",
+    "brands": "Brands",
+    "flags": "Flaggor",
+    "audit": "Logg"
+  }
+}
