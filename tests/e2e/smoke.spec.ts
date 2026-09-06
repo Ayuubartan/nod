@@ -52,11 +52,13 @@ test.describe('landing page', () => {
 
   test('serves the legal drafts', async ({ page }) => {
     await page.goto('/privacy')
-    await expect(page.getByText(/UTKAST|DRAFT/)).toBeVisible()
+    // The draft notice appears twice by design: as the page banner and again inside the
+    // document body, so match the banner specifically.
+    await expect(page.getByText(/UTKAST|DRAFT/).first()).toBeVisible()
     await expect(page.getByRole('heading', { name: /Integritetspolicy|Privacy policy/ })).toBeVisible()
 
     await page.goto('/terms')
-    await expect(page.getByText(/UTKAST|DRAFT/)).toBeVisible()
+    await expect(page.getByText(/UTKAST|DRAFT/).first()).toBeVisible()
   })
 
   test('serves the brands page with an enquiry form', async ({ page }) => {
