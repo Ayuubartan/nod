@@ -37,7 +37,8 @@
     "invite": "Bjud in",
     "settings": "Inställningar",
     "forBrands": "Är du ett brand?",
-    "signOut": "Logga ut"
+    "signOut": "Logga ut",
+    "signIn": "Logga in"
   },
   "marketing": {
     "eyebrow": "NOD · Stockholm beta",
@@ -651,5 +652,34 @@
     "brands": "Brands",
     "flags": "Flaggor",
     "audit": "Logg"
+  },
+  "auth": {
+    "participantKicker": "Logga in",
+    "participantTitle": "Logga in eller skapa konto",
+    "participantHint": "Vi mejlar en sexsiffrig kod. Är du ny får du ett konto direkt efter koden — inget lösenord.",
+    "brandKicker": "För brands",
+    "brandTitle": "Logga in till ditt brandkonto",
+    "brandHint": "Brandkonton skapas av NOD. Använd adressen ditt konto är registrerat på, så mejlar vi en kod.",
+    "emailLabel": "E-post",
+    "sendCode": "Skicka kod",
+    "sending": "Skickar…",
+    "codeSent": "Vi har skickat en kod till {email}. Den gäller i tio minuter.",
+    "codeLabel": "Sexsiffrig kod",
+    "verify": "Logga in",
+    "checking": "Kontrollerar…",
+    "changeEmail": "Byt adress",
+    "resend": "Skicka ny kod",
+    "devCode": "Ingen mejlleverantör är konfigurerad, så koden visas här: {code}",
+    "switchToBrand": "Är du ett brand? Logga in här.",
+    "switchToParticipant": "Är du kreatör? Logga in här.",
+    "signOut": "Logga ut",
+    "errors": {
+      "invalidEmail": "Det där ser inte ut som en e-postadress.",
+      "rateLimited": "För många försök. Vänta en stund och försök igen.",
+      "noCode": "Det finns ingen giltig kod för den adressen. Be om en ny.",
+      "wrongCode": "Fel kod. Kontrollera mejlet och försök igen.",
+      "tooManyAttempts": "För många felaktiga försök. Be om en ny kod.",
+      "noBrandAccount": "Den adressen hör inte till något brandkonto. Kontakta hello@nod.se så hjälper vi dig."
+    }
   }
 }

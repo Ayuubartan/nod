@@ -37,7 +37,8 @@
     "invite": "Invite",
     "settings": "Settings",
     "forBrands": "Are you a brand?",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "signIn": "Sign in"
   },
   "marketing": {
     "eyebrow": "NOD · Stockholm beta",
@@ -651,5 +652,34 @@
     "brands": "Brands",
     "flags": "Flags",
     "audit": "Audit"
+  },
+  "auth": {
+    "participantKicker": "Sign in",
+    "participantTitle": "Sign in or create an account",
+    "participantHint": "We'll email you a six-digit code. New here? You get an account right after the code — no password.",
+    "brandKicker": "For brands",
+    "brandTitle": "Sign in to your brand account",
+    "brandHint": "Brand accounts are created by NOD. Use the address your account is registered with and we will email a code.",
+    "emailLabel": "Email",
+    "sendCode": "Send code",
+    "sending": "Sending…",
+    "codeSent": "We sent a code to {email}. It is valid for ten minutes.",
+    "codeLabel": "Six-digit code",
+    "verify": "Sign in",
+    "checking": "Checking…",
+    "changeEmail": "Change address",
+    "resend": "Send a new code",
+    "devCode": "No mail provider is configured, so the code is shown here: {code}",
+    "switchToBrand": "Are you a brand? Sign in here.",
+    "switchToParticipant": "Are you a creator? Sign in here.",
+    "signOut": "Sign out",
+    "errors": {
+      "invalidEmail": "That doesn't look like an email address.",
+      "rateLimited": "Too many attempts. Wait a moment and try again.",
+      "noCode": "There is no valid code for that address. Request a new one.",
+      "wrongCode": "Wrong code. Check the email and try again.",
+      "tooManyAttempts": "Too many wrong attempts. Request a new code.",
+      "noBrandAccount": "That address doesn't belong to a brand account. Contact hello@nod.se and we'll help."
+    }
   }
 }

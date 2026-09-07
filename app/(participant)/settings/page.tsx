@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server'
 import { requireParticipant } from '@/lib/auth'
 import { SettingsPanel } from '@/components/participant/SettingsPanel'
 import { tryDecrypt } from '@/lib/crypto'
+import { SignOutButton } from '@/components/SignOutButton'
 
 /** Settings — docs/02 A7, including the GDPR rights from docs/07 section 3. */
 export const dynamic = 'force-dynamic'
@@ -24,6 +25,9 @@ export default async function SettingsPage() {
         deletionRequestedAt={user.deletionRequestedAt?.toISOString() ?? null}
         locale={user.locale === 'en' ? 'en' : 'sv'}
       />
+      <div className="mt-8 text-center">
+        <SignOutButton className="underline" />
+      </div>
     </div>
   )
 }

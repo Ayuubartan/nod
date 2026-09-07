@@ -43,10 +43,13 @@ const TOTAL_STEPS = 9
  */
 export function OnboardingFlow({
   authId,
+  email,
   existing,
   nextDrop,
 }: {
-  authId: string | null
+  authId: string
+  /** The address the sign-in code was sent to; stored on the User for next time. */
+  email: string | null
   existing: Existing
   nextDrop: string
 }) {
@@ -83,7 +86,8 @@ export function OnboardingFlow({
     setPending(true)
     setError(null)
     const result = await createParticipant({
-      authId: authId ?? `dev-${Date.now()}`,
+      authId,
+      email,
       city,
       ageBracket,
       locale: 'sv',

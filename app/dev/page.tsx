@@ -7,9 +7,9 @@ import { PersonaSwitcher } from '@/components/DevPersonaSwitcher'
 /**
  * Development-only persona switcher.
  *
- * NOD has no password login — participants use phone OTP and brands use a magic link —
- * so walking the three surfaces locally otherwise means restarting the server with a
- * different env var. This page sets a dev cookie instead.
+ * The real sign-in is an emailed six-digit code (/sign-in, /brand/sign-in), which is a
+ * few clicks per persona. This page sets a dev cookie instead so the three surfaces can
+ * be walked with one click each.
  *
  * It 404s in production, and the cookie it sets is ignored there too (lib/auth.ts), so
  * there are two independent guards rather than one.

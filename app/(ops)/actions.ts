@@ -448,7 +448,8 @@ export async function opsCreateBrand(input: unknown): Promise<ActionResult<{ bra
     select: { id: true, name: true },
   })
 
-  // The authId is filled in when the invitee first signs in with the magic link.
+  // A stable placeholder auth id; the emailed sign-in code resolves the BrandUser by
+  // email and this id becomes their session (lib/login.ts resolveIdentity).
   await prisma.brandUser.create({
     data: {
       brandId: brand.id,

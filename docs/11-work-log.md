@@ -164,8 +164,43 @@ palette and copy: `docs/media/nod-intro.mp4`, 1920×1080, 30 fps, 78.6 s, narrat
 - `--frame <t> --png <file>` dumps a single frame, which is how the layout was checked
   (contact sheets of eight frames per half).
 
+### 6. Sign-in — `lib/login.ts`, `lib/session.ts`, `app/(auth)/`
+
+Until now there was no way in. The brand sign-in page was a static placeholder,
+onboarding minted a fake `dev-…` auth id, and nothing signed anyone out. Creators and
+brands now log in with an emailed six-digit code and get different surfaces:
+
+- `/sign-in` (creators) and `/brand/sign-in` (brand users) share `LoginForm`. The
+  audience decides the copy and what an unknown address means: a new creator gets an
+  auth id and goes to onboarding; an unknown brand address is refused, since brand
+  accounts are created by ops (docs/09 "not in scope": no self-serve brand signup).
+- `LoginCode` stores an HMAC of the code (keyed by `ENCRYPTION_KEY`), ten-minute
+  expiry, five attempts, superseded by a new request, consumed on success. Request and
+  verify are rate limited per address.
+- A verified code becomes `NOD_SESSION`, a signed cookie of NOD's own
+  (`lib/session.ts`). `currentAuthId()` reads it between the dev persona cookie and the
+  Supabase session, so nothing else in the app changed. `ops@nod.se` uses the creator
+  page and is routed to `/ops` by role.
+- Sign-out everywhere (own cookie, dev cookie, Supabase) from the brand header, ops
+  header and the participant settings page.
+- Without `RESEND_API_KEY` the code is shown on the page (dev only). `/dev` stays as
+  the one-click shortcut.
+
+Found while testing: `/brand/campaigns` and `/brand/settings` rendered for anonymous
+visitors. They used an optional `getSession()` and treated "no session" like "ops", so
+every brand's campaigns were listed to anyone who knew the URL. Both now go through
+`requireBrandScope()`, which redirects to the sign-in. Verified with curl that every
+app route bounces an anonymous request (`/brand/*`, `/campaigns`, `/placements`,
+`/wallet`, `/onboarding`, `/ops/*`).
+
+Tests: `tests/session.test.ts` (tamper, expiry, junk) and `tests/login.db.test.ts`
+(hashing, rate limit, supersede, existing/new creator, brand ok/refused, brand address
+never becomes a creator identity, attempt burn, replay, expiry, open-redirect guard).
+
 ### Still open
 
+- Social sign-in (Google/Apple via Supabase, docs/08) is still unwired; the email code
+  is the only live method. Both can coexist: `currentAuthId()` already reads either.
 - The compositor is a compositor: it does not relight, occlude or match perspective. The
   hosted inpaint engine (M5 task 1) sits above it for that and activates on credentials.
 - Swaps re-render synchronously in the brand's request. Fine at pilot scale (tens of

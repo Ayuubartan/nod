@@ -2,9 +2,10 @@
  * Auth and role guards — docs/08 "Security baseline": "Role check in every Server
  * Action (requireRole('BRAND', brandId))".
  *
- * Supabase Auth issues the session (phone OTP, Apple, Google for participants; email
- * magic link for brand users). NOD maps that auth id onto its own User / BrandUser row,
- * which is where role and state live.
+ * Sessions come from one of two places: NOD's own signed cookie, issued by the email
+ * code flow (lib/login.ts, lib/session.ts), or Supabase Auth when it is configured for
+ * social sign-in. Either way the result is an auth id, which NOD maps onto its own
+ * User / BrandUser row — that row is where role and state live.
  */
 
 import { cookies } from 'next/headers'
@@ -12,6 +13,7 @@ import { redirect } from 'next/navigation'
 import { createServerClient } from '@supabase/ssr'
 import type { Role, User, BrandUser } from '@prisma/client'
 import { prisma } from './db'
+import { clearSession, readSession } from './session'
 
 export class AuthError extends Error {
   readonly code: 'UNAUTHENTICATED' | 'FORBIDDEN'
@@ -59,9 +61,11 @@ export function devAuthAllowed(): boolean {
 /**
  * The signed-in auth id, or null.
  *
+ * Order: dev persona (never in production) → NOD session cookie → Supabase session.
+ *
  * Outside production, a `NOD_DEV_AUTH` cookie (set from /dev) or the `NOD_DEV_AUTH_ID`
- * env var stands in for a Supabase session, so the whole product is walkable locally
- * with no auth provider configured. Both are ignored in production — the guard is the
+ * env var stands in for a real sign-in, so the whole product is walkable locally
+ * with no provider configured. Both are ignored in production — the guard is the
  * first thing this function checks, so there is no path to them from a real deploy.
  */
 export async function currentAuthId(): Promise<string | null> {
@@ -71,6 +75,9 @@ export async function currentAuthId(): Promise<string | null> {
     if (fromCookie) return fromCookie
     if (process.env.NOD_DEV_AUTH_ID) return process.env.NOD_DEV_AUTH_ID
   }
+
+  const own = await readSession()
+  if (own) return own.authId
 
   try {
     const supabase = await supabaseServer()
@@ -106,7 +113,7 @@ export async function getSession(): Promise<Session> {
 /** Participant pages and actions. Redirects to sign-in when there is no session. */
 export async function requireParticipant(): Promise<User> {
   const session = await getSession()
-  if (!session) redirect('/onboarding')
+  if (!session) redirect('/sign-in')
   if (session.kind === 'brand') redirect('/brand/campaigns')
   return session.user
 }
@@ -143,8 +150,37 @@ export async function requireBrandUser(brandId?: string): Promise<BrandUser> {
 
 export async function requireOps(): Promise<User> {
   const session = await getSession()
-  if (!session || session.kind !== 'ops') redirect('/')
+  if (!session) redirect('/sign-in?next=/ops')
+  if (session.kind !== 'ops') redirect('/')
   return session.user
+}
+
+/**
+ * For brand index pages: the brand whose data to show, or null when ops is browsing
+ * and should see every brand. Unlike an optional getSession(), there is no way to reach
+ * "every brand" without a session — a visitor with none is sent to sign in.
+ */
+export async function requireBrandScope(): Promise<{ brandId: string | null }> {
+  const brandUser = await requireBrandUser()
+  return { brandId: brandUser.id.startsWith('ops:') ? null : brandUser.brandId }
+}
+
+/**
+ * Ends every kind of session at once. The dev persona cookie goes too, so signing out
+ * on a dev box behaves like signing out anywhere.
+ */
+export async function signOutEverywhere(): Promise<void> {
+  await clearSession()
+  if (devAuthAllowed()) {
+    const store = await cookies()
+    store.delete(DEV_AUTH_COOKIE)
+  }
+  try {
+    const supabase = await supabaseServer()
+    await supabase.auth.signOut()
+  } catch {
+    // Not configured, or no Supabase session — nothing to end there.
+  }
 }
 
 /** Generic guard used by Server Actions that are not tied to a route group. */

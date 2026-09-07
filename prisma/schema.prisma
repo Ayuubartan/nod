@@ -641,6 +641,27 @@ model Flag {
   updatedAt DateTime @updatedAt
 }
 
+/// One-time sign-in code (lib/login.ts). The code itself is never stored — only an HMAC of
+/// it — and a row is consumed on first success, so a code cannot be replayed.
+model LoginCode {
+  id         String        @id @default(cuid())
+  email      String
+  audience   LoginAudience
+  codeHash   String
+  attempts   Int           @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime      @default(now())
+  deletedAt  DateTime?
+
+  @@index([email, audience, createdAt])
+}
+
+enum LoginAudience {
+  PARTICIPANT
+  BRAND
+}
+
 model IdempotencyKey {
   key       String   @id
   scope     String

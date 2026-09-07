@@ -24,18 +24,21 @@ export function clearSentMail(): void {
   sentMail.length = 0
 }
 
-async function send(args: { to: string; subject: string; html: string; tag: string }): Promise<void> {
+/** Resolves to whether a provider actually carried the message. */
+async function send(args: { to: string; subject: string; html: string; tag: string }): Promise<{ sent: boolean }> {
   sentMail.push(args)
   if (!client) {
     if (process.env.NODE_ENV === 'development') {
       log.info('email (not sent: no provider key)', { tag: args.tag, subject: args.subject })
     }
-    return
+    return { sent: false }
   }
   try {
     await client.emails.send({ from, to: args.to, subject: args.subject, html: args.html })
+    return { sent: true }
   } catch (error) {
     log.error('email send failed', error, { tag: args.tag })
+    return { sent: false }
   }
 }
 
@@ -59,6 +62,34 @@ const button = (href: string, label: string) =>
   `<a href="${href}" style="display:inline-block;background:#F5A524;color:#14110F;font-weight:600;padding:12px 20px;border-radius:999px;text-decoration:none">${label}</a>`
 
 // ---------------------------------------------------------------- templates
+
+/** Sign-in code (lib/login.ts). Ten minutes, six digits, no link to click. */
+export async function loginCodeEmail(email: string, code: string, locale: Locale): Promise<{ sent: boolean }> {
+  const digits = `<p style="margin:16px 0 20px;font-size:32px;font-weight:800;letter-spacing:0.25em;font-family:Consolas,Menlo,monospace">${code}</p>`
+  const html =
+    locale === 'sv'
+      ? shell(
+          `<h1 style="font-size:22px;margin:0 0 12px">Din inloggningskod</h1>
+           <p style="margin:0;color:#5C554D">Skriv in koden i NOD. Den gäller i tio minuter.</p>
+           ${digits}
+           <p style="margin:0;color:#A39B91;font-size:13px">Har du inte försökt logga in kan du ignorera det här mejlet. Ingen kan logga in utan koden.</p>`,
+          locale,
+        )
+      : shell(
+          `<h1 style="font-size:22px;margin:0 0 12px">Your sign-in code</h1>
+           <p style="margin:0;color:#5C554D">Enter this code in NOD. It is valid for ten minutes.</p>
+           ${digits}
+           <p style="margin:0;color:#A39B91;font-size:13px">If you didn't try to sign in you can ignore this email. Nobody can sign in without the code.</p>`,
+          locale,
+        )
+
+  return send({
+    to: email,
+    subject: locale === 'sv' ? `${code} är din NOD-kod` : `${code} is your NOD code`,
+    html,
+    tag: 'login_code',
+  })
+}
 
 export async function sendWaitlistConfirmation(args: {
   email: string

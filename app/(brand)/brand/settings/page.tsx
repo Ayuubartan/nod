@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db'
-import { getSession, requireBrandUser } from '@/lib/auth'
+import { requireBrandScope } from '@/lib/auth'
 import { campaignBalances } from '@/lib/money/balances'
 import { formatOre } from '@/lib/money/calc'
 import { RolloverPreference } from '@/components/brand/RolloverPreference'
@@ -8,12 +8,11 @@ import { RolloverPreference } from '@/components/brand/RolloverPreference'
 export const dynamic = 'force-dynamic'
 
 export default async function BrandSettingsPage() {
-  const session = await getSession()
-  const brandId = session?.kind === 'brand' ? session.brandUser.brandId : undefined
+  const { brandId } = await requireBrandScope()
   if (!brandId) {
+    // Ops has no brand of its own to show settings for.
     return <p className="card p-8 text-center text-sm text-[var(--color-ink-3)]">No brand selected.</p>
   }
-  await requireBrandUser(brandId)
 
   const brand = await prisma.brand.findUniqueOrThrow({
     where: { id: brandId },

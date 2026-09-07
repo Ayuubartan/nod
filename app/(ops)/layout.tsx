@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { requireOps } from '@/lib/auth'
+import { SignOutButton } from '@/components/SignOutButton'
 
 /** Ops console — docs/02 section C: "Internal, plain, fast. Tables over charts." */
 export default async function OpsLayout({ children }: { children: React.ReactNode }) {
@@ -36,6 +37,7 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
               </Link>
             ))}
           </nav>
+          <SignOutButton className="ml-auto text-xs" />
         </div>
       </header>
       <main className="flex-1 wrap max-w-7xl py-6">{children}</main>

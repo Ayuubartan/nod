@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { LanguageToggle } from '@/components/LanguageToggle'
+import { SignOutButton } from '@/components/SignOutButton'
 
 /** Brand shell — blue accent, denser layout, numbers first (docs/10). */
 export default async function BrandLayout({ children }: { children: React.ReactNode }) {
@@ -23,7 +24,10 @@ export default async function BrandLayout({ children }: { children: React.ReactN
               </Link>
             </nav>
           </div>
-          <LanguageToggle />
+          <div className="flex items-center gap-4">
+            <SignOutButton />
+            <LanguageToggle />
+          </div>
         </div>
       </header>
       <main className="flex-1 wrap max-w-6xl py-8">{children}</main>

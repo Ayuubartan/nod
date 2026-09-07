@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { opsCreateBrand } from '@/app/(ops)/actions'
 
-/** Creates the Brand and invites its first admin by magic link (docs/02 section B). */
+/** Creates the Brand and emails its first admin a link to the brand sign-in (docs/02 section B). */
 export function CreateBrandForm() {
   const router = useRouter()
   const [pending, setPending] = useState(false)

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { prisma } from '@/lib/db'
-import { getSession, requireBrandUser } from '@/lib/auth'
+import { requireBrandScope } from '@/lib/auth'
 import { campaignBalances } from '@/lib/money/balances'
 import { formatOre } from '@/lib/money/calc'
 import { CampaignStateChip } from '@/components/brand/CampaignStateChip'
@@ -14,12 +14,10 @@ export const dynamic = 'force-dynamic'
 const ACTIVE = new Set(['LIVE', 'FILLING', 'EXHAUSTED', 'PAUSED', 'RECONCILING'])
 
 export default async function BrandCampaignsPage() {
-  const session = await getSession()
-  const t = await getTranslations('brandApp')
-
   // Ops browsing the brand surface sees every brand; a brand user sees only their own.
-  const brandId = session?.kind === 'brand' ? session.brandUser.brandId : undefined
-  if (brandId) await requireBrandUser(brandId)
+  // Nobody sees anything without a session.
+  const { brandId } = await requireBrandScope()
+  const t = await getTranslations('brandApp')
 
   const campaigns = await prisma.campaign.findMany({
     where: { deletedAt: null, ...(brandId ? { brandId } : {}) },

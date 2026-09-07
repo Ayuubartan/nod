@@ -88,11 +88,25 @@ not a deploy, and each has a working fallback until it does.
 | `NOD_MARKET=DK` | The broker asks for MitID instead of BankID. `SE`, `NO` and `FI` work the same way. |
 | Nothing | Fraud v1 turns itself on once a campaign has 20 decided placements. The fill model switches from an upper-bound heuristic to measured claim and completion rates the moment the first campaign closes, and tells the brand which one it used. |
 
+## Signing in
+
+There are no passwords. Creators sign in at `/sign-in` and brand users at
+`/brand/sign-in` with an emailed six-digit code (ten minutes, five guesses, one use).
+A creator address NOD has not seen before gets an account and lands in onboarding; a
+brand address must already belong to a BrandUser, because brand accounts are created by
+ops (`/ops/brands`), which mails the admin a link to the brand sign-in. `ops@nod.se`
+signs in through `/sign-in` and is sent to `/ops`.
+
+A verified code becomes a signed `NOD_SESSION` cookie (`lib/session.ts`), keyed from
+`ENCRYPTION_KEY`. With no `RESEND_API_KEY` set the code is shown on the sign-in page
+instead of mailed (never in production). Seeded addresses to try: `brand@example.se`,
+`anna_sthlm@example.se`, `ops@nod.se`.
+
 ## Seeing it locally
 
 `pnpm dev`, then open `/dev`. It lists every seeded participant, brand user and ops
-account with a button that signs you in as them — NOD has no password login, so this is
-the only practical way to walk the three surfaces. The page 404s in production and the
+account with a button that signs you in as them, which is quicker than the code flow
+when you are hopping between the three surfaces. The page 404s in production and the
 cookie it sets is ignored there.
 
 `pnpm db:reset` puts the demo data back. You will want it: exercising the product leaves

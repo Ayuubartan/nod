@@ -19,6 +19,9 @@ export default async function MarketingLayout({ children }: { children: React.Re
               <Link href="/brands" className="text-[var(--color-ink-2)] hover:text-[var(--color-ink)]">
                 {nav('forBrands')}
               </Link>
+              <Link href="/sign-in" className="text-[var(--color-ink-2)] hover:text-[var(--color-ink)]">
+                {nav('signIn')}
+              </Link>
               <LanguageToggle />
             </div>
           </div>
