@@ -82,6 +82,9 @@ the door behind yourself.
 Until the domain is verified you can send from Resend's shared `onboarding@resend.dev`
 address, but only to the email address on your Resend account — enough to test the
 sign-in code loop, not enough for a second user.
+Resend reports that refusal as an API error, which `lib/email.ts` treats as "not sent" —
+so with `NOD_DEMO_LOGIN_CODE=1` every other address still gets the code on the page.
+The demo deploy runs in exactly this mode until `nod.se` is verified.
 
 Every template lives in `lib/email.ts` in both languages; nothing else changes.
 

@@ -34,7 +34,14 @@ async function send(args: { to: string; subject: string; html: string; tag: stri
     return { sent: false }
   }
   try {
-    await client.emails.send({ from, to: args.to, subject: args.subject, html: args.html })
+    // The SDK reports API refusals (unverified domain, test-mode recipient) as a
+    // returned error, not a throw. Treating those as sent would hide the sign-in code
+    // from a demo user who is never going to get the mail.
+    const { error } = await client.emails.send({ from, to: args.to, subject: args.subject, html: args.html })
+    if (error) {
+      log.error('email send refused', new Error(error.message), { tag: args.tag, name: error.name })
+      return { sent: false }
+    }
     return { sent: true }
   } catch (error) {
     log.error('email send failed', error, { tag: args.tag })
