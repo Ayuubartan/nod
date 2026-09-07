@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 import { prisma } from '@/lib/db'
+import { log } from '@/lib/logger'
 import { stripe } from '@/lib/integrations/stripe'
 import { alreadyPosted } from '@/lib/money/ledger'
 import { fund } from '@/lib/state/campaign'
@@ -30,9 +31,7 @@ export async function POST(request: Request): Promise<Response> {
   try {
     event = stripe().webhooks.constructEvent(body, signature, secret)
   } catch (error) {
-    console.error(
-      JSON.stringify({ level: 'error', msg: 'stripe signature verification failed', error: String(error) }),
-    )
+    log.error('stripe signature verification failed', error)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
@@ -66,7 +65,7 @@ export async function POST(request: Request): Promise<Response> {
 
       case 'charge.refunded':
       case 'payment_intent.payment_failed': {
-        console.info(JSON.stringify({ level: 'info', msg: 'stripe event', type: event.type, id: event.id }))
+        log.info('stripe event', { type: event.type, eventId: event.id })
         break
       }
 
@@ -74,7 +73,7 @@ export async function POST(request: Request): Promise<Response> {
         break
     }
   } catch (error) {
-    console.error(JSON.stringify({ level: 'error', msg: 'stripe webhook handler failed', error: String(error) }))
+    log.error('stripe webhook handler failed', error, { type: event.type, eventId: event.id })
     // 500 makes Stripe retry, which is what we want for a transient database failure.
     return NextResponse.json({ error: 'Handler failed' }, { status: 500 })
   }

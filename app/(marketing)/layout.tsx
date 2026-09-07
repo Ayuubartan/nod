@@ -37,6 +37,8 @@ export default async function MarketingLayout({ children }: { children: React.Re
               <a href="mailto:hello@nod.se">hello@nod.se</a>
               <Link href="/privacy">{t('footer.privacy')}</Link>
               <Link href="/terms">{t('footer.terms')}</Link>
+              <Link href="/cookies">{t('footer.cookies')}</Link>
+              <Link href="/brand-agreement">{t('footer.brandAgreement')}</Link>
               <Link href="/brands">{t('hero.ctaSecondary')}</Link>
               <LanguageToggle />
             </nav>

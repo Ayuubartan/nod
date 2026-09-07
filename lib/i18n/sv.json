@@ -161,7 +161,9 @@
       "privacy": "Integritetspolicy",
       "terms": "Villkor",
       "contact": "Kontakt",
-      "rights": "NOD"
+      "rights": "NOD",
+      "cookies": "Cookies",
+      "brandAgreement": "Brandvillkor"
     }
   },
   "brands": {
@@ -430,7 +432,11 @@
   },
   "placements": {
     "title": "Mina placeringar",
-    "filters": { "active": "Pågående", "paid": "Betalda", "rejected": "Nekade" },
+    "filters": {
+      "active": "Pågående",
+      "paid": "Betalda",
+      "rejected": "Nekade"
+    },
     "empty": "Inga placeringar än."
   },
   "wallet": {
@@ -484,13 +490,34 @@
     "lastUpdated": "Senast uppdaterad {date}"
   },
   "notify": {
-    "campaignLive": { "title": "Ny kampanj", "body": "{brand} betalar nu. Kolla in den." },
-    "claimExpiring": { "title": "12 timmar kvar", "body": "Din placering för {brand} går ut snart." },
-    "generated": { "title": "Din placering är klar", "body": "Granska den nu." },
-    "approvedPostNow": { "title": "Godkänd – posta nu", "body": "Glöm inte reklammärkningen." },
-    "qualified": { "title": "Du fick betalt", "body": "{amount} för {brand}." },
-    "rejected": { "title": "Placeringen nekades", "body": "{reason}" },
-    "payoutSent": { "title": "Utbetalning skickad", "body": "{amount} via Swish." }
+    "campaignLive": {
+      "title": "Ny kampanj",
+      "body": "{brand} betalar nu. Kolla in den."
+    },
+    "claimExpiring": {
+      "title": "12 timmar kvar",
+      "body": "Din placering för {brand} går ut snart."
+    },
+    "generated": {
+      "title": "Din placering är klar",
+      "body": "Granska den nu."
+    },
+    "approvedPostNow": {
+      "title": "Godkänd – posta nu",
+      "body": "Glöm inte reklammärkningen."
+    },
+    "qualified": {
+      "title": "Du fick betalt",
+      "body": "{amount} för {brand}."
+    },
+    "rejected": {
+      "title": "Placeringen nekades",
+      "body": "{reason}"
+    },
+    "payoutSent": {
+      "title": "Utbetalning skickad",
+      "body": "{amount} via Swish."
+    }
   },
   "brandApp": {
     "campaigns": "Kampanjer",

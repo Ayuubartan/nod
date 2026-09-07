@@ -91,6 +91,20 @@ ENCRYPTION_KEY   # for swishNumber, tokens (AES-GCM, key from env, never in DB)
 - Encrypt at rest: tokens, Swish number
 - No secrets to the client; no BankID data in logs; Sentry scrubbing configured before first deploy
 
+### Status (2026-09-07)
+
+| Item | Where |
+|---|---|
+| RLS | `prisma/migrations/20260907120000_rls/` — 51 policies. `Identity` deliberately has **none**, so only the service role can read the BankID hash; `LedgerEntry` has no UPDATE or DELETE policy for any role, making append-only a database guarantee rather than only an application rule |
+| Role checks | `lib/auth.ts`; every Server Action begins with `requireParticipant` / `requireBrandUser(brandId)` / `requireOps` |
+| Webhook signatures | `app/api/webhooks/stripe` (Stripe SDK), `app/api/webhooks/meta` (HMAC-SHA256, `timingSafeEqual`). Idempotency by `LedgerEntry.externalRef`, which is unique |
+| Rate limits | `lib/rate-limit.ts` on waitlist, brand enquiry, sign-up, BankID start, claim and upload |
+| Encryption at rest | `lib/crypto.ts`, AES-256-GCM |
+| Scrubbing | `lib/scrub.ts`, used by both `lib/logger.ts` and `sentry.shared.ts`. Redacts by key **and** by value scan, so a personnummer inside a free-text error is caught too. Tested in `tests/scrub.test.ts` |
+
+Session replay is deliberately disabled: participants upload personal photos and the ops
+console shows verification screenshots.
+
 ## CI (GitHub Actions)
 
 `pnpm install → prisma generate → typecheck → lint → vitest → playwright smoke (against preview)`. Block merge on red. Migrations run on deploy via Vercel build step.
@@ -98,3 +112,8 @@ ENCRYPTION_KEY   # for swishNumber, tokens (AES-GCM, key from env, never in DB)
 ## Observability
 
 Structured JSON logs with `requestId`, `userId`, `placementId`. RED metrics on Server Actions via PostHog + Sentry performance. Ops Slack channel gets: fill thresholds, fraud queue size, failed payouts, failed webhooks.
+
+Implemented in `lib/logger.ts`: context travels in `AsyncLocalStorage`, so a function
+deep in a call stack does not thread a `requestId` through every signature. `measured()`
+wraps an action and logs rate, errors and duration. Every line goes through the scrubber
+before it is written — that is the reason this exists rather than bare `console.log`.

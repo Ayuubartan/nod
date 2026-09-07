@@ -161,7 +161,9 @@
       "privacy": "Privacy",
       "terms": "Terms",
       "contact": "Contact",
-      "rights": "NOD"
+      "rights": "NOD",
+      "cookies": "Cookies",
+      "brandAgreement": "Brand agreement"
     }
   },
   "brands": {
@@ -430,7 +432,11 @@
   },
   "placements": {
     "title": "My placements",
-    "filters": { "active": "Active", "paid": "Paid", "rejected": "Rejected" },
+    "filters": {
+      "active": "Active",
+      "paid": "Paid",
+      "rejected": "Rejected"
+    },
     "empty": "No placements yet."
   },
   "wallet": {
@@ -484,13 +490,34 @@
     "lastUpdated": "Last updated {date}"
   },
   "notify": {
-    "campaignLive": { "title": "New campaign", "body": "{brand} is paying now. Take a look." },
-    "claimExpiring": { "title": "12 hours left", "body": "Your placement for {brand} expires soon." },
-    "generated": { "title": "Your placement is ready", "body": "Review it now." },
-    "approvedPostNow": { "title": "Approved — post now", "body": "Don't forget the disclosure." },
-    "qualified": { "title": "You got paid", "body": "{amount} for {brand}." },
-    "rejected": { "title": "Placement rejected", "body": "{reason}" },
-    "payoutSent": { "title": "Payout sent", "body": "{amount} via Swish." }
+    "campaignLive": {
+      "title": "New campaign",
+      "body": "{brand} is paying now. Take a look."
+    },
+    "claimExpiring": {
+      "title": "12 hours left",
+      "body": "Your placement for {brand} expires soon."
+    },
+    "generated": {
+      "title": "Your placement is ready",
+      "body": "Review it now."
+    },
+    "approvedPostNow": {
+      "title": "Approved — post now",
+      "body": "Don't forget the disclosure."
+    },
+    "qualified": {
+      "title": "You got paid",
+      "body": "{amount} for {brand}."
+    },
+    "rejected": {
+      "title": "Placement rejected",
+      "body": "{reason}"
+    },
+    "payoutSent": {
+      "title": "Payout sent",
+      "body": "{amount} via Swish."
+    }
   },
   "brandApp": {
     "campaigns": "Campaigns",

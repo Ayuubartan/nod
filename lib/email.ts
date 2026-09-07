@@ -7,6 +7,7 @@
  */
 
 import { Resend } from 'resend'
+import { log } from './logger'
 import type { Locale } from './i18n/config'
 import { formatKrDown } from './money/calc'
 
@@ -27,14 +28,14 @@ async function send(args: { to: string; subject: string; html: string; tag: stri
   sentMail.push(args)
   if (!client) {
     if (process.env.NODE_ENV === 'development') {
-      console.info(`[email:${args.tag}] -> ${args.to}: ${args.subject}`)
+      log.info('email (not sent: no provider key)', { tag: args.tag, subject: args.subject })
     }
     return
   }
   try {
     await client.emails.send({ from, to: args.to, subject: args.subject, html: args.html })
   } catch (error) {
-    console.error(JSON.stringify({ level: 'error', msg: 'email send failed', tag: args.tag, error: String(error) }))
+    log.error('email send failed', error, { tag: args.tag })
   }
 }
 

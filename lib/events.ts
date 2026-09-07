@@ -8,6 +8,7 @@
  */
 
 import { Inngest, EventSchemas } from 'inngest'
+import { log } from './logger'
 
 export type NodEventName =
   // campaign
@@ -101,7 +102,7 @@ export async function emit(event: NodEvent): Promise<void> {
   } catch (error) {
     // A committed transition must not be undone by a telemetry failure. The sweep job
     // picks up anything whose deadline passed without its event arriving.
-    console.error(JSON.stringify({ level: 'error', msg: 'inngest emit failed', event: event.name, error: String(error) }))
+    log.error('inngest emit failed', error, { event: event.name })
   }
 }
 

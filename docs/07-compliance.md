@@ -60,9 +60,23 @@ Compliance is a product feature: disclosed, consented, verified placements are w
 
 ## 7. Documents to produce (drafts live in `legal/` in the repo)
 
-- Participant terms (sv/en)
-- Brand agreement (campaign terms, prepayment, refund, dispute window, disclosure obligation, pause rights)
-- Privacy policy (sv/en) with processor list
-- Training-data consent text
-- Cookie notice (minimal: PostHog, no ad pixels)
-- Internal: data-retention schedule, incident response one-pager, DPIA draft
+All drafted as of 2026-09-07. Every one is marked DRAFT and awaits the lawyer's review.
+
+| Document | File | Served at |
+|---|---|---|
+| Participant terms (sv/en) | `legal/terms.{sv,en}.md` | `/terms` |
+| Brand agreement | `legal/brand-agreement.en.md` | `/brand-agreement` |
+| Privacy policy (sv/en) with processor list | `legal/privacy.{sv,en}.md` | `/privacy` |
+| Training-data consent text | `legal/training-consent.md` | in-product, onboarding step 6 |
+| Cookie notice (sv/en) | `legal/cookies.{sv,en}.md` | `/cookies` |
+| Data-retention schedule (internal) | `legal/internal-retention-schedule.md` | — |
+| Incident response one-pager (internal) | `legal/internal-incident-response.md` | — |
+| DPIA draft (internal) | `legal/internal-dpia.md` | — |
+
+The brand agreement is English only: the brand dashboard and every commercial
+conversation run in English, and a half-translated contract is worse than one language
+done properly. The internal three are not served; they are for the lawyer, the
+accountant, and whoever is on call.
+
+Each internal document ends with its open **[LAWYER]** questions rather than papering
+over them.

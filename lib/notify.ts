@@ -20,6 +20,11 @@
 
 import webpush from 'web-push'
 import { prisma } from './db'
+import { log } from './logger'
+import { flag } from './flags'
+import { tryDecrypt } from './crypto'
+import { normaliseSwishNumber } from './integrations/swish'
+import { sendSms, type SmsKind } from './integrations/sms'
 import { formatKrDown } from './money/calc'
 import type { Locale } from './i18n/config'
 import sv from './i18n/sv.json'
@@ -65,30 +70,56 @@ export function clearSentPushes(): void {
   sentPushes.length = 0
 }
 
+/**
+ * Web push, with an SMS fallback for the three notifications docs/06 section 7 allows.
+ *
+ * `smsKind` is what opts a notification into the fallback. Passing it does not mean an
+ * SMS is sent: one goes only when push is genuinely unavailable for that participant,
+ * the flag is on, and they opted in. Nobody is billed twice for one notification.
+ */
 export async function push(
   userId: string,
-  args: { title: string; body: string; url?: string },
+  args: { title: string; body: string; url?: string; smsKind?: SmsKind },
 ): Promise<void> {
-  sentPushes.push({ userId, ...args })
+  const { smsKind, ...payload } = args
+  sentPushes.push({ userId, ...payload })
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { pushSubscription: true },
+    select: { pushSubscription: true, smsOptIn: true, swishNumber: true },
   })
-  if (!user?.pushSubscription || !configureVapid()) return
 
-  try {
-    await webpush.sendNotification(
-      user.pushSubscription as unknown as webpush.PushSubscription,
-      JSON.stringify(args),
-    )
-  } catch (error) {
-    // A revoked subscription is normal: drop it rather than retrying forever.
-    const status = (error as { statusCode?: number }).statusCode
-    if (status === 404 || status === 410) {
-      await prisma.user.update({ where: { id: userId }, data: { pushSubscription: undefined } })
+  const pushDelivered = await (async (): Promise<boolean> => {
+    if (!user?.pushSubscription || !configureVapid()) return false
+    try {
+      await webpush.sendNotification(
+        user.pushSubscription as unknown as webpush.PushSubscription,
+        JSON.stringify(payload),
+      )
+      return true
+    } catch (error) {
+      // A revoked subscription is normal: drop it rather than retrying forever, and let
+      // the SMS fallback cover this one.
+      const status = (error as { statusCode?: number }).statusCode
+      if (status === 404 || status === 410) {
+        await prisma.user.update({ where: { id: userId }, data: { pushSubscription: undefined } })
+      }
+      return false
     }
-  }
+  })()
+
+  if (pushDelivered || !smsKind || !user?.smsOptIn) return
+
+  // Costs money, so it is flag-gated (docs/06 section 7).
+  if (!(await flag('notify.smsFallbackEnabled'))) return
+
+  // The participant's mobile number is the Swish number they gave for payouts; there is
+  // no second phone field, and asking for one twice would be worse.
+  const number = tryDecrypt(user.swishNumber)
+  const normalised = number ? normaliseSwishNumber(number) : null
+  if (!normalised) return
+
+  await sendSms(smsKind, normalised, `${payload.title}: ${payload.body}`)
 }
 
 async function localeOf(userId: string): Promise<Locale> {
@@ -111,6 +142,7 @@ export async function notifyCampaignLive(campaignId: string, userIds: string[]):
       title: t(locale, 'notify.campaignLive.title'),
       body: t(locale, 'notify.campaignLive.body', { brand: campaign.brand.name }),
       url: `/campaigns/${campaignId}`,
+      smsKind: 'campaignLive',
     })
   }
 }
@@ -125,6 +157,7 @@ export async function notifyClaimExpiring(placementId: string): Promise<void> {
     title: t(locale, 'notify.claimExpiring.title'),
     body: t(locale, 'notify.claimExpiring.body', { brand: placement.campaign.brand.name }),
     url: `/placements/${placementId}`,
+    smsKind: 'claimExpiring',
   })
 }
 
@@ -151,6 +184,7 @@ export async function notifyApprovedPostNow(placementId: string): Promise<void> 
     title: t(locale, 'notify.approvedPostNow.title'),
     body: t(locale, 'notify.approvedPostNow.body'),
     url: `/placements/${placementId}/post`,
+    smsKind: 'approvedPostNow',
   })
 }
 
@@ -191,7 +225,7 @@ export async function notifyRejected(placementId: string, reason: string): Promi
     body: t(locale, 'notify.rejected.body', { reason: reasonText }),
     url: `/placements/${placementId}`,
   })
-  console.info(JSON.stringify({ level: 'info', msg: 'placement rejected', placementId, reason }))
+  log.info('placement rejected', { placementId, reason })
 }
 
 export async function notifyPayoutSent(userId: string, amountOre: number): Promise<void> {
@@ -267,7 +301,7 @@ export async function notifyOps(text: string, context: Record<string, unknown> =
 
   const url = process.env.SLACK_OPS_WEBHOOK_URL
   if (!url) {
-    console.info(JSON.stringify({ level: 'info', msg: 'ops alert', text, ...context }))
+    log.info('ops alert', { text, ...context })
     return
   }
 
@@ -278,6 +312,6 @@ export async function notifyOps(text: string, context: Record<string, unknown> =
       body: JSON.stringify({ text: `NOD · ${text}` }),
     })
   } catch (error) {
-    console.error(JSON.stringify({ level: 'error', msg: 'slack alert failed', error: String(error) }))
+    log.error('slack alert failed', error)
   }
 }

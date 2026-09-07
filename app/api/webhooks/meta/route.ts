@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createHmac, timingSafeEqual } from 'node:crypto'
+import { log } from '@/lib/logger'
 
 /**
  * Meta webhook — docs/06 section 1.
@@ -42,7 +43,7 @@ export async function POST(request: Request): Promise<Response> {
     for (const change of entry.changes ?? []) {
       // A revoked authorisation is handled by the daily token-refresh job, which marks
       // the account DISCONNECTED on the next failed refresh.
-      console.info(JSON.stringify({ level: 'info', msg: 'meta webhook', field: change.field }))
+      log.info('meta webhook', { field: change.field })
     }
   }
 

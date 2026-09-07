@@ -12,6 +12,7 @@
 
 import type { PlacementEngine, Region, RenderResult } from './types'
 import { heuristicRegions } from '@/lib/regions'
+import { log } from '@/lib/logger'
 
 // Re-exported for server callers; lib/regions.ts is the client-safe home for it.
 export { heuristicRegions }
@@ -78,15 +79,10 @@ export class FallbackEngine implements PlacementEngine {
     try {
       return await this.primary.render(args)
     } catch (error) {
-      console.error(
-        JSON.stringify({
-          level: 'error',
-          msg: 'placement engine failed, falling back to the ops queue',
-          engine: this.primary.name,
-          placementId: args.placementId,
-          error: String(error),
-        }),
-      )
+      log.error('placement engine failed, falling back to the ops queue', error, {
+        engine: this.primary.name,
+        placementId: args.placementId,
+      })
       return this.fallback.render(args)
     }
   }
