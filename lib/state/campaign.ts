@@ -111,7 +111,7 @@ export async function submit(campaignId: string, actor: ActorRef): Promise<Campa
           disclosureText: true,
           endsAt: true,
           payoutTemplate: true,
-          assets: { select: { id: true } },
+          assets: { where: { deletedAt: null }, select: { id: true } },
         },
       })
       if (c.budget <= 0) throw new GuardError('NO_BUDGET', 'Set a budget before submitting')

@@ -237,7 +237,7 @@ export default async function BrandCampaignPage({ params }: { params: Promise<{ 
                       {placement.verification?.disclosureOk ? '✓' : placement.verification ? '✗' : '—'}
                     </td>
                     <td className="px-3 py-2">
-                      <StateChip state={placement.state} />
+                      <StateChip state={placement.state} perspective="brand" />
                     </td>
                     <td className="px-3 py-2">
                       {placement.postUrl ? (

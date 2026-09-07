@@ -115,12 +115,32 @@ anything waiting on me.*
 
 `pnpm typecheck && pnpm lint && pnpm test` — 279 tests green.
 
+### Follow-ups found in the browser walkthrough
+
+- A brand session landing on a participant route (`/placements`) redirected to
+  `/campaigns`, which is also a participant route: an infinite 307 loop. `requireRole`
+  now sends brand sessions to `/brand/campaigns`.
+- Retired assets leaked into two places that read `campaign.assets` without a
+  `deletedAt` filter: the participant's campaign page (the product chips) and the
+  campaign submit guard (a campaign whose only asset was retired could still be
+  submitted). Both now filter. The ops generation queue deliberately keeps all assets —
+  a placement that got stuck may reference one that has since been retired.
+- `StateChip` gained a `perspective` prop. The brand's placement table showed
+  "Väntar på dig" on PARTICIPANT_REVIEW, which is the participant's wording. From the
+  brand side the participant's steps are neutral "in progress" (`Deltagaren granskar`)
+  and BRAND_REVIEW is the amber "waiting on you". Keys live under
+  `placement.brandStates` (sv/en) and only cover the states whose wording depends on
+  who is reading.
+
 ### Walkthrough (what the screenshots show)
 
 1. `/dev` → sign in as Anna (`seed-p1`) → open the placement in participant review — the
    composite the seed rendered, with before/after and the regenerate controls.
-2. Claim a new placement → upload `.storage/demo/kitchen.jpg` → drag the product onto the
-   table → confirm → the rendered version appears on the same screen.
+2. As Jonas: claim on the live campaign → upload `.storage/demo/kitchen.jpg` → the
+   position step shows the photo with the (winter) bag previewed inside a draggable region
+   and three dashed suggestions → tap the counter suggestion → Fortsätt → the composite
+   (brightness-matched, soft shadow, sitting on the plate) is in review on the same
+   request, with the before/after slider and "Generera om · 3 kvar".
 3. `/dev` → brand user → `/brand/campaigns` (index) → the live campaign (overview with
    funnel and fill) → **Creative** tab → replace "Kaffepåse 500g" with "Kaffepåse — vinter"
    → in-flight placements re-render in the winter palette.

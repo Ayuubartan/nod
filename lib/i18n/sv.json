@@ -354,6 +354,13 @@
       "REJECTED_BY_BRAND": "Brandet nekade",
       "DISPUTED": "Bestrids"
     },
+    "brandStates": {
+      "PARTICIPANT_REVIEW": "Deltagaren granskar",
+      "BRAND_REVIEW": "Väntar på dig",
+      "APPROVED": "Godkänd, väntar på inlägg",
+      "REJECTED_BY_PARTICIPANT": "Deltagaren nekade",
+      "REJECTED_BY_BRAND": "Du nekade"
+    },
     "upload": {
       "title": "Ladda upp bilden du ändå skulle posta",
       "sub": "Bild eller video. Den blir inte publicerad förrän du godkänt.",

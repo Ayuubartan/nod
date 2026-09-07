@@ -107,7 +107,7 @@ export async function getSession(): Promise<Session> {
 export async function requireParticipant(): Promise<User> {
   const session = await getSession()
   if (!session) redirect('/onboarding')
-  if (session.kind === 'brand') redirect('/campaigns')
+  if (session.kind === 'brand') redirect('/brand/campaigns')
   return session.user
 }
 

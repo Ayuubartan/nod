@@ -354,6 +354,13 @@
       "REJECTED_BY_BRAND": "Brand rejected",
       "DISPUTED": "Disputed"
     },
+    "brandStates": {
+      "PARTICIPANT_REVIEW": "Participant reviewing",
+      "BRAND_REVIEW": "Waiting for you",
+      "APPROVED": "Approved, awaiting post",
+      "REJECTED_BY_PARTICIPANT": "Participant rejected",
+      "REJECTED_BY_BRAND": "You rejected"
+    },
     "upload": {
       "title": "Upload the photo you were going to post anyway",
       "sub": "Photo or video. Nothing is published until you approve it.",

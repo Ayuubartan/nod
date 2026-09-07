@@ -20,7 +20,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
 
   const campaign = await prisma.campaign.findFirst({
     where: { id, deletedAt: null, state: { in: ['LIVE', 'FILLING'] } },
-    include: { payoutTemplate: true, assets: true, brand: { select: { name: true } } },
+    include: { payoutTemplate: true, assets: { where: { deletedAt: null }, orderBy: { createdAt: 'asc' } }, brand: { select: { name: true } } },
   })
   if (!campaign) notFound()
 
