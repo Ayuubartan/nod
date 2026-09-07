@@ -541,6 +541,7 @@
     "reserved": "Reserverat",
     "available": "Tillgängligt",
     "participants": "Deltagare",
+    "signups": "Anmälningar",
     "placements": "Placeringar",
     "qualifiedViews": "Kvalificerade visningar",
     "effectiveCpm": "Effektiv CPM",
@@ -651,6 +652,7 @@
     "verification": "Verifiering",
     "payouts": "Utbetalningar",
     "participants": "Deltagare",
+    "signups": "Anmälningar",
     "brands": "Varumärken",
     "flags": "Flaggor",
     "audit": "Logg"

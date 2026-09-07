@@ -215,6 +215,9 @@ the Marketplace, migrations in the build command, production database seeded.
   `sv.json`, the privacy policy and docs/01. The `/brands` and sign-in pages had
   hardcoded English titles; they use `generateMetadata` with translations like the
   legal pages.
+- Waitlist entries and brand enquiries were stored but visible nowhere in the console.
+  `/ops/signups` lists them with account creations, newest first, and the ops home
+  shows the last seven days of each — the numbers that matter before launch.
 
 ### Still open
 

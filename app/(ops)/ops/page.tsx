@@ -11,7 +11,8 @@ export const dynamic = 'force-dynamic'
 export default async function OpsHomePage() {
   await requireOps()
 
-  const [submitted, generating, verifying, flagged, disputes, payable, revenue] = await Promise.all([
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  const [submitted, generating, verifying, flagged, disputes, payable, revenue, waitlist, accounts, enquiries] = await Promise.all([
     prisma.campaign.count({ where: { state: 'SUBMITTED', deletedAt: null } }),
     prisma.placement.count({ where: { state: { in: ['GENERATING', 'GENERATION_FAILED'] }, deletedAt: null } }),
     prisma.placement.count({ where: { state: 'VERIFYING', deletedAt: null } }),
@@ -19,7 +20,17 @@ export default async function OpsHomePage() {
     prisma.dispute.count({ where: { state: 'OPEN' } }),
     payableWallets(),
     nodRevenueOre(prisma),
+    prisma.waitlistEntry.count({ where: { deletedAt: null, createdAt: { gte: since } } }),
+    prisma.user.count({ where: { role: 'PARTICIPANT', deletedAt: null, createdAt: { gte: since } } }),
+    prisma.brandEnquiry.count({ where: { deletedAt: null, createdAt: { gte: since } } }),
   ])
+
+  // Not queues — nothing to action — but the first thing to look at before launch.
+  const growth = [
+    { label: 'Waitlist, last 7 days', value: waitlist },
+    { label: 'New accounts, last 7 days', value: accounts },
+    { label: 'Brand enquiries, last 7 days', value: enquiries },
+  ]
 
   const queues = [
     { label: 'Campaigns to review', value: submitted, href: '/ops/campaigns' },
@@ -45,6 +56,17 @@ export default async function OpsHomePage() {
               >
                 {queue.value}
               </p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <ul className="grid gap-3 sm:grid-cols-3 mb-8">
+        {growth.map((item) => (
+          <li key={item.label}>
+            <Link href="/ops/signups" className="card p-4 block">
+              <p className="text-xs text-[var(--color-ink-2)] mb-1">{item.label}</p>
+              <p className="amount text-3xl font-bold">{item.value}</p>
             </Link>
           </li>
         ))}
