@@ -227,7 +227,10 @@ export const generationRetry = inngest.createFunction(
 
     await step.sleep('backoff', 5 * 60 * 1000)
     await step.run('retry', () => retryGeneration(placementId))
-    return { retried: attempts }
+    // Re-entering GENERATING is not a render. Ask the engine again; a second failure
+    // comes back through this same function with attempts + 1.
+    const outcome = await step.run('render', () => import('@/lib/render').then((m) => m.renderPlacement(placementId)))
+    return { retried: attempts, outcome }
   },
 )
 

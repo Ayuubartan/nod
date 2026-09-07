@@ -5,6 +5,7 @@ loadEnv()
 // Forces the fake provider implementations and a deterministic environment so money and
 // state tests never touch a network or a real clock.
 process.env.NOD_FAKE_PROVIDERS = '1'
+process.env.NOD_ENGINE = 'fake'
 process.env.TZ = 'Europe/Stockholm'
 process.env.BANKID_SUBJECT_SALT ??= 'test-salt-long-enough-to-pass'
 process.env.ENCRYPTION_KEY ??= Buffer.alloc(32, 7).toString('base64')

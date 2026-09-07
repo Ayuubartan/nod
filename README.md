@@ -29,6 +29,11 @@ Every external provider has a fake that activates when its key is absent, so the
 onboarding, BankID, claiming, generation, verification, payouts — is walkable with no third-party
 credentials at all. `NOD_FAKE_PROVIDERS=1` forces them everywhere.
 
+Placement itself is real from the first run: the local compositor (`lib/integrations/composite.ts`)
+renders the product into the participant's photo in-process, so there is no queue to wait on.
+The seed writes demo photos to `.storage/demo/` you can upload as a participant, and
+`docs/11-work-log.md` has a walkthrough.
+
 To act as a signed-in user in development without Supabase, set `NOD_DEV_AUTH_ID` to a seeded
 `User.authId` (`seed-p1`, `seed-p2`, … or `seed-ops` for the ops console).
 

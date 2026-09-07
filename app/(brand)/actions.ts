@@ -304,6 +304,56 @@ export async function uploadCampaignAsset(formData: FormData): Promise<ActionRes
   return { ok: true }
 }
 
+/**
+ * Creative swap — the distribution layer at work. Retires one asset in favour of
+ * another and re-renders every placement no participant has approved yet
+ * (lib/creative.ts). Approved images never change under a participant.
+ */
+export async function replaceCampaignAsset(input: unknown): Promise<ActionResult<{ reRendered: number; deferred: number }>> {
+  const parsed = z
+    .object({ campaignId: z.string().min(1), fromAssetId: z.string().min(1), toAssetId: z.string().min(1) })
+    .safeParse(input)
+  if (!parsed.success) return fail('invalid')
+
+  const brandUser = await requireBrandUser(await brandIdOf(parsed.data.campaignId))
+
+  const { replaceCreative, CreativeError } = await import('@/lib/creative')
+  try {
+    const result = await replaceCreative({ ...parsed.data, actor: { kind: 'BRAND', id: brandUser.id } })
+    revalidatePath(`/brand/campaigns/${parsed.data.campaignId}/assets`)
+    revalidatePath(`/brand/campaigns/${parsed.data.campaignId}`)
+    return { ok: true, data: { reRendered: result.reRendered, deferred: result.deferred } }
+  } catch (error) {
+    return fail(error instanceof CreativeError ? error.code : 'failed')
+  }
+}
+
+/** Retire an asset nothing depends on. With in-flight placements, use replace instead. */
+export async function retireCampaignAsset(campaignId: string, assetId: string): Promise<ActionResult> {
+  const brandUser = await requireBrandUser(await brandIdOf(campaignId))
+
+  const asset = await prisma.campaignAsset.findFirst({ where: { id: assetId, campaignId, deletedAt: null } })
+  if (!asset) return fail('notFound')
+
+  const { SWAPPABLE_STATES } = await import('@/lib/creative')
+  const inFlight = await prisma.placement.count({
+    where: { campaignId, assetId, deletedAt: null, state: { in: [...SWAPPABLE_STATES] } },
+  })
+  if (inFlight > 0) return fail('inFlight')
+
+  const remaining = await prisma.campaignAsset.count({ where: { campaignId, deletedAt: null, id: { not: assetId } } })
+  if (remaining === 0) return fail('lastAsset')
+
+  const { auditAction } = await import('@/lib/state/transition')
+  await prisma.$transaction(async (tx) => {
+    await tx.campaignAsset.update({ where: { id: assetId }, data: { deletedAt: new Date() } })
+    await auditAction(tx, 'CampaignAsset', assetId, 'RETIRE', { kind: 'BRAND', id: brandUser.id })
+  })
+
+  revalidatePath(`/brand/campaigns/${campaignId}/assets`)
+  return { ok: true }
+}
+
 // ---------------------------------------------------------------- review queue
 
 export async function approvePlacementAsBrand(placementId: string): Promise<ActionResult> {

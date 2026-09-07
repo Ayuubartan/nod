@@ -7,7 +7,7 @@ import { actorFor, getSession, requireParticipant, requireRole } from '@/lib/aut
 import { encrypt, referralCode } from '@/lib/crypto'
 import { normaliseSwishNumber } from '@/lib/integrations/swish'
 import { socialProvider } from '@/lib/integrations/instagram'
-import { placementEngine } from '@/lib/integrations/engine'
+import { generate, type RenderOutcome } from '@/lib/render'
 import { flag as readFlag } from '@/lib/flags'
 import { rateLimit } from '@/lib/rate-limit'
 import { brandSafetyCheck } from '@/lib/media'
@@ -21,7 +21,6 @@ import {
   position,
   publish,
   regenerate,
-  startGeneration,
   upload,
 } from '@/lib/state/placement'
 import { emit } from '@/lib/events'
@@ -258,7 +257,7 @@ export async function submitUpload(input: unknown): Promise<ActionResult> {
 }
 
 /** P-03 position, then P-04 kick off generation. */
-export async function submitPosition(input: unknown): Promise<ActionResult> {
+export async function submitPosition(input: unknown): Promise<ActionResult<{ outcome: RenderOutcome }>> {
   const user = await requireParticipant()
 
   const parsed = z
@@ -278,34 +277,26 @@ export async function submitPosition(input: unknown): Promise<ActionResult> {
 
   const placement = await prisma.placement.findUniqueOrThrow({
     where: { id: parsed.data.placementId },
-    select: { userId: true, originalPath: true },
+    select: { userId: true, campaignId: true },
   })
   if (placement.userId !== user.id) return fail('forbidden')
 
+  const asset = await prisma.campaignAsset.findFirst({
+    where: { id: parsed.data.assetId, deletedAt: null },
+    select: { campaignId: true },
+  })
+  if (!asset || asset.campaignId !== placement.campaignId) return fail('invalid')
+
   const actor = { kind: 'PARTICIPANT' as const, id: user.id }
   await position(parsed.data.placementId, parsed.data, actor)
-  await startGeneration(parsed.data.placementId)
 
-  // The pilot engine defers to the ops queue; a real engine returns a version here.
-  const engine = placementEngine()
-  const result = await engine.render({
-    placementId: parsed.data.placementId,
-    imagePath: placement.originalPath ?? '',
-    region: parsed.data.region,
-    assetPath: parsed.data.assetId,
-  })
-
-  if (!result.deferred) {
-    const { generationDone } = await import('@/lib/state/placement')
-    await generationDone(parsed.data.placementId, {
-      storagePath: result.resultPath,
-      engine: result.engine,
-      params: result.params,
-    })
-  }
+  // Renders in-process: the compositor answers in well under a second, so the
+  // participant sees their placement on the next paint. A hosted model or the ops
+  // queue leaves it GENERATING and the page says so.
+  const outcome = await generate(parsed.data.placementId, actor)
 
   revalidatePath(`/placements/${parsed.data.placementId}`)
-  return { ok: true }
+  return { ok: true, data: { outcome } }
 }
 
 export async function approvePlacement(placementId: string): Promise<ActionResult> {
@@ -336,13 +327,16 @@ export async function regeneratePlacement(input: unknown): Promise<ActionResult>
 
   if (!(await ownsPlacement(user.id, parsed.data.placementId))) return fail('forbidden')
 
+  const actor = { kind: 'PARTICIPANT' as const, id: user.id }
   try {
-    await regenerate(parsed.data.placementId, parsed.data, { kind: 'PARTICIPANT', id: user.id })
+    await regenerate(parsed.data.placementId, parsed.data, actor)
   } catch {
     return fail('regenLimit')
   }
 
-  await startGeneration(parsed.data.placementId)
+  // A regeneration is a real render, not just a state change — MOVE and SWAP carry the
+  // new region or asset, and the participant expects a new image, not the old one.
+  await generate(parsed.data.placementId, actor)
   revalidatePath(`/placements/${parsed.data.placementId}`)
   return { ok: true }
 }

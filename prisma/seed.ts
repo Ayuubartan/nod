@@ -9,6 +9,8 @@
  * Idempotent: safe to run repeatedly against the same database.
  */
 
+import { mkdir, writeFile } from 'node:fs/promises'
+import { dirname, join } from 'node:path'
 import { PrismaClient } from '@prisma/client'
 import { loadEnv } from '../lib/env'
 
@@ -16,6 +18,7 @@ loadEnv()
 import { encrypt, hashSubject, referralCode } from '../lib/crypto'
 import { DEFAULTS, sek } from '../lib/money/rates'
 import { FLAG_DEFAULTS } from '../lib/flags'
+import { BAG_PALETTES, demoDesk, demoKitchen, productBag, productLogo } from '../lib/demo-art'
 
 const prisma = new PrismaClient()
 
@@ -177,7 +180,112 @@ async function main() {
   })
 
   console.info('  campaigns: 3')
+
+  // ---- demo photos a participant can upload in the walkthrough
+  await writeLocal('demo/kitchen.jpg', await demoKitchen())
+  await writeLocal('demo/desk.jpg', await demoDesk())
+  console.info('  demo photos: .storage/demo/kitchen.jpg, .storage/demo/desk.jpg')
+
+  await seedPlacements()
   console.info('Seed complete.')
+}
+
+/** Local storage mirror of lib/storage.ts's fallback — the seed must not import server-only code. */
+async function writeLocal(path: string, body: Buffer): Promise<void> {
+  const file = join(process.cwd(), '.storage', path)
+  await mkdir(dirname(file), { recursive: true })
+  await writeFile(file, body)
+}
+
+/**
+ * A few placements on the live campaign, driven through the real state machine so the
+ * ledger, audit log and events are all consistent: one waiting on the participant, one
+ * waiting on the brand, one published, one qualified and paid.
+ *
+ * Needs the engine + storage modules, which are marked server-only; run the seed with
+ * `--conditions=react-server` (package.json does) so that import is a no-op.
+ */
+async function seedPlacements(): Promise<void> {
+  const existing = await prisma.placement.count({ where: { campaignId: 'seed-campaign-live' } })
+  if (existing > 0) return
+
+  let render: typeof import('../lib/render')
+  let placementState: typeof import('../lib/state/placement')
+  let verification: typeof import('../lib/state/verification')
+  try {
+    ;[render, placementState, verification] = await Promise.all([
+      import('../lib/render'),
+      import('../lib/state/placement'),
+      import('../lib/state/verification'),
+    ])
+  } catch (error) {
+    console.warn('  placements: skipped (run with --conditions=react-server to seed them)', error)
+    return
+  }
+
+  const { claim, upload, position, participantApprove, brandApprove, publish, holdEnded, markPaid } = placementState
+  const photo = await demoKitchen()
+  const asset = await prisma.campaignAsset.findUniqueOrThrow({ where: { id: 'seed-asset-bag-seed-campaign-live' } })
+  const brandUser = await prisma.brandUser.findUniqueOrThrow({ where: { authId: 'seed-brand-user' } })
+  const brandActor = { kind: 'BRAND' as const, id: brandUser.id }
+
+  const regions = [
+    { x: 0.08, y: 0.62, w: 0.4, h: 0.3, label: 'lower-third' },
+    { x: 0.58, y: 0.24, w: 0.34, h: 0.34, label: 'right-third' },
+    { x: 0.34, y: 0.36, w: 0.32, h: 0.28, label: 'centre' },
+    { x: 0.55, y: 0.6, w: 0.36, h: 0.32, label: 'custom' },
+  ]
+
+  const plan = [
+    { authId: 'seed-p1', until: 'PARTICIPANT_REVIEW' },
+    { authId: 'seed-p3', until: 'BRAND_REVIEW' },
+    { authId: 'seed-p2', until: 'PUBLISHED' },
+    { authId: 'seed-p1', until: 'PAID' },
+  ] as const
+
+  let made = 0
+  for (const [index, step] of plan.entries()) {
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { authId: step.authId },
+      include: { accounts: { take: 1 } },
+    })
+    const account = user.accounts[0]
+    if (!account) continue
+    const actor = { kind: 'PARTICIPANT' as const, id: user.id }
+
+    const { id } = await claim({ campaignId: 'seed-campaign-live', userId: user.id, socialAccountId: account.id, contentType: 'post' })
+
+    const originalPath = `originals/${id}.jpg`
+    await writeLocal(originalPath, photo)
+    await upload({ placementId: id, storagePath: originalPath, perceptualHash: `seed${index}`.padEnd(16, '0'), contentType: 'post' }, actor)
+    await position(id, { region: regions[index]!, assetId: asset.id, candidates: regions.slice(0, 3) }, actor)
+    const outcome = await render.generate(id, actor)
+    made += 1
+    if (outcome !== 'rendered' || step.until === 'PARTICIPANT_REVIEW') continue
+
+    await participantApprove(id, actor, { sampleRoll: 0 })
+    if (step.until === 'BRAND_REVIEW') continue
+
+    await brandApprove(id, brandActor)
+    const postUrl = `https://www.instagram.com/p/seed${index}/`
+    await publish(id, { postUrl }, actor, new Date(Date.now() - 4 * 24 * 60 * 60 * 1000))
+    if (step.until === 'PUBLISHED') continue
+
+    await holdEnded(id)
+    await verification.verify({
+      placementId: id,
+      observedPlatformUserId: account.platformUserId,
+      caption: 'Morgonkaffe. Reklam – i samarbete med Kaffeklubben',
+      hasPaidPartnershipLabel: true,
+      publishedHash: null,
+      views: 3_200,
+      viewsSource: 'api',
+      engagements: 210,
+      geoMatch: 0.92,
+    })
+    await markPaid(id)
+  }
+  console.info(`  placements: ${made}`)
 }
 
 function nextFriday(): Date {
@@ -239,23 +347,20 @@ async function seedCampaign(args: {
     update: {},
   })
 
-  const assetCount = await prisma.campaignAsset.count({ where: { campaignId: campaign.id } })
-  if (assetCount === 0) {
-    await prisma.campaignAsset.createMany({
-      data: [
-        {
-          campaignId: campaign.id,
-          name: 'Kaffepåse 500g',
-          storagePath: `seed/assets/${campaign.id}/bag.png`,
-          placementTypes: ['product', 'packaging'],
-        },
-        {
-          campaignId: campaign.id,
-          name: 'Logotyp',
-          storagePath: `seed/assets/${campaign.id}/logo.png`,
-          placementTypes: ['logo'],
-        },
-      ],
+  // Real files under .storage/ so the position step, the composite engine and the brand
+  // dashboard all have something to show. Ids are deterministic so re-seeding is a no-op.
+  const assets = [
+    { id: `seed-asset-bag-${args.id}`, name: 'Kaffepåse 500g', types: ['product', 'packaging'], art: () => productBag(BAG_PALETTES.autumn) },
+    { id: `seed-asset-winter-${args.id}`, name: 'Kaffepåse — vinter', types: ['product', 'packaging'], art: () => productBag(BAG_PALETTES.winter) },
+    { id: `seed-asset-logo-${args.id}`, name: 'Logotyp', types: ['logo'], art: () => productLogo() },
+  ]
+  for (const asset of assets) {
+    const storagePath = `assets/${args.id}/${asset.id}.png`
+    await writeLocal(storagePath, await asset.art())
+    await prisma.campaignAsset.upsert({
+      where: { id: asset.id },
+      create: { id: asset.id, campaignId: campaign.id, name: asset.name, storagePath, placementTypes: asset.types },
+      update: { storagePath, deletedAt: null },
     })
   }
 

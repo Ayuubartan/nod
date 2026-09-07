@@ -2,9 +2,9 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { opsFailGeneration, opsUploadGeneratedVersion } from '@/app/(ops)/actions'
+import { opsFailGeneration, opsRunEngine, opsUploadGeneratedVersion } from '@/app/(ops)/actions'
 
-/** Upload the composited result, or mark the job failed so it retries. */
+/** Run the engine, upload a hand-made result, or mark the job failed so it retries. */
 export function GenerationCard({ placementId }: { placementId: string }) {
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -45,9 +45,25 @@ export function GenerationCard({ placementId }: { placementId: string }) {
         type="button"
         className="btn btn-primary text-sm w-full"
         disabled={pending}
+        onClick={async () => {
+          setPending(true)
+          setError(null)
+          const result = await opsRunEngine(placementId)
+          setPending(false)
+          if (result.ok) router.refresh()
+          else setError(result.error)
+        }}
+      >
+        {pending ? 'Working…' : 'Run engine'}
+      </button>
+
+      <button
+        type="button"
+        className="btn btn-secondary text-sm w-full"
+        disabled={pending}
         onClick={() => inputRef.current?.click()}
       >
-        {pending ? 'Uploading…' : 'Upload result'}
+        Upload result by hand
       </button>
 
       {failing ? (

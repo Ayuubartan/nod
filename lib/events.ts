@@ -87,6 +87,13 @@ export const inngest = new Inngest({
 
 const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true'
 
+/**
+ * Without an event key there is nowhere to send events: every send would be a slow 401
+ * against the cloud API, and the seed/scripts/server actions would each pay ~2s for it.
+ * Set INNGEST_DEV=1 (with the Inngest dev server running) to deliver events locally.
+ */
+const hasSink = Boolean(process.env.INNGEST_EVENT_KEY) || process.env.INNGEST_DEV === '1'
+
 /** Events captured in tests instead of being sent. */
 export const capturedEvents: NodEvent[] = []
 
@@ -95,6 +102,7 @@ export async function emit(event: NodEvent): Promise<void> {
     capturedEvents.push(event)
     return
   }
+  if (!hasSink) return
   try {
     // The union of event names is wider than a single send() overload; the schema map
     // guarantees every member has the same `data` shape, so the cast is safe here.

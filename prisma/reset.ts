@@ -41,7 +41,7 @@ async function main() {
 
   // Re-seed in a child process so the seed script owns its own client lifecycle.
   const { execFileSync } = await import('node:child_process')
-  execFileSync('pnpm', ['tsx', 'prisma/seed.ts'], { stdio: 'inherit', shell: true })
+  execFileSync('pnpm', ['tsx', '--conditions=react-server', 'prisma/seed.ts'], { stdio: 'inherit', shell: true })
 }
 
 main().catch((error) => {

@@ -2,9 +2,10 @@
  * Placement engine — docs/06 section 6.
  *
  * Implementations, in the order the build plan introduces them:
- *   1. OpsQueueEngine   (M2) — heuristic candidates, human renders. This is the pilot.
- *   2. HostedInpaintEngine (M5) — a hosted image-editing API behind the same interface.
- *   3. ParallelEngine   (later) — the in-house engine.
+ *   1. OpsQueueEngine      (M2) — heuristic candidates, human renders. This was the pilot.
+ *   2. LocalCompositeEngine     — in-process compositor, the default now (./composite.ts).
+ *   3. HostedInpaintEngine (M5) — a hosted image-editing API behind the same interface.
+ *   4. ParallelEngine   (later) — the in-house engine.
  *
  * Every render writes a PlacementVersion and every participant action on it writes a
  * PlacementEvent. That stream, filtered to trainingConsent, is what trains Parallel.
@@ -108,28 +109,60 @@ export class FakeEngine implements PlacementEngine {
 
 let cached: PlacementEngine | null = null
 
+export type EngineMode = 'auto' | 'hosted' | 'local' | 'ops' | 'fake'
+
 /**
- * Engine selection, in the order docs/06 section 6 lists the implementations:
- *   fake (tests) -> hosted inpaint when configured, behind a fallback -> ops queue.
+ * `NOD_ENGINE` picks the chain explicitly; unset means the best available. Unlike the
+ * other integrations this does not follow NOD_FAKE_PROVIDERS: the local compositor has no
+ * third party behind it, so dev gets real renders. Tests set NOD_ENGINE=fake themselves.
+ */
+export function engineMode(): EngineMode {
+  const raw = process.env.NOD_ENGINE
+  if (raw === 'hosted' || raw === 'local' || raw === 'ops' || raw === 'fake') return raw
+  return 'auto'
+}
+
+/**
+ * Engine selection. The chain, top to bottom, is what docs/06 section 6 describes plus
+ * the local compositor that makes placement direct for everyone:
+ *
+ *   hosted inpaint (when INPAINT_PROVIDER + INPAINT_API_KEY are set)
+ *     -> local composite (always available: sharp, in-process, free)
+ *       -> ops queue (a human renders; never fails)
+ *
+ * Every layer is wrapped in FallbackEngine, so a provider outage degrades one step
+ * rather than stranding the participant in GENERATING.
  */
 export function placementEngine(): PlacementEngine {
   if (cached) return cached
 
-  if (process.env.NOD_FAKE_PROVIDERS === '1') {
+  const mode = engineMode()
+
+  if (mode === 'fake') {
     cached = new FakeEngine()
     return cached
   }
 
-  if (process.env.INPAINT_API_KEY && process.env.INPAINT_PROVIDER) {
-    // Required lazily so sharp and the storage client stay out of deployments that have
-    // not enabled the hosted engine.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { HostedInpaintEngine } = require('./inpaint') as typeof import('./inpaint')
-    cached = new FallbackEngine(new HostedInpaintEngine())
+  if (mode === 'ops') {
+    cached = new OpsQueueEngine()
     return cached
   }
 
-  cached = new OpsQueueEngine()
+  // Required lazily so sharp and the storage client stay out of bundles that never
+  // render (the client-safe region helpers live in lib/regions.ts for that reason).
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { LocalCompositeEngine } = require('./composite') as typeof import('./composite')
+  const local = new FallbackEngine(new LocalCompositeEngine())
+
+  const hostedConfigured = Boolean(process.env.INPAINT_API_KEY && process.env.INPAINT_PROVIDER)
+  if (mode === 'hosted' || (mode === 'auto' && hostedConfigured)) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { HostedInpaintEngine } = require('./inpaint') as typeof import('./inpaint')
+    cached = new FallbackEngine(new HostedInpaintEngine(), local)
+    return cached
+  }
+
+  cached = local
   return cached
 }
 

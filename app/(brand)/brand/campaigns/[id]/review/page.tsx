@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db'
 import { requireBrandUser } from '@/lib/auth'
 import { Countdown } from '@/components/Countdown'
 import { BrandReviewCard } from '@/components/brand/BrandReviewCard'
+import { CampaignTabs } from '@/components/brand/CampaignTabs'
 
 /** Tier B review queue — docs/02 B2. Anything unreviewed auto-approves at 24h. */
 export const dynamic = 'force-dynamic'
@@ -14,7 +15,7 @@ export default async function BrandReviewPage({ params }: { params: Promise<{ id
 
   const campaign = await prisma.campaign.findUnique({
     where: { id },
-    select: { id: true, brandId: true, name: true },
+    select: { id: true, brandId: true, name: true, state: true },
   })
   if (!campaign) notFound()
 
@@ -31,8 +32,14 @@ export default async function BrandReviewPage({ params }: { params: Promise<{ id
 
   return (
     <div>
-      <h1 className="text-2xl mb-1">{t('reviewQueue')}</h1>
-      <p className="text-sm text-[var(--color-ink-2)] mb-6">{campaign.name}</p>
+      <p className="text-sm text-[var(--color-ink-2)]">{campaign.name}</p>
+      <h1 className="text-2xl mb-4">{t('reviewQueue')}</h1>
+      <CampaignTabs
+        campaignId={campaign.id}
+        active="review"
+        reviewCount={queue.length}
+        showReport={campaign.state === 'RECONCILING' || campaign.state === 'CLOSED'}
+      />
 
       {queue.length === 0 ? (
         <p className="card p-8 text-center text-sm text-[var(--color-ink-3)]">—</p>

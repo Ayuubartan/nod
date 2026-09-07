@@ -50,6 +50,9 @@ export const FLAG_DEFAULTS = {
   'notify.smsFallbackEnabled': false,
   'notify.slackEnabled': true,
 
+  // placement engine — off sends every render to the ops queue (the M2 pilot mode)
+  'engine.autoRender': true,
+
   // brand safety — prohibited regardless of what the brand asks for (docs/07 section 6)
   'safety.prohibitedCategories': [
     'gambling',
@@ -62,7 +65,9 @@ export const FLAG_DEFAULTS = {
 
 export type FlagKey = keyof typeof FLAG_DEFAULTS
 
-type FlagValue<K extends FlagKey> = (typeof FLAG_DEFAULTS)[K]
+/** Literal defaults widened to their primitive: a flag whose default is `false` can still be set to `true`. */
+type Widen<T> = T extends boolean ? boolean : T extends number ? number : T extends string ? string : T
+type FlagValue<K extends FlagKey> = Widen<(typeof FLAG_DEFAULTS)[K]>
 
 let cache: Map<string, unknown> | null = null
 let cachedAt = 0
@@ -84,7 +89,7 @@ export function invalidateFlagCache(): void {
 
 /** Read one flag. Falls back to the compile-time default on any miss or type mismatch. */
 export async function flag<K extends FlagKey>(key: K): Promise<FlagValue<K>> {
-  const fallback = FLAG_DEFAULTS[key]
+  const fallback = FLAG_DEFAULTS[key] as FlagValue<K>
   try {
     const flags = await load()
     if (!flags.has(key)) return fallback

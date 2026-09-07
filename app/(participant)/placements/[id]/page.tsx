@@ -7,6 +7,7 @@ import { Countdown } from '@/components/Countdown'
 import { UploadStep } from '@/components/participant/UploadStep'
 import { PositionStep } from '@/components/participant/PositionStep'
 import { ReviewStep } from '@/components/participant/ReviewStep'
+import { GeneratingPoll } from '@/components/participant/GeneratingPoll'
 import { PostStep } from '@/components/participant/PostStep'
 import { formatKrDown } from '@/lib/money/calc'
 import { LIMITS } from '@/lib/money/rates'
@@ -68,14 +69,20 @@ export default async function PlacementPage({ params }: { params: Promise<{ id: 
       {placement.state === 'UPLOADED' && (
         <PositionStep
           placementId={placement.id}
-          assets={placement.campaign.assets.map((a) => ({ id: a.id, name: a.name }))}
+          originalPath={placement.originalPath}
+          assets={placement.campaign.assets
+            .filter((a) => !a.deletedAt)
+            .map((a) => ({ id: a.id, name: a.name, storagePath: a.storagePath }))}
         />
       )}
 
       {(placement.state === 'POSITIONED' || placement.state === 'GENERATING') && (
         <section className="card p-6 text-center">
           <h2 className="text-lg mb-1">{t('generating.title')}</h2>
-          <p className="text-sm text-[var(--color-ink-2)]">{t('generating.sub', { time: '4h' })}</p>
+          <p className="text-sm text-[var(--color-ink-2)]">
+            {t('generating.sub', { time: '4h' })}
+          </p>
+          <GeneratingPoll />
         </section>
       )}
 
@@ -91,7 +98,7 @@ export default async function PlacementPage({ params }: { params: Promise<{ id: 
           beforePath={placement.originalPath}
           afterPath={currentVersion?.storagePath ?? null}
           regensLeft={LIMITS.maxRegens - placement.regenCount}
-          assets={placement.campaign.assets.map((a) => ({ id: a.id, name: a.name }))}
+          assets={placement.campaign.assets.filter((a) => !a.deletedAt).map((a) => ({ id: a.id, name: a.name }))}
         />
       )}
 

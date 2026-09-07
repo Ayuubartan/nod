@@ -2,12 +2,14 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { uploadCampaignAsset } from '@/app/(brand)/actions'
 
 const PLACEMENT_TYPES = ['product', 'logo', 'packaging', 'signage'] as const
 
 /** Upload one product or logo, tagged with where it may be placed (docs/02 B1 step 3). */
 export function AssetUploader({ campaignId }: { campaignId: string }) {
+  const t = useTranslations('brandApp.creativeSection')
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -23,7 +25,7 @@ export function AssetUploader({ campaignId }: { campaignId: string }) {
     <div className="card p-4 grid gap-3">
       <div>
         <label className="label" htmlFor="asset-name">
-          Name
+          {t('name')}
         </label>
         <input
           id="asset-name"
@@ -35,7 +37,7 @@ export function AssetUploader({ campaignId }: { campaignId: string }) {
       </div>
 
       <fieldset>
-        <legend className="label">Allowed placement types</legend>
+        <legend className="label">{t('types')}</legend>
         <div className="flex flex-wrap gap-2">
           {PLACEMENT_TYPES.map((type) => (
             <button
@@ -88,7 +90,7 @@ export function AssetUploader({ campaignId }: { campaignId: string }) {
         disabled={pending || types.length === 0}
         onClick={() => inputRef.current?.click()}
       >
-        {pending ? 'Uploading…' : 'Upload asset'}
+        {pending ? t('uploading') : t('upload')}
       </button>
 
       {error && <p className="error-text">{error}</p>}

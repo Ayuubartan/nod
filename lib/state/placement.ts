@@ -559,12 +559,25 @@ export async function participantApprove(
   return { state: result.to as PlacementState, autoApproved: false }
 }
 
-/** P-05 regenerate — max 3, counted on the placement and logged as a training signal. */
+/**
+ * P-05 regenerate — max 3, counted on the placement and logged as a training signal.
+ *
+ * `countsTowardLimit: false` is for a brand swapping its creative mid-campaign
+ * (lib/creative.ts): the participant did nothing, so it must cost them none of their
+ * three regenerations. The event is still logged, tagged with who caused it.
+ */
 export async function regenerate(
   placementId: string,
-  args: { reason?: string; region?: Region; assetId?: string; kind?: 'REGEN' | 'MOVE' | 'SWAP' },
+  args: {
+    reason?: string
+    region?: Region
+    assetId?: string
+    kind?: 'REGEN' | 'MOVE' | 'SWAP'
+    countsTowardLimit?: boolean
+  },
   actor: ActorRef,
 ): Promise<PlacementState> {
+  const counts = args.countsTowardLimit ?? true
   const result = await runTransition({
     entity: 'Placement',
     entityId: placementId,
@@ -574,7 +587,7 @@ export async function regenerate(
     reason: args.reason,
     load: load(placementId),
     guard: (_tx, placement) => {
-      if ((placement.regenCount as number) >= LIMITS.maxRegens) {
+      if (counts && (placement.regenCount as number) >= LIMITS.maxRegens) {
         throw new GuardError('REGEN_LIMIT', `Only ${LIMITS.maxRegens} regenerations are allowed`)
       }
     },
@@ -587,7 +600,8 @@ export async function regenerate(
             reason: args.reason ?? null,
             region: args.region ?? null,
             assetId: args.assetId ?? null,
-            attempt: (entity.regenCount as number) + 1,
+            attempt: (entity.regenCount as number) + (counts ? 1 : 0),
+            by: actor.kind,
           } as Prisma.InputJsonValue,
         },
       })
@@ -595,7 +609,7 @@ export async function regenerate(
         where: { id: placementId },
         data: {
           state: 'POSITIONED',
-          regenCount: { increment: 1 },
+          ...(counts ? { regenCount: { increment: 1 } } : {}),
           ...(args.region ? { regionJson: args.region as unknown as Prisma.InputJsonValue } : {}),
           ...(args.assetId ? { assetId: args.assetId } : {}),
         },

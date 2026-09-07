@@ -10,7 +10,8 @@ import { sendBrandUserInvite } from '@/lib/email'
 import { extensionFor, paths, put } from '@/lib/storage'
 import { perceptualHash } from '@/lib/media'
 import { approve as approveCampaign, close, reconcile, returnToBrand, pause } from '@/lib/state/campaign'
-import { generationDone, generationFailed, reject, resolveDispute } from '@/lib/state/placement'
+import { generationDone, generationFailed, reject, resolveDispute, retryGeneration } from '@/lib/state/placement'
+import { renderPlacement } from '@/lib/render'
 import { clearFlag, flag as flagParticipant, remove, restore, suspend } from '@/lib/state/participant'
 import { clearFlagAndQualify, confirmFraud, verify } from '@/lib/state/verification'
 import { closePayoutBatch, markPayoutSent, openPayoutBatch } from '@/lib/state/money'
@@ -147,6 +148,24 @@ export async function opsFailGeneration(placementId: string, reason: string): Pr
   await generationFailed(placementId, parsed.data, actor)
   revalidatePath('/ops/generation')
   return { ok: true }
+}
+
+/**
+ * Runs the automatic engine on a job sitting in the queue. Useful when the flag was off
+ * when the placement arrived, or when a failed job should be retried now rather than
+ * after the backoff. A GENERATION_FAILED job is put back into GENERATING first.
+ */
+export async function opsRunEngine(placementId: string): Promise<ActionResult<{ outcome: string }>> {
+  const actor = await opsActor()
+
+  const placement = await prisma.placement.findUnique({ where: { id: placementId }, select: { state: true } })
+  if (!placement) return fail('notFound')
+  if (placement.state === 'GENERATION_FAILED') await retryGeneration(placementId, actor)
+  else if (placement.state !== 'GENERATING') return fail('wrongState')
+
+  const outcome = await renderPlacement(placementId, actor)
+  revalidatePath('/ops/generation')
+  return outcome === 'rendered' || outcome === 'deferred' ? { ok: true, data: { outcome } } : fail(outcome)
 }
 
 // ---------------------------------------------------------------- verification queue

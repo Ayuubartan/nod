@@ -19,7 +19,7 @@ export default async function BrandLayout({ children }: { children: React.ReactN
                 {t('campaigns')}
               </Link>
               <Link href="/brand/settings" className="text-[var(--color-ink-2)] hover:text-[var(--color-ink)]">
-                NOD
+                {t('settings')}
               </Link>
             </nav>
           </div>

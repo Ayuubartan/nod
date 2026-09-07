@@ -203,3 +203,17 @@ and also says to recompute them from the pricing doc rather than hardcoding. Rec
 `rates.ts` at the 28% take rate they are **38 / 86 / 237 kr**. The 86 and 237 agree with the
 worked examples in docs/05 (86.40 and 237.60), so docs/01's 88 and 245 are stale. The code
 follows docs/05 and the instruction to recompute.
+
+---
+
+## Post-plan work (2026-09-07)
+
+The plan is complete; further changes are logged in `docs/11-work-log.md`. Summary of
+what has moved since the table above:
+
+| Area | Change |
+|---|---|
+| Engine | `LocalCompositeEngine` (sharp, in-process) is the default between hosted inpaint and the ops queue. Placement is direct: position → rendered → participant review on one request. Ops kill switch: flag `engine.autoRender`. |
+| Distribution layer | Brands swap creative on a live campaign (`lib/creative.ts`); in-flight placements re-render, approved ones are locked. |
+| Brand dashboard | Fill bars, placement funnel, creative tab, shared header/tabs, richer placement table. |
+| Seed | Generates real artwork and four placements through the state machine; runs in ~3 s. |
