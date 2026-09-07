@@ -32,7 +32,7 @@ reviewer can check the intent against the implementation without reading TypeScr
 It is the only thing that stops a removed participant re-registering, which is what
 enforces "one person, one account" and the suspension rules. It is a salted SHA-256 of
 the broker's subject identifier — not reversible, not a personnummer, and useless outside
-NOD's own database because the salt is a server secret.
+Booga's own database because the salt is a server secret.
 
 docs/07 §3 flags this as **[LAWYER]**: confirm the retention basis. Our position is
 legitimate interest in fraud prevention and enforcement of a suspension, documented here

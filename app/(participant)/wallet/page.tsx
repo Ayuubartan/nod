@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { BRAND } from '@/lib/brand'
 import { getTranslations } from 'next-intl/server'
 import { prisma } from '@/lib/db'
 import { requireParticipant } from '@/lib/auth'
@@ -125,7 +126,7 @@ export default async function WalletPage() {
 
       <p className="mt-6 text-center">
         <Link href="/invite" className="text-sm underline text-[var(--color-ink-2)]">
-          NOD
+          {BRAND}
         </Link>
       </p>
     </div>

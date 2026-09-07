@@ -2,9 +2,9 @@
 
 **UTKAST — granskas av jurist före lansering.**
 
-NOD driver en marknadsplats där privatpersoner placerar varumärken i innehåll de ändå skulle publicera, märker det som reklam, publicerar det själva och får betalt per verifierad visning. Den här policyn beskriver exakt vilka uppgifter vi behandlar, varför, och hur länge.
+Booga driver en marknadsplats där privatpersoner placerar varumärken i innehåll de ändå skulle publicera, märker det som reklam, publicerar det själva och får betalt per verifierad visning. Den här policyn beskriver exakt vilka uppgifter vi behandlar, varför, och hur länge.
 
-Personuppgiftsansvarig: NOD, Stockholm. Kontakt: hello@nod.se.
+Personuppgiftsansvarig: Booga, Stockholm. Kontakt: hello@joinbooga.se.
 
 ## Vad vi samlar in
 

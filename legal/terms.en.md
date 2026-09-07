@@ -2,29 +2,29 @@
 
 **DRAFT — under review by a lawyer before launch.**
 
-This is the agreement between you and NOD when you take part in campaigns. We've tried to write it so it can actually be read.
+This is the agreement between you and Booga when you take part in campaigns. We've tried to write it so it can actually be read.
 
-## 1. What NOD is
+## 1. What Booga is
 
-NOD brings brand campaigns to you. You choose which ones to take part in. The brand pays NOD, and NOD pays you. NOD keeps the difference — that is how we make money. You never pay NOD anything.
+Booga brings brand campaigns to you. You choose which ones to take part in. The brand pays Booga, and Booga pays you. Booga keeps the difference — that is how we make money. You never pay Booga anything.
 
 ## 2. You must be 18
 
-NOD is only for people aged 18 and over. We verify this with BankID before your first placement. There is no way around it, including with a guardian's consent.
+Booga is only for people aged 18 and over. We verify this with BankID before your first placement. There is no way around it, including with a guardian's consent.
 
 ## 3. What we read from your account
 
-When you connect Instagram or TikTok we request **read-only access**: your profile, your posts and your view statistics. NOD never posts for you, never edits your posts, never follows anyone and never sends messages in your name. You can disconnect your account at any time.
+When you connect Instagram or TikTok we request **read-only access**: your profile, your posts and your view statistics. Booga never posts for you, never edits your posts, never follows anyone and never sends messages in your name. You can disconnect your account at any time.
 
 ## 4. You decide, always
 
-You choose the campaign. You choose where in the image the brand appears. You see the result and approve it before anything is published. You can regenerate, move, swap the product or reject — free of charge. **You publish it yourself.** NOD never publishes in your name.
+You choose the campaign. You choose where in the image the brand appears. You see the result and approve it before anything is published. You can regenerate, move, swap the product or reject — free of charge. **You publish it yourself.** Booga never publishes in your name.
 
 ## 5. Disclosure is a condition of payment
 
 Every post must be clearly marked as advertising, using the text the campaign specifies, **first in the caption** — not buried among hashtags. Where the platform offers a paid partnership label, it must be turned on.
 
-A post without correct disclosure **is not paid**. There is no exemption, including from NOD's own staff. If disclosure is missing and the post is still live, you get 12 hours to fix it, after which we verify once more.
+A post without correct disclosure **is not paid**. There is no exemption, including from Booga's own staff. If disclosure is missing and the post is still live, you get 12 hours to fix it, after which we verify once more.
 
 ## 6. How you get paid
 
@@ -36,7 +36,7 @@ A post without correct disclosure **is not paid**. There is no exemption, includ
 
 ## 7. Tax
 
-What you earn may be taxable income for you. NOD makes no deductions and gives no tax advice, but does send an annual summary of what you were paid.
+What you earn may be taxable income for you. Booga makes no deductions and gives no tax advice, but does send an annual summary of what you were paid.
 
 ## 8. Strikes and suspension
 
@@ -56,7 +56,7 @@ You can stop at any time. Open placements complete and are paid. Under Settings 
 
 ## 10. Liability
 
-NOD is not responsible for how your audience reacts, for the platforms' decisions about your account, or for payment withheld when a post does not meet the conditions above. We are responsible for paying what you have earned under the campaign's terms.
+Booga is not responsible for how your audience reacts, for the platforms' decisions about your account, or for payment withheld when a post does not meet the conditions above. We are responsible for paying what you have earned under the campaign's terms.
 
 ## 11. Changes and disputes
 

@@ -4,6 +4,12 @@ You are building **NOD**, a distributed social advertising marketplace. Brands f
 
 Read `docs/` in numeric order before writing code. `docs/09-build-plan.md` is the task list — work through milestones in order and do not skip ahead.
 
+## Naming
+
+**NOD** is the internal codename and stays in the repo, docs, env vars (`NOD_*`) and
+cookies. The public brand is **Booga** (joinbooga.se): every visible string uses
+`lib/brand.ts` or the i18n files. Never write "NOD" into user-facing copy.
+
 ## Non-negotiables
 
 1. **The state machines in `docs/03-workflows.md` are the source of truth.** Every Campaign, Placement, Participant and Money transition must be a named function that validates the current state, applies the transition, writes an `AuditLog` row, and emits an event. No ad-hoc status updates anywhere.

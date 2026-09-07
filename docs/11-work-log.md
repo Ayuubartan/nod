@@ -197,6 +197,15 @@ Tests: `tests/session.test.ts` (tamper, expiry, junk) and `tests/login.db.test.t
 (hashing, rate limit, supersede, existing/new creator, brand ok/refused, brand address
 never becomes a creator identity, attempt burn, replay, expiry, open-redirect guard).
 
+### 9. Booga
+
+The public name is Booga, on joinbooga.se. `lib/brand.ts` holds the constants; i18n,
+legal texts, emails, OG images, the PDF report, SMS sender, manifest and every layout
+wordmark use them. NOD remains the codename everywhere users cannot see (repo, docs,
+`NOD_*` env vars, `NOD_SESSION` cookie) — renaming those would log everyone out for
+no gain. Domain is added to the Vercel project (apex redirects to www); DNS records and
+Resend verification for the new domain are the remaining steps.
+
 ### 8. Shorter creator onboarding
 
 Nine screens became five plus "done". Swish, training consent and the notification

@@ -1,6 +1,6 @@
 {
-  "name": "NOD",
-  "short_name": "NOD",
+  "name": "Booga",
+  "short_name": "Booga",
   "description": "Posta som vanligt. Tjäna på uppmärksamheten du redan har.",
   "start_url": "/campaigns",
   "display": "standalone",

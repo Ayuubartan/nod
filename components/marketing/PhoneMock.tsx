@@ -4,6 +4,7 @@
  * influencers." Drawn as inline SVG so it costs no image request and stays crisp on the
  * cheap Android phones the pilot audience uses.
  */
+import { BRAND } from '@/lib/brand'
 export function PhoneMock({ caption }: { caption: string }) {
   return (
     <figure className="mx-auto w-full max-w-[280px]">
@@ -50,7 +51,7 @@ export function PhoneMock({ caption }: { caption: string }) {
           <rect x="24" y="424" width="232" height="48" rx="12" fill="#FFFFFF" stroke="#E8E2DA" />
           <circle cx="48" cy="448" r="8" fill="#F5A524" />
           <text x="66" y="446" fontSize="11" fill="#A39B91" fontFamily="system-ui">
-            NOD
+            {BRAND}
           </text>
           <text x="66" y="460" fontSize="12" fill="#5C554D" fontFamily="system-ui">
             Utbetalt via Swish

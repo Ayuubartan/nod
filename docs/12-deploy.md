@@ -71,20 +71,21 @@ the door behind yourself.
 
 ## 2. Mail — Resend
 
-1. resend.com → Domains → Add `nod.se` (or the domain you send from). Resend shows three
-   DNS records: a TXT for SPF, a CNAME/TXT for DKIM, and an MX for bounces. Add them at
-   your DNS host and wait for "Verified" (minutes, occasionally an hour).
+1. resend.com → Domains → `joinbooga.se` is added (region eu-west-1). Resend shows three
+   DNS records: a TXT for DKIM (`resend._domainkey`), and a TXT + MX on `send` for SPF
+   and bounces. Add them at your DNS host and wait for "Verified" (minutes, occasionally
+   an hour).
 2. API Keys → Create → **Sending access** only, restricted to that domain.
-3. Set `RESEND_API_KEY` and `EMAIL_FROM="NOD <hello@nod.se>"` (the from-address must be
-   on the verified domain, otherwise Resend rejects the send and the code is never
-   delivered).
+3. Set `RESEND_API_KEY` and `EMAIL_FROM="Booga <hello@joinbooga.se>"` (the from-address
+   must be on the verified domain, otherwise Resend rejects the send and the code is
+   never delivered).
 
 Until the domain is verified you can send from Resend's shared `onboarding@resend.dev`
 address, but only to the email address on your Resend account — enough to test the
 sign-in code loop, not enough for a second user.
 Resend reports that refusal as an API error, which `lib/email.ts` treats as "not sent" —
 so with `NOD_DEMO_LOGIN_CODE=1` every other address still gets the code on the page.
-The demo deploy runs in exactly this mode until `nod.se` is verified.
+The demo deploy runs in exactly this mode until `joinbooga.se` is verified.
 
 Every template lives in `lib/email.ts` in both languages; nothing else changes.
 
@@ -113,8 +114,10 @@ Variables. The full list for **Production**:
 | `NOD_FAKE_PROVIDERS` | `1` for a demo deploy (see below); **unset** for a real pilot |
 | `NOD_DEMO_LOGIN_CODE` | `1` shows the sign-in code on the page while no mail provider is set, so a demo without Resend can be entered — by anyone with the URL. Remove it the moment `RESEND_API_KEY` exists. |
 
-Then `vercel --prod`. Vercel builds, migrates, and gives you a URL. Point the domain at
-it under Settings → Domains and set `NEXT_PUBLIC_SITE_URL` to match.
+Push to `main`. Vercel builds, migrates, and deploys. The domain `joinbooga.se` is on
+the project (apex redirects to `www`); at the registrar set `A @ → 216.198.79.1` and
+`CNAME www → 158c83199c6212ca.vercel-dns-017.com`. `NEXT_PUBLIC_SITE_URL` is
+`https://joinbooga.se`.
 
 ### `NOD_FAKE_PROVIDERS=1` — read this before a real pilot
 

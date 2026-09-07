@@ -17,6 +17,7 @@
  */
 
 import 'server-only'
+import { BRAND } from '../brand'
 import { log } from '@/lib/logger'
 
 /** The only notifications permitted to cost money. */
@@ -46,7 +47,7 @@ export class ElksSmsProvider implements SmsProvider {
         'content-type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        from: process.env.SMS_SENDER ?? 'NOD',
+        from: process.env.SMS_SENDER ?? BRAND,
         to,
         message,
       }),

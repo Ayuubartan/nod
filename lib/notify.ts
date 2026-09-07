@@ -19,6 +19,7 @@
  */
 
 import webpush from 'web-push'
+import { BRAND, HELLO_EMAIL } from './brand'
 import { prisma } from './db'
 import { log } from './logger'
 import { flag } from './flags'
@@ -58,7 +59,7 @@ function configureVapid(): boolean {
   const publicKey = process.env.VAPID_PUBLIC_KEY
   const privateKey = process.env.VAPID_PRIVATE_KEY
   if (!publicKey || !privateKey) return false
-  webpush.setVapidDetails('mailto:hello@nod.se', publicKey, privateKey)
+  webpush.setVapidDetails(`mailto:${HELLO_EMAIL}`, publicKey, privateKey)
   vapidConfigured = true
   return true
 }
@@ -309,7 +310,7 @@ export async function notifyOps(text: string, context: Record<string, unknown> =
     await fetch(url, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ text: `NOD · ${text}` }),
+      body: JSON.stringify({ text: `${BRAND} · ${text}` }),
     })
   } catch (error) {
     log.error('slack alert failed', error)

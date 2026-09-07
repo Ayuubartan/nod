@@ -9,6 +9,7 @@
  */
 
 import { cookies } from 'next/headers'
+import { OPS_EMAIL_DEFAULT } from './brand'
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@supabase/ssr'
 import type { Role, User, BrandUser } from '@prisma/client'
@@ -132,7 +133,7 @@ export async function requireBrandUser(brandId?: string): Promise<BrandUser> {
         id: `ops:${session.user.id}`,
         brandId: brandId ?? '',
         authId: session.user.authId,
-        email: session.user.email ?? 'ops@nod.se',
+        email: session.user.email ?? OPS_EMAIL_DEFAULT,
         name: 'Ops',
         role: 'admin',
         createdAt: new Date(),

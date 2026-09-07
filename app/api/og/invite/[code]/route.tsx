@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og'
+import { BRAND } from '@/lib/brand'
 import { prisma } from '@/lib/db'
 
 /**
@@ -70,7 +71,7 @@ export async function GET(
             letterSpacing: -6,
           }}
         >
-          NOD
+          {BRAND}
         </div>
         <div
           style={{

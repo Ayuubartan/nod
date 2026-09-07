@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { BRAND } from '@/lib/brand'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { Outfit, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google'
@@ -12,10 +13,10 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: 'NOD — Posta som vanligt', template: '%s · NOD' },
+  title: { default: `${BRAND} — Posta som vanligt`, template: `%s · ${BRAND}` },
   description:
     'Brands betalar för att synas naturligt i dina bilder och stories. Du väljer brand, du väljer var, du godkänner allt.',
-  openGraph: { type: 'website', siteName: 'NOD', locale: 'sv_SE' },
+  openGraph: { type: 'website', siteName: BRAND, locale: 'sv_SE' },
   robots: { index: true, follow: true },
 }
 

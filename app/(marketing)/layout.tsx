@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { BRAND, HELLO_EMAIL } from '@/lib/brand'
 import { getTranslations } from 'next-intl/server'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { AnalyticsProvider } from '@/components/AnalyticsProvider'
@@ -13,7 +14,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
         <header className="border-b border-[var(--color-line)]">
           <div className="wrap flex items-center justify-between h-14">
             <Link href="/" className="font-[family-name:var(--font-display)] font-extrabold text-lg tracking-tight">
-              NOD
+              {BRAND}
             </Link>
             <div className="flex items-center gap-4 text-sm">
               <Link href="/brands" className="text-[var(--color-ink-2)] hover:text-[var(--color-ink)]">
@@ -33,11 +34,11 @@ export default async function MarketingLayout({ children }: { children: React.Re
           <div className="wrap py-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-sm text-[var(--color-ink-2)]">
             <div className="flex items-center gap-2">
               <span className="nod-marker" aria-hidden="true" />
-              <span className="font-semibold text-[var(--color-ink)]">NOD</span>
+              <span className="font-semibold text-[var(--color-ink)]">{BRAND}</span>
               <span>· {t('footer.city')}</span>
             </div>
             <nav className="flex flex-wrap items-center gap-x-5 gap-y-2">
-              <a href="mailto:hello@nod.se">hello@nod.se</a>
+              <a href={`mailto:${HELLO_EMAIL}`}>{HELLO_EMAIL}</a>
               <Link href="/privacy">{t('footer.privacy')}</Link>
               <Link href="/terms">{t('footer.terms')}</Link>
               <Link href="/cookies">{t('footer.cookies')}</Link>

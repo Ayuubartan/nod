@@ -2,29 +2,29 @@
 
 **UTKAST — granskas av jurist före lansering.**
 
-Det här är avtalet mellan dig och NOD när du deltar i kampanjer. Vi har försökt skriva det så att det faktiskt går att läsa.
+Det här är avtalet mellan dig och Booga när du deltar i kampanjer. Vi har försökt skriva det så att det faktiskt går att läsa.
 
-## 1. Vad NOD är
+## 1. Vad Booga är
 
-NOD förmedlar kampanjer från varumärken till dig. Du väljer vilka du vill vara med i. Varumärket betalar NOD, och NOD betalar dig. NOD behåller mellanskillnaden — det är så vi tjänar pengar. Du betalar aldrig något till NOD.
+Booga förmedlar kampanjer från varumärken till dig. Du väljer vilka du vill vara med i. Varumärket betalar Booga, och Booga betalar dig. Booga behåller mellanskillnaden — det är så vi tjänar pengar. Du betalar aldrig något till Booga.
 
 ## 2. Du måste vara 18 år
 
-NOD är endast för dig som fyllt 18. Vi verifierar det med BankID innan din första placering. Det finns ingen väg runt det, inte heller med målsmans samtycke.
+Booga är endast för dig som fyllt 18. Vi verifierar det med BankID innan din första placering. Det finns ingen väg runt det, inte heller med målsmans samtycke.
 
 ## 3. Vad vi läser från ditt konto
 
-När du kopplar Instagram eller TikTok begär vi **endast läsbehörighet**: din profil, dina inlägg och din visningsstatistik. NOD publicerar aldrig åt dig, ändrar aldrig dina inlägg, följer aldrig någon och skickar aldrig meddelanden i ditt namn. Du kan koppla bort ditt konto när som helst.
+När du kopplar Instagram eller TikTok begär vi **endast läsbehörighet**: din profil, dina inlägg och din visningsstatistik. Booga publicerar aldrig åt dig, ändrar aldrig dina inlägg, följer aldrig någon och skickar aldrig meddelanden i ditt namn. Du kan koppla bort ditt konto när som helst.
 
 ## 4. Du bestämmer, alltid
 
-Du väljer kampanj. Du väljer var i bilden varumärket ska synas. Du ser resultatet och godkänner det innan något publiceras. Du kan generera om, flytta, byta produkt eller neka — kostnadsfritt. **Du publicerar själv.** NOD publicerar aldrig i ditt namn.
+Du väljer kampanj. Du väljer var i bilden varumärket ska synas. Du ser resultatet och godkänner det innan något publiceras. Du kan generera om, flytta, byta produkt eller neka — kostnadsfritt. **Du publicerar själv.** Booga publicerar aldrig i ditt namn.
 
 ## 5. Reklammärkning är ett villkor för betalning
 
 Varje inlägg ska vara tydligt märkt som reklam, med den text kampanjen anger, **först i bildtexten** — inte nedgrävt bland hashtags. Där plattformen erbjuder en etikett för betalt samarbete ska den vara påslagen.
 
-Ett inlägg utan korrekt reklammärkning **betalas inte**. Det finns ingen dispens, inte heller från NOD:s personal. Om märkningen saknas och inlägget fortfarande är publicerat får du 12 timmar på dig att rätta det, varefter vi verifierar en gång till.
+Ett inlägg utan korrekt reklammärkning **betalas inte**. Det finns ingen dispens, inte heller från Booga:s personal. Om märkningen saknas och inlägget fortfarande är publicerat får du 12 timmar på dig att rätta det, varefter vi verifierar en gång till.
 
 ## 6. Hur du får betalt
 
@@ -36,7 +36,7 @@ Ett inlägg utan korrekt reklammärkning **betalas inte**. Det finns ingen dispe
 
 ## 7. Skatt
 
-Det du tjänar kan vara skattepliktig inkomst för dig. NOD gör inga avdrag och ger ingen skatterådgivning, men skickar en årlig sammanställning av vad du fått utbetalt.
+Det du tjänar kan vara skattepliktig inkomst för dig. Booga gör inga avdrag och ger ingen skatterådgivning, men skickar en årlig sammanställning av vad du fått utbetalt.
 
 ## 8. Prickar och avstängning
 
@@ -56,7 +56,7 @@ Du kan sluta när som helst. Pågående placeringar slutförs och betalas. Under
 
 ## 10. Ansvar
 
-NOD ansvarar inte för hur din publik reagerar, för plattformarnas beslut om ditt konto, eller för utebliven ersättning när ett inlägg inte uppfyller villkoren ovan. Vi ansvarar för att betala det du tjänat enligt kampanjens villkor.
+Booga ansvarar inte för hur din publik reagerar, för plattformarnas beslut om ditt konto, eller för utebliven ersättning när ett inlägg inte uppfyller villkoren ovan. Vi ansvarar för att betala det du tjänat enligt kampanjens villkor.
 
 ## 11. Ändringar och tvist
 

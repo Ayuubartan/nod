@@ -7,6 +7,7 @@
  */
 
 import { Document, Page, StyleSheet, Text, View, renderToBuffer } from '@react-pdf/renderer'
+import { BRAND } from './brand'
 import { prisma } from './db'
 import { campaignBalance } from './money/balances'
 import { effectiveCpmOre, formatOre } from './money/calc'
@@ -117,9 +118,9 @@ export async function buildReportData(campaignId: string): Promise<ReportData> {
 
 function ReportDocument({ data }: { data: ReportData }) {
   return (
-    <Document title={`${data.campaignName} — NOD report`}>
+    <Document title={`${data.campaignName} — ${BRAND} report`}>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.brand}>NOD</Text>
+        <Text style={styles.brand}>{BRAND}</Text>
         <Text style={styles.title}>{data.campaignName}</Text>
         <Text style={styles.sub}>
           {data.brandName} · {data.period}

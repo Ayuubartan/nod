@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { BRAND } from '@/lib/brand'
 import { getTranslations } from 'next-intl/server'
 import { requireOps } from '@/lib/auth'
 import { SignOutButton } from '@/components/SignOutButton'
@@ -25,7 +26,7 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
       <header className="border-b border-[var(--color-line)] bg-[var(--color-surface)]">
         <div className="wrap max-w-7xl flex items-center gap-6 h-12">
           <span className="font-[family-name:var(--font-display)] font-extrabold text-sm">
-            NOD {t('console')}
+            {BRAND} {t('console')}
           </span>
           <nav className="flex gap-4 text-xs overflow-x-auto">
             {nav.map((item) => (

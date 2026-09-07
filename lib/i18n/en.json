@@ -1,6 +1,6 @@
 {
   "common": {
-    "brand": "NOD",
+    "brand": "Booga",
     "tagline": "Post like you normally do.",
     "loading": "Loading…",
     "save": "Save",
@@ -41,7 +41,7 @@
     "signIn": "Sign in"
   },
   "marketing": {
-    "eyebrow": "NOD · Stockholm beta",
+    "eyebrow": "Booga · Stockholm beta",
     "hero": {
       "title": "Post like you normally do. Earn from the attention you already have.",
       "sub": "Brands pay to appear naturally in your photos and Stories. You pick the brand, you pick where, you approve everything. Then you post as usual and get paid per view.",
@@ -99,7 +99,7 @@
       "q1": "Do I need many followers?",
       "a1": "No. From around 300 followers or 100 average views.",
       "q2": "What happens to my photo?",
-      "a2": "You upload it, choose where the brand goes, and see the result before anything is published. You post it yourself. NOD never posts for you.",
+      "a2": "You upload it, choose where the brand goes, and see the result before anything is published. You post it yourself. Booga never posts for you.",
       "q3": "How do I get paid?",
       "a3": "Swish, within 48 hours of verification. Minimum payout 100 kr.",
       "q4": "Is this legal?",
@@ -122,7 +122,7 @@
       "categories": "What do you post most?",
       "email": "Email",
       "referralCode": "Referral code",
-      "consent": "I agree NOD stores my details to contact me about the beta.",
+      "consent": "I agree Booga stores my details to contact me about the beta.",
       "consentPrivacyLink": "Read the privacy policy",
       "submit": "Join the waitlist",
       "submitting": "Sending…",
@@ -162,17 +162,17 @@
       "privacy": "Privacy",
       "terms": "Terms",
       "contact": "Contact",
-      "rights": "NOD",
+      "rights": "Booga",
       "cookies": "Cookies",
       "brandAgreement": "Brand agreement"
     }
   },
   "brands": {
     "metaTitle": "For brands",
-    "metaDescription": "NOD places your product naturally in the everyday posts of real, BankID-verified people in your target market.",
+    "metaDescription": "Booga places your product naturally in the everyday posts of real, BankID-verified people in your target market.",
     "hero": {
       "title": "Reach thousands of real social circles through one campaign.",
-      "sub": "NOD places your product naturally in the everyday posts of real, BankID-verified people in your target market. Disclosed, contextual, verified per view. One dashboard. One effective CPM.",
+      "sub": "Booga places your product naturally in the everyday posts of real, BankID-verified people in your target market. Disclosed, contextual, verified per view. One dashboard. One effective CPM.",
       "cta": "Book a call"
     },
     "stats": {
@@ -221,7 +221,7 @@
       "orContinueWith": "Or continue with",
       "city": "City",
       "ageBracket": "Age",
-      "under18": "NOD is only for people aged 18 and over."
+      "under18": "Booga is only for people aged 18 and over."
     },
     "connect": {
       "title": "Connect your Instagram",
@@ -251,7 +251,7 @@
     },
     "terms": {
       "title": "Terms",
-      "accept": "I accept NOD's terms and privacy policy",
+      "accept": "I accept Booga's terms and privacy policy",
       "quizTitle": "One quick question",
       "quizQuestion": "Which of these is correct ad disclosure?",
       "quizOptionA": "Ad – in partnership with {brand}, first in the caption",
@@ -263,7 +263,7 @@
     },
     "training": {
       "title": "Help us get better",
-      "consent": "Let NOD use anonymised versions of my placement choices and images to improve the placement engine.",
+      "consent": "Let Booga use anonymised versions of my placement choices and images to improve the placement engine.",
       "note": "Entirely optional. Doesn't affect your payout. You can change it any time in settings."
     },
     "payout": {
@@ -294,8 +294,8 @@
     "qrHint": "Scan with the BankID app",
     "waiting": "Waiting for BankID…",
     "success": "Verified.",
-    "under18": "NOD is only for people aged 18 and over.",
-    "duplicate": "This person already has a NOD account.",
+    "under18": "Booga is only for people aged 18 and over.",
+    "duplicate": "This person already has a Booga account.",
     "failed": "Verification didn't go through. Try again."
   },
   "campaigns": {
@@ -575,8 +575,8 @@
     },
     "nextStep": {
       "DRAFT": "Finish the builder and submit for review.",
-      "SUBMITTED": "NOD is reviewing your campaign — usually within one working day.",
-      "RETURNED": "NOD sent the campaign back with notes. Edit and resubmit.",
+      "SUBMITTED": "Booga is reviewing your campaign — usually within one working day.",
+      "RETURNED": "Booga sent the campaign back with notes. Edit and resubmit.",
       "AWAITING_FUNDS": "Fund the campaign to lock in the next drop.",
       "FUNDED": "Funded. Goes live at the next Friday drop.",
       "LIVE": "Live — participants are claiming now.",
@@ -669,7 +669,7 @@
     "participantHint": "We'll email you a six-digit code. New here? You get an account right after the code — no password.",
     "brandKicker": "For brands",
     "brandTitle": "Sign in to your brand account",
-    "brandHint": "Brand accounts are created by NOD. Use the address your account is registered with and we will email a code.",
+    "brandHint": "Brand accounts are created by Booga. Use the address your account is registered with and we will email a code.",
     "emailLabel": "Email",
     "sendCode": "Send code",
     "sending": "Sending…",
@@ -689,7 +689,7 @@
       "noCode": "There is no valid code for that address. Request a new one.",
       "wrongCode": "Wrong code. Check the email and try again.",
       "tooManyAttempts": "Too many wrong attempts. Request a new code.",
-      "noBrandAccount": "That address doesn't belong to a brand account. Contact hello@nod.se and we'll help."
+      "noBrandAccount": "That address doesn't belong to a brand account. Contact hello@joinbooga.se and we'll help."
     }
   }
 }

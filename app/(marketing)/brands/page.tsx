@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { BRAND } from '@/lib/brand'
 import { getTranslations } from 'next-intl/server'
 import { BrandEnquiryForm } from '@/components/marketing/BrandEnquiryForm'
 import { formatKrDown } from '@/lib/money/calc'
@@ -30,7 +31,7 @@ export default async function BrandsPage() {
       <section className="section pt-10">
         <div className="wrap max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-widest text-[var(--color-blue)] mb-4">
-            NOD · Stockholm beta
+            {BRAND} · Stockholm beta
           </p>
           <h1 className="text-4xl sm:text-5xl leading-[1.05] mb-5">{t('hero.title')}</h1>
           <p className="text-lg text-[var(--color-ink-2)] mb-8">{t('hero.sub')}</p>

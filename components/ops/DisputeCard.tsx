@@ -64,7 +64,7 @@ export function DisputeCard({
       </dl>
 
       <p className="text-xs text-[var(--color-ink-3)] mb-2">
-        The payout stands either way. Upholding records the finding and NOD absorbs the cost.
+        The payout stands either way. Upholding records the finding and we absorb the cost.
       </p>
 
       <textarea

@@ -2,7 +2,7 @@
 
 **DRAFT — under review by a lawyer before launch.**
 
-NOD uses as few cookies as possible. There are **no advertising pixels** and nothing is
+Booga uses as few cookies as possible. There are **no advertising pixels** and nothing is
 shared with ad networks — which would be a strange thing for us to do, given what we
 build.
 
@@ -18,7 +18,7 @@ Necessary cookies do not require consent, because the service does not work with
 ## Analytics
 
 We use **PostHog** (EU servers) to see where people get stuck — for example how many
-finish onboarding. We identify you by your NOD id, never by your handle or your email.
+finish onboarding. We identify you by your Booga id, never by your handle or your email.
 
 We do not use Google Analytics, the Meta Pixel, or anything like them.
 

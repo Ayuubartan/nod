@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og'
+import { BRAND } from '@/lib/brand'
 import { prisma } from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { formatKrDown } from '@/lib/money/calc'
@@ -88,7 +89,7 @@ export async function GET(
             }}
           >
             <div style={{ display: 'flex', width: 28, height: 28, borderRadius: 999, background: '#F5A524' }} />
-            <div style={{ display: 'flex', fontSize: 32, color: '#A39B91' }}>via NOD</div>
+            <div style={{ display: 'flex', fontSize: 32, color: '#A39B91' }}>via {BRAND}</div>
           </div>
         </div>
       </div>

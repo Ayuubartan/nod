@@ -1,6 +1,6 @@
 {
   "common": {
-    "brand": "NOD",
+    "brand": "Booga",
     "tagline": "Posta som vanligt.",
     "loading": "Laddar…",
     "save": "Spara",
@@ -41,7 +41,7 @@
     "signIn": "Logga in"
   },
   "marketing": {
-    "eyebrow": "NOD · Stockholm beta",
+    "eyebrow": "Booga · Stockholm beta",
     "hero": {
       "title": "Posta som vanligt. Tjäna på uppmärksamheten du redan har.",
       "sub": "Varumärken betalar för att synas naturligt i dina bilder och stories. Du väljer varumärke, du väljer var, du godkänner allt. Sen postar du som vanligt och får betalt per visning.",
@@ -99,7 +99,7 @@
       "q1": "Måste jag ha många följare?",
       "a1": "Nej. Från cirka 300 följare eller 100 snittvisningar.",
       "q2": "Vad händer med min bild?",
-      "a2": "Du laddar upp den, väljer var varumärket ska synas och ser resultatet innan något publiceras. Du postar den själv. NOD postar aldrig åt dig.",
+      "a2": "Du laddar upp den, väljer var varumärket ska synas och ser resultatet innan något publiceras. Du postar den själv. Booga postar aldrig åt dig.",
       "q3": "Hur får jag betalt?",
       "a3": "Swish, inom 48 timmar efter verifiering. Minsta utbetalning 100 kr.",
       "q4": "Är det lagligt?",
@@ -122,7 +122,7 @@
       "categories": "Vad postar du mest?",
       "email": "E-post",
       "referralCode": "Inbjudningskod",
-      "consent": "Jag godkänner att NOD sparar mina uppgifter för att kontakta mig om betan.",
+      "consent": "Jag godkänner att Booga sparar mina uppgifter för att kontakta mig om betan.",
       "consentPrivacyLink": "Läs integritetspolicyn",
       "submit": "Ställ dig i kön",
       "submitting": "Skickar…",
@@ -162,17 +162,17 @@
       "privacy": "Integritetspolicy",
       "terms": "Villkor",
       "contact": "Kontakt",
-      "rights": "NOD",
+      "rights": "Booga",
       "cookies": "Cookies",
       "brandAgreement": "Varumärkesvillkor"
     }
   },
   "brands": {
     "metaTitle": "För varumärken",
-    "metaDescription": "NOD placerar din produkt naturligt i vardagsinlägg från riktiga, BankID-verifierade personer i din målgrupp.",
+    "metaDescription": "Booga placerar din produkt naturligt i vardagsinlägg från riktiga, BankID-verifierade personer i din målgrupp.",
     "hero": {
       "title": "Nå tusentals verkliga sociala nätverk med en kampanj.",
-      "sub": "NOD placerar din produkt naturligt i vardagsinlägg från riktiga, BankID-verifierade personer i din målgrupp. Märkt som reklam, kontextuellt, verifierat per visning. En dashboard. En effektiv CPM.",
+      "sub": "Booga placerar din produkt naturligt i vardagsinlägg från riktiga, BankID-verifierade personer i din målgrupp. Märkt som reklam, kontextuellt, verifierat per visning. En dashboard. En effektiv CPM.",
       "cta": "Boka ett samtal"
     },
     "stats": {
@@ -221,7 +221,7 @@
       "orContinueWith": "Eller fortsätt med",
       "city": "Stad",
       "ageBracket": "Ålder",
-      "under18": "NOD är endast för dig som fyllt 18."
+      "under18": "Booga är endast för dig som fyllt 18."
     },
     "connect": {
       "title": "Koppla ditt Instagram",
@@ -251,7 +251,7 @@
     },
     "terms": {
       "title": "Villkor",
-      "accept": "Jag godkänner NODs villkor och integritetspolicy",
+      "accept": "Jag godkänner Boogas villkor och integritetspolicy",
       "quizTitle": "En snabb fråga",
       "quizQuestion": "Vilket av dessa är korrekt reklammärkning?",
       "quizOptionA": "Reklam – i samarbete med {brand}, först i bildtexten",
@@ -263,7 +263,7 @@
     },
     "training": {
       "title": "Hjälp oss bli bättre",
-      "consent": "Låt NOD använda anonymiserade versioner av mina placeringsval och bilder för att förbättra placeringsmotorn.",
+      "consent": "Låt Booga använda anonymiserade versioner av mina placeringsval och bilder för att förbättra placeringsmotorn.",
       "note": "Helt frivilligt. Påverkar inte din ersättning. Du kan ändra det när som helst i inställningar."
     },
     "payout": {
@@ -294,8 +294,8 @@
     "qrHint": "Skanna med BankID-appen",
     "waiting": "Väntar på BankID…",
     "success": "Verifierad.",
-    "under18": "NOD är endast för dig som fyllt 18 år.",
-    "duplicate": "Den här personen har redan ett NOD-konto.",
+    "under18": "Booga är endast för dig som fyllt 18 år.",
+    "duplicate": "Den här personen har redan ett Booga-konto.",
     "failed": "Verifieringen gick inte igenom. Försök igen."
   },
   "campaigns": {
@@ -575,8 +575,8 @@
     },
     "nextStep": {
       "DRAFT": "Gör klart kampanjen och skicka in för granskning.",
-      "SUBMITTED": "NOD granskar kampanjen — oftast inom en arbetsdag.",
-      "RETURNED": "NOD skickade tillbaka kampanjen med kommentarer. Redigera och skicka in igen.",
+      "SUBMITTED": "Booga granskar kampanjen — oftast inom en arbetsdag.",
+      "RETURNED": "Booga skickade tillbaka kampanjen med kommentarer. Redigera och skicka in igen.",
       "AWAITING_FUNDS": "Finansiera kampanjen för att låsa nästa släpp.",
       "FUNDED": "Finansierad. Går live vid nästa fredagssläpp.",
       "LIVE": "Live — deltagare tar kampanjen nu.",
@@ -669,7 +669,7 @@
     "participantHint": "Vi mejlar en sexsiffrig kod. Är du ny får du ett konto direkt efter koden — inget lösenord.",
     "brandKicker": "För varumärken",
     "brandTitle": "Logga in till ditt varumärkeskonto",
-    "brandHint": "Varumärkeskonton skapas av NOD. Använd adressen ditt konto är registrerat på, så mejlar vi en kod.",
+    "brandHint": "Varumärkeskonton skapas av Booga. Använd adressen ditt konto är registrerat på, så mejlar vi en kod.",
     "emailLabel": "E-post",
     "sendCode": "Skicka kod",
     "sending": "Skickar…",
@@ -689,7 +689,7 @@
       "noCode": "Det finns ingen giltig kod för den adressen. Be om en ny.",
       "wrongCode": "Fel kod. Kontrollera mejlet och försök igen.",
       "tooManyAttempts": "För många felaktiga försök. Be om en ny kod.",
-      "noBrandAccount": "Den adressen hör inte till något varumärkeskonto. Kontakta hello@nod.se så hjälper vi dig."
+      "noBrandAccount": "Den adressen hör inte till något varumärkeskonto. Kontakta hello@joinbooga.se så hjälper vi dig."
     }
   }
 }

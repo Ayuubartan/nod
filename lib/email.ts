@@ -7,12 +7,13 @@
  */
 
 import { Resend } from 'resend'
+import { BRAND, HELLO_EMAIL, OPS_EMAIL_DEFAULT } from './brand'
 import { log } from './logger'
 import type { Locale } from './i18n/config'
 import { formatKrDown } from './money/calc'
 
-const from = process.env.EMAIL_FROM ?? 'NOD <hello@nod.se>'
-const opsEmail = process.env.OPS_EMAIL ?? 'ops@nod.se'
+const from = process.env.EMAIL_FROM ?? `${BRAND} <${HELLO_EMAIL}>`
+const opsEmail = process.env.OPS_EMAIL ?? OPS_EMAIL_DEFAULT
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
 const client = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
@@ -54,12 +55,12 @@ async function send(args: { to: string; subject: string; html: string; tag: stri
 function shell(bodyHtml: string, locale: Locale): string {
   const footer =
     locale === 'sv'
-      ? `NOD · Stockholm · <a href="${siteUrl}/privacy" style="color:#5C554D">Integritetspolicy</a>`
-      : `NOD · Stockholm · <a href="${siteUrl}/privacy" style="color:#5C554D">Privacy</a>`
+      ? `${BRAND} · Stockholm · <a href="${siteUrl}/privacy" style="color:#5C554D">Integritetspolicy</a>`
+      : `${BRAND} · Stockholm · <a href="${siteUrl}/privacy" style="color:#5C554D">Privacy</a>`
 
   return `<!doctype html><html><body style="margin:0;background:#FAF7F2;font-family:-apple-system,Segoe UI,sans-serif;color:#14110F">
 <div style="max-width:520px;margin:0 auto;padding:32px 20px">
-  <div style="font-weight:800;font-size:20px;letter-spacing:-0.02em;margin-bottom:24px">NOD</div>
+  <div style="font-weight:800;font-size:20px;letter-spacing:-0.02em;margin-bottom:24px">${BRAND}</div>
   <div style="background:#FFFFFF;border:1px solid #E8E2DA;border-radius:12px;padding:24px">${bodyHtml}</div>
   <p style="color:#A39B91;font-size:12px;margin-top:24px">${footer}</p>
 </div></body></html>`
@@ -77,14 +78,14 @@ export async function loginCodeEmail(email: string, code: string, locale: Locale
     locale === 'sv'
       ? shell(
           `<h1 style="font-size:22px;margin:0 0 12px">Din inloggningskod</h1>
-           <p style="margin:0;color:#5C554D">Skriv in koden i NOD. Den gäller i tio minuter.</p>
+           <p style="margin:0;color:#5C554D">Skriv in koden i ${BRAND}. Den gäller i tio minuter.</p>
            ${digits}
            <p style="margin:0;color:#A39B91;font-size:13px">Har du inte försökt logga in kan du ignorera det här mejlet. Ingen kan logga in utan koden.</p>`,
           locale,
         )
       : shell(
           `<h1 style="font-size:22px;margin:0 0 12px">Your sign-in code</h1>
-           <p style="margin:0;color:#5C554D">Enter this code in NOD. It is valid for ten minutes.</p>
+           <p style="margin:0;color:#5C554D">Enter this code in ${BRAND}. It is valid for ten minutes.</p>
            ${digits}
            <p style="margin:0;color:#A39B91;font-size:13px">If you didn't try to sign in you can ignore this email. Nobody can sign in without the code.</p>`,
           locale,
@@ -92,7 +93,7 @@ export async function loginCodeEmail(email: string, code: string, locale: Locale
 
   return send({
     to: email,
-    subject: locale === 'sv' ? `${code} är din NOD-kod` : `${code} is your NOD code`,
+    subject: locale === 'sv' ? `${code} är din ${BRAND}-kod` : `${code} is your ${BRAND} code`,
     html,
     tag: 'login_code',
   })
@@ -163,9 +164,9 @@ export async function sendBrandEnquiryToOps(enquiry: {
 export async function sendBrandUserInvite(args: { email: string; brandName: string; link: string }): Promise<void> {
   await send({
     to: args.email,
-    subject: `You've been invited to ${args.brandName} on NOD`,
+    subject: `You've been invited to ${args.brandName} on ${BRAND}`,
     html: shell(
-      `<h1 style="font-size:20px;margin:0 0 12px">${args.brandName} on NOD</h1>
+      `<h1 style="font-size:20px;margin:0 0 12px">${args.brandName} on ${BRAND}</h1>
        <p style="margin:0 0 20px;color:#5C554D">You've been given access to the ${args.brandName} campaign dashboard. This link signs you in.</p>
        ${button(args.link, 'Open the dashboard')}`,
       'en',
@@ -264,7 +265,7 @@ export async function sendDataExport(args: { email: string; downloadUrl: string;
   const sv = args.locale === 'sv'
   await send({
     to: args.email,
-    subject: sv ? 'Dina uppgifter från NOD' : 'Your NOD data',
+    subject: sv ? `Dina uppgifter från ${BRAND}` : `Your ${BRAND} data`,
     html: shell(
       sv
         ? `<h1 style="font-size:20px;margin:0 0 12px">Dina uppgifter</h1>

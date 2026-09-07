@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { BRAND } from '@/lib/brand'
 import { getTranslations } from 'next-intl/server'
 import { AnalyticsProvider } from '@/components/AnalyticsProvider'
 import { LanguageToggle } from '@/components/LanguageToggle'
@@ -20,7 +21,7 @@ export default async function ParticipantLayout({ children }: { children: React.
         <header className="border-b border-[var(--color-line)] sticky top-0 bg-[var(--color-bg)] z-10">
           <div className="wrap flex items-center justify-between h-14">
             <Link href="/campaigns" className="font-[family-name:var(--font-display)] font-extrabold text-lg">
-              NOD
+              {BRAND}
             </Link>
             <LanguageToggle />
           </div>

@@ -32,9 +32,9 @@ Set-VercelEnv 'BANKID_SUBJECT_SALT'   (New-Secret 48) -KeepExisting
 Set-VercelEnv 'NOD_MARKET'            'SE'
 Set-VercelEnv 'NOD_FAKE_PROVIDERS'    '1'
 Set-VercelEnv 'SUPABASE_STORAGE_BUCKET' 'nod-media'
-Set-VercelEnv 'EMAIL_FROM'            'NOD <hello@nod.se>'
-Set-VercelEnv 'OPS_EMAIL'             'ops@nod.se'
-Set-VercelEnv 'NEXT_PUBLIC_SITE_URL'  'https://nod-ayuubartans-projects.vercel.app'
+Set-VercelEnv 'EMAIL_FROM'            'Booga <hello@joinbooga.se>'
+Set-VercelEnv 'OPS_EMAIL'             'ops@joinbooga.se'
+Set-VercelEnv 'NEXT_PUBLIC_SITE_URL'  'https://joinbooga.se'
 
 Write-Host ""
 Write-Host "Still needed (Vercel dashboard -> Settings -> Environment Variables):"
