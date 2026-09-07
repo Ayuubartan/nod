@@ -105,6 +105,39 @@ describe('verifyCode', () => {
     expect(result.ok && result.authId).not.toBe(brandUser.authId)
   })
 
+  it('makes the OPS_EMAIL address the ops account, and upgrades an existing participant', async () => {
+    const previous = process.env.OPS_EMAIL
+    process.env.OPS_EMAIL = 'Ops@Example.se'
+    try {
+      await requestCode('ops@example.se', 'PARTICIPANT', 'sv')
+      const first = await verifyCode('ops@example.se', mailedCode(), 'PARTICIPANT')
+      expect(first).toMatchObject({ ok: true, next: '/ops' })
+      const created = await db.user.findFirstOrThrow({ where: { email: 'ops@example.se' } })
+      expect(created.role).toBe('OPS')
+
+      // Signing in again reuses the same identity.
+      await requestCode('ops@example.se', 'PARTICIPANT', 'sv')
+      const again = await verifyCode('ops@example.se', mailedCode(), 'PARTICIPANT')
+      expect(again.ok && again.authId).toBe(created.authId)
+
+      // A participant who already had the address is promoted, not duplicated.
+      process.env.OPS_EMAIL = 'anna@example.se'
+      const { user } = await makeParticipant({ avgViews30d: 450 })
+      await db.user.update({ where: { id: user.id }, data: { email: 'anna@example.se' } })
+      await requestCode('anna@example.se', 'PARTICIPANT', 'sv')
+      expect(await verifyCode('anna@example.se', mailedCode(), 'PARTICIPANT')).toMatchObject({
+        ok: true,
+        authId: user.authId,
+        next: '/ops',
+      })
+      expect((await db.user.findUniqueOrThrow({ where: { id: user.id } })).role).toBe('OPS')
+      expect(await db.user.count({ where: { email: 'anna@example.se' } })).toBe(1)
+    } finally {
+      if (previous === undefined) delete process.env.OPS_EMAIL
+      else process.env.OPS_EMAIL = previous
+    }
+  })
+
   it('counts wrong guesses and burns the code after the limit', async () => {
     await requestCode('a@b.se', 'PARTICIPANT', 'sv')
     const code = mailedCode()

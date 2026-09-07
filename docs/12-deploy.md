@@ -65,9 +65,9 @@ Seeding with the token present writes straight to the store.
 Seed data: after the first deploy, run once from your machine against the production
 database (`DATABASE_URL=<direct url> pnpm db:seed`) if you want the demo brand,
 campaigns and `ops@nod.se`. For a real pilot, skip the seed and create the brand from
-`/ops/brands` — but note that then no ops user exists; create one with
-`prisma studio` (or a one-line `prisma.user.create` with `role: 'OPS'`) before you lock
-the door behind yourself.
+`/ops/brands`. The ops account is whoever signs in at `/sign-in` with the address in
+`OPS_EMAIL` — that row is created (or promoted) on first sign-in, so no database console
+is needed.
 
 ## 2. Mail — Resend
 
@@ -107,7 +107,8 @@ Variables. The full list for **Production**:
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | from step 1 |
 | `SUPABASE_STORAGE_BUCKET` | `nod-media` |
 | `BLOB_READ_WRITE_TOKEN`, `BLOB_ACCESS` | only without Supabase: injected by `vercel blob store add`; `public` for a CLI-created store |
-| `RESEND_API_KEY`, `EMAIL_FROM`, `OPS_EMAIL` | from step 2 |
+| `RESEND_API_KEY`, `EMAIL_FROM` | from step 2 |
+| `OPS_EMAIL` | your own address: it receives brand enquiries and is the ops login |
 | `ENCRYPTION_KEY` | 32 random bytes, base64 — `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` |
 | `BANKID_SUBJECT_SALT` | a long random string; **never change it** once participants are verified, or every subject hash stops matching |
 | `NOD_MARKET` | `SE` |

@@ -128,8 +128,35 @@ export async function resolveIdentity(email: string, audience: LoginAudience): P
 
   const user = await prisma.user.findFirst({
     where: { email: { equals: email, mode: 'insensitive' }, deletedAt: null },
-    select: { authId: true, role: true, state: true },
+    select: { id: true, authId: true, role: true, state: true },
   })
+
+  // DECISION: the address in OPS_EMAIL is the ops account. Ops users are otherwise only
+  // created by the seed, which a real deploy skips (docs/12), and nobody should need a
+  // database console to reach /ops. The env var is server-side, so this is no wider
+  // than the deploy itself; it also upgrades an existing participant row with that
+  // address rather than leaving two identities behind one email.
+  const opsEmail = normaliseEmail(process.env.OPS_EMAIL ?? '')
+  if (opsEmail && email === opsEmail) {
+    if (user && user.role !== 'OPS') {
+      await prisma.user.update({ where: { id: user.id }, data: { role: 'OPS', state: 'ACTIVE' } })
+    }
+    if (!user) {
+      const created = await prisma.user.create({
+        data: {
+          authId: `email_${randomToken(12)}`,
+          email,
+          role: 'OPS',
+          state: 'ACTIVE',
+          referralCode: `OPS${randomToken(4).replace(/[^a-z0-9]/gi, 'X').toUpperCase()}`,
+        },
+        select: { authId: true },
+      })
+      return { ok: true, authId: created.authId, email, next: '/ops' }
+    }
+    return { ok: true, authId: user.authId, email, next: '/ops' }
+  }
+
   if (user) {
     const next = user.role === 'OPS' ? '/ops' : user.state === 'SIGNED_UP' ? '/onboarding' : '/campaigns'
     return { ok: true, authId: user.authId, email, next }
