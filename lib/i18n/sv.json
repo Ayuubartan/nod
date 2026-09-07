@@ -258,7 +258,8 @@
       "quizOptionB": "#ad längst ner bland 20 andra hashtags",
       "quizOptionC": "Ingen märkning, det syns ju att det är en produkt",
       "quizWrong": "Inte riktigt. Märkningen ska stå först och vara tydlig.",
-      "quizRight": "Precis. Först i bildtexten, tydligt och på svenska."
+      "quizRight": "Precis. Först i bildtexten, tydligt och på svenska.",
+      "finish": "Klar – gå med"
     },
     "training": {
       "title": "Hjälp oss bli bättre",
@@ -282,7 +283,8 @@
       "title": "Du är med.",
       "sub": "Nästa drop: {date}.",
       "invite": "Bjud in en kompis",
-      "browse": "Se kampanjer"
+      "browse": "Se kampanjer",
+      "swishLater": "Ditt Swish-nummer lägger du till i plånboken när den första ersättningen är på väg."
     }
   },
   "verify": {
@@ -462,7 +464,10 @@
     "threshold": "Vi betalar ut automatiskt när du når {amount}, inom 48 timmar.",
     "transactions": "Händelser",
     "cards": "Dina kvitton",
-    "empty": "Inga händelser än."
+    "empty": "Inga händelser än.",
+    "addSwish": "Swish för utbetalning",
+    "addSwishHint": "Lägg till numret när du vill – vi behöver det först när din första ersättning ska betalas ut.",
+    "addSwishNow": "Du har pengar på väg. Lägg till ditt Swish-nummer så kan vi betala ut."
   },
   "accounts": {
     "title": "Konton",
@@ -541,7 +546,6 @@
     "reserved": "Reserverat",
     "available": "Tillgängligt",
     "participants": "Deltagare",
-    "signups": "Anmälningar",
     "placements": "Placeringar",
     "qualifiedViews": "Kvalificerade visningar",
     "effectiveCpm": "Effektiv CPM",

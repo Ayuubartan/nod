@@ -22,6 +22,13 @@ Three surfaces in one Next.js app, separated by route group and role. Responsive
 
 BankID is **not** in onboarding. It gates the first claim (see A3).
 
+> **As built (2026-09-07):** screens 6–8 are no longer in the flow. A new creator has
+> nothing to pay out, train on or be notified about yet, so the flow is 1–5 and done —
+> four screens for a Creator account. Swish is asked for in the wallet (highlighted as
+> soon as money is pending) and in settings; training consent lives in settings, default
+> off; the done screen offers the notification permission. `completeOnboarding` still
+> accepts the old fields.
+
 Track drop-off per screen in PostHog. Targets: ≥60% complete 1→9, ≥70% accept Creator switch.
 
 ### A2. Marketplace — `/campaigns`

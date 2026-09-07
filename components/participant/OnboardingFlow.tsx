@@ -34,12 +34,19 @@ const CITIES = ['stockholm', 'goteborg', 'malmo', 'uppsala', 'other'] as const
 /** No under-18 option exists anywhere in NOD (docs/07 section 6). */
 const AGE_BRACKETS = ['18-20', '21-25', '26-30', '31+'] as const
 
-const TOTAL_STEPS = 9
+/** Screens 1–5 are counted; the done screen is not a step. */
+const TOTAL_STEPS = 5
+const DONE = 6
 
 /**
- * The nine onboarding screens from docs/02 A1, as one client flow so the whole thing is
- * a single page load on a phone. Each step fires a PostHog event so the drop-off funnel
- * in the M1 acceptance criteria is measurable per screen.
+ * Onboarding as one client flow, so the whole thing is a single page load on a phone.
+ * Each step fires a PostHog event so the drop-off funnel in the M1 acceptance criteria
+ * is measurable per screen.
+ *
+ * DECISION: docs/02 A1 has nine screens; this is five plus a done screen. Swish,
+ * training consent and notifications were moved to where they first matter (wallet,
+ * settings, the done screen) — see completeOnboarding. A creator account also skips
+ * the Creator-switch screen, so most people see four.
  */
 export function OnboardingFlow({
   authId,
@@ -67,11 +74,11 @@ export function OnboardingFlow({
   // step 2
   const [handle, setHandle] = useState('')
   const [accounts, setAccounts] = useState<ExistingAccount[]>(existing?.accounts ?? [])
-  // step 5-7
+  // step 5
   const [quizAnswer, setQuizAnswer] = useState<string | null>(null)
   const [termsAccepted, setTermsAccepted] = useState(false)
-  const [trainingConsent, setTrainingConsent] = useState(false)
-  const [swishNumber, setSwishNumber] = useState('')
+  // done screen
+  const [notifying, setNotifying] = useState(false)
 
   const account = accounts[0] ?? null
 
@@ -130,20 +137,19 @@ export function OnboardingFlow({
     const result = await completeOnboarding({
       termsAccepted: termsAccepted as true,
       disclosureQuizPassed: (quizAnswer === 'a') as true,
-      trainingConsent,
-      swishNumber,
     })
     setPending(false)
 
     if (result.ok) {
       track(EVENTS.onboardingCompleted, {})
-      go(9)
+      go(DONE)
     } else {
       setError(result.error)
     }
   }
 
   async function onEnableNotifications() {
+    setNotifying(true)
     try {
       const permission = await Notification.requestPermission()
       if (permission === 'granted' && 'serviceWorker' in navigator) {
@@ -157,7 +163,7 @@ export function OnboardingFlow({
     } catch {
       // Denied or unsupported — the SMS fallback covers it (docs/06 section 7).
     }
-    go(9)
+    router.push('/campaigns')
   }
 
   const estimate = account
@@ -166,9 +172,11 @@ export function OnboardingFlow({
 
   return (
     <div className="max-w-md mx-auto">
-      <p className="text-xs text-[var(--color-ink-3)] mb-4 tabular">
-        {t('stepOf', { step, total: TOTAL_STEPS })}
-      </p>
+      {step <= TOTAL_STEPS && (
+        <p className="text-xs text-[var(--color-ink-3)] mb-4 tabular">
+          {t('stepOf', { step, total: TOTAL_STEPS })}
+        </p>
+      )}
 
       {step === 1 && (
         <section className="card p-5 grid gap-4">
@@ -354,88 +362,20 @@ export function OnboardingFlow({
             )}
           </div>
 
-          <button
-            type="button"
-            className="btn btn-primary w-full"
-            disabled={!termsAccepted || quizAnswer !== 'a'}
-            onClick={() => go(6)}
-          >
-            {common('next')}
-          </button>
-        </section>
-      )}
-
-      {step === 6 && (
-        <section className="card p-5 grid gap-4">
-          <h1 className="text-xl">{t('training.title')}</h1>
-
-          {/* Separate, unbundled, default off, revocable (docs/07 section 2). */}
-          <label className="flex gap-3 items-start text-sm">
-            <input
-              type="checkbox"
-              checked={trainingConsent}
-              onChange={(e) => setTrainingConsent(e.target.checked)}
-              className="mt-1 size-4 accent-[var(--color-amber)]"
-            />
-            <span>{t('training.consent')}</span>
-          </label>
-
-          <p className="text-xs text-[var(--color-ink-3)]">{t('training.note')}</p>
-
-          <button type="button" className="btn btn-primary w-full" onClick={() => go(7)}>
-            {common('next')}
-          </button>
-        </section>
-      )}
-
-      {step === 7 && (
-        <section className="card p-5 grid gap-4">
-          <h1 className="text-xl">{t('payout.title')}</h1>
-
-          <div>
-            <label className="label" htmlFor="ob-swish">
-              {t('payout.swish')}
-            </label>
-            <input
-              id="ob-swish"
-              className="field"
-              inputMode="tel"
-              placeholder="070-123 45 67"
-              value={swishNumber}
-              onChange={(e) => setSwishNumber(e.target.value)}
-            />
-            <p className="text-xs text-[var(--color-ink-3)] mt-1">{t('payout.swishHint')}</p>
-          </div>
-
-          {error && <p className="error-text">{error === 'invalidSwish' ? t('payout.invalid') : error}</p>}
+          {error && <p className="error-text">{error}</p>}
 
           <button
             type="button"
             className="btn btn-primary w-full"
-            disabled={pending || swishNumber.length < 6}
+            disabled={pending || !termsAccepted || quizAnswer !== 'a'}
             onClick={onFinish}
           >
-            {common('next')}
+            {t('terms.finish')}
           </button>
         </section>
       )}
 
-      {step === 8 && (
-        <section className="card p-5 grid gap-4">
-          <div>
-            <h1 className="text-xl mb-1">{t('notifications.title')}</h1>
-            <p className="text-sm text-[var(--color-ink-2)]">{t('notifications.sub')}</p>
-          </div>
-          <button type="button" className="btn btn-primary w-full" onClick={onEnableNotifications}>
-            {t('notifications.enable')}
-          </button>
-          <button type="button" className="btn btn-secondary w-full" onClick={() => go(9)}>
-            {t('notifications.skip')}
-          </button>
-        </section>
-      )}
-
-      {step === 9 && (
+      {step === DONE && (
         <section className="card p-5 text-center grid gap-4">
           <span className="nod-marker mx-auto" aria-hidden="true" />
           <h1 className="text-2xl">{t('done.title')}</h1>
@@ -447,9 +387,20 @@ export function OnboardingFlow({
           <button type="button" className="btn btn-primary w-full" onClick={() => router.push('/campaigns')}>
             {t('done.browse')}
           </button>
+          {typeof Notification !== 'undefined' && Notification.permission === 'default' && (
+            <button
+              type="button"
+              className="btn btn-secondary w-full"
+              disabled={notifying}
+              onClick={onEnableNotifications}
+            >
+              {t('notifications.enable')}
+            </button>
+          )}
           <button type="button" className="btn btn-secondary w-full" onClick={() => router.push('/invite')}>
             {t('done.invite')}
           </button>
+          <p className="text-xs text-[var(--color-ink-3)]">{t('done.swishLater')}</p>
         </section>
       )}
     </div>

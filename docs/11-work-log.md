@@ -197,6 +197,16 @@ Tests: `tests/session.test.ts` (tamper, expiry, junk) and `tests/login.db.test.t
 (hashing, rate limit, supersede, existing/new creator, brand ok/refused, brand address
 never becomes a creator identity, attempt burn, replay, expiry, open-redirect guard).
 
+### 8. Shorter creator onboarding
+
+Nine screens became five plus "done". Swish, training consent and the notification
+prompt were moved out of onboarding to the places they first matter (wallet + settings,
+settings, done screen) — `completeOnboarding` takes only terms + quiz now, with the old
+fields optional. The wallet shows a Swish card whenever no number is on file and turns
+it amber the moment money is pending, since `payableWallets` silently skips wallets
+without one. `SwishForm` is shared between wallet and settings. docs/02 A1 carries an
+"as built" note.
+
 ### 7. Live on Vercel — `docs/12-deploy.md`, `lib/storage.ts`
 
 The demo runs at nod-ayuubartans-projects.vercel.app: Vercel (arn1) + Neon Postgres from

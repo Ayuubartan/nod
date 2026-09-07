@@ -258,7 +258,8 @@
       "quizOptionB": "#ad at the bottom among 20 other hashtags",
       "quizOptionC": "No disclosure, you can tell it's a product anyway",
       "quizWrong": "Not quite. Disclosure goes first and has to be clear.",
-      "quizRight": "Exactly. First in the caption, clear, in the audience's language."
+      "quizRight": "Exactly. First in the caption, clear, in the audience's language.",
+      "finish": "Done – join"
     },
     "training": {
       "title": "Help us get better",
@@ -282,7 +283,8 @@
       "title": "You're in.",
       "sub": "Next drop: {date}.",
       "invite": "Invite a friend",
-      "browse": "See campaigns"
+      "browse": "See campaigns",
+      "swishLater": "You add your Swish number in the wallet once your first payout is on its way."
     }
   },
   "verify": {
@@ -462,7 +464,10 @@
     "threshold": "We pay out automatically once you reach {amount}, within 48 hours.",
     "transactions": "Transactions",
     "cards": "Your receipts",
-    "empty": "Nothing here yet."
+    "empty": "Nothing here yet.",
+    "addSwish": "Swish for payouts",
+    "addSwishHint": "Add the number whenever you like – we only need it when your first payout is due.",
+    "addSwishNow": "You have money on the way. Add your Swish number so we can pay you."
   },
   "accounts": {
     "title": "Accounts",

@@ -5,6 +5,8 @@ import { requireParticipant } from '@/lib/auth'
 import { walletBalance, walletPendingOre } from '@/lib/money/balances'
 import { formatKrDown, formatOre } from '@/lib/money/calc'
 import { DEFAULTS } from '@/lib/money/rates'
+import { tryDecrypt } from '@/lib/crypto'
+import { SwishForm } from '@/components/participant/SwishForm'
 
 /** Wallet — docs/02 A5: pending / available / paid out, plus the transaction list. */
 export const dynamic = 'force-dynamic'
@@ -36,6 +38,12 @@ export default async function WalletPage() {
     }),
   ])
 
+  // Onboarding does not ask for Swish; the first place it matters is here.
+  const swish = tryDecrypt(user.swishNumber)
+  const maskedSwish = swish ? `${swish.slice(0, 6)}•••${swish.slice(-2)}` : null
+  const needsSwish = !swish
+  const hasMoney = balance.availableOre > 0 || pendingOre > 0
+
   const stats = [
     { label: t('pending'), value: pendingOre, tone: 'var(--color-ink-2)' },
     { label: t('available'), value: balance.availableOre, tone: 'var(--color-amber-dk)' },
@@ -60,6 +68,14 @@ export default async function WalletPage() {
       <p className="text-xs text-[var(--color-ink-3)] mb-6">
         {t('threshold', { amount: formatKrDown(DEFAULTS.payoutThresholdOre) })}
       </p>
+
+      {needsSwish && (
+        <section className={`card p-4 mb-6 ${hasMoney ? 'border-[var(--color-amber)]' : ''}`}>
+          <h2 className="label">{t('addSwish')}</h2>
+          <p className="text-sm text-[var(--color-ink-2)] mb-3">{t(hasMoney ? 'addSwishNow' : 'addSwishHint')}</p>
+          <SwishForm maskedSwish={maskedSwish} primary={hasMoney} />
+        </section>
+      )}
 
       {cards.length > 0 && (
         <section className="mb-6">

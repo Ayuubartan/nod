@@ -8,8 +8,8 @@ import {
   exportMyData,
   requestDeletion,
   setTrainingConsent,
-  updateSwishNumber,
 } from '@/app/(participant)/actions'
+import { SwishForm } from './SwishForm'
 
 export function SettingsPanel({
   trainingConsent,
@@ -28,8 +28,6 @@ export function SettingsPanel({
   const router = useRouter()
 
   const [consent, setConsent] = useState(trainingConsent)
-  const [swish, setSwish] = useState('')
-  const [swishError, setSwishError] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [pending, setPending] = useState(false)
 
@@ -71,34 +69,7 @@ export function SettingsPanel({
 
       <section className="card p-4">
         <h2 className="label">{t('payout')}</h2>
-        {maskedSwish && <p className="text-sm tabular mb-2">{maskedSwish}</p>}
-        <input
-          className="field mb-2"
-          inputMode="tel"
-          placeholder="070-123 45 67"
-          value={swish}
-          onChange={(e) => setSwish(e.target.value)}
-        />
-        {swishError && <p className="error-text mb-2">{swishError}</p>}
-        <button
-          type="button"
-          className="btn btn-secondary w-full text-sm"
-          disabled={pending || swish.length < 6}
-          onClick={async () => {
-            setPending(true)
-            const result = await updateSwishNumber(swish)
-            setPending(false)
-            if (result.ok) {
-              setSwish('')
-              setSwishError(null)
-              router.refresh()
-            } else {
-              setSwishError(result.error)
-            }
-          }}
-        >
-          {common('save')}
-        </button>
+        <SwishForm maskedSwish={maskedSwish} />
       </section>
 
       <section className="card p-4">

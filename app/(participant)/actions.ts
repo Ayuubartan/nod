@@ -119,20 +119,30 @@ export async function connectAccount(code: string): Promise<ActionResult<{ tier:
 const onboardingSchema = z.object({
   termsAccepted: z.literal(true),
   disclosureQuizPassed: z.literal(true),
-  trainingConsent: z.boolean(),
-  swishNumber: z.string().min(6),
+  trainingConsent: z.boolean().default(false),
+  swishNumber: z.string().optional(),
   categories: z.array(z.string()).default([]),
 })
 
-/** Onboarding steps 5–7 in one submit, then the ONBOARDED transition. */
+/**
+ * The terms screen's submit, then the ONBOARDED transition.
+ *
+ * DECISION: docs/02 A1 lists Swish, training consent and notifications as their own
+ * onboarding screens. They are all things a new creator cannot yet act on — there is
+ * no money to pay out, nothing to train on, nothing to be notified about — so the flow
+ * asks for them where they first matter instead: Swish in the wallet (and settings)
+ * before the first payout, training consent in settings (default off, docs/07 s.2),
+ * notifications on the done screen. Both fields stay accepted here so nothing breaks
+ * if a client still sends them.
+ */
 export async function completeOnboarding(input: unknown): Promise<ActionResult> {
   const user = await requireParticipant()
 
   const parsed = onboardingSchema.safeParse(input)
   if (!parsed.success) return fail(parsed.error.issues[0]?.path.join('.') ?? 'invalid')
 
-  const swish = normaliseSwishNumber(parsed.data.swishNumber)
-  if (!swish) return fail('invalidSwish')
+  const swish = parsed.data.swishNumber ? normaliseSwishNumber(parsed.data.swishNumber) : null
+  if (parsed.data.swishNumber && !swish) return fail('invalidSwish')
 
   await prisma.user.update({
     where: { id: user.id },
@@ -140,7 +150,7 @@ export async function completeOnboarding(input: unknown): Promise<ActionResult> 
       termsAcceptedAt: new Date(),
       disclosureQuizAt: new Date(),
       trainingConsent: parsed.data.trainingConsent,
-      swishNumber: encrypt(swish),
+      ...(swish ? { swishNumber: encrypt(swish) } : {}),
     },
   })
 
@@ -395,6 +405,7 @@ export async function updateSwishNumber(raw: string): Promise<ActionResult> {
   if (!swish) return fail('invalidSwish')
   await prisma.user.update({ where: { id: user.id }, data: { swishNumber: encrypt(swish) } })
   revalidatePath('/settings')
+  revalidatePath('/wallet')
   return { ok: true }
 }
 
