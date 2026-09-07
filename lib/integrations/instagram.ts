@@ -1,20 +1,42 @@
 /**
  * Instagram — read-only.
  *
- * VERIFIED: not yet against live Meta docs. Before enabling the real implementation,
- * read the current "Instagram API with Instagram Login" reference, confirm the scope
- * names and the insights metric names for each media type, and record the date and the
- * doc URL here. Do not implement from memory (docs/06 preamble).
+ * VERIFIED: 2026-09-07 against Meta's live documentation (docs/06 preamble).
+ *   - Business Login, scopes and endpoints:
+ *     https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login
+ *     https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/business-login
+ *   - Media insights metrics and required permission:
+ *     https://developers.facebook.com/documentation/instagram-platform/reference/instagram-media/insights
+ *
+ * What that check confirmed, and what it changes for NOD:
+ *
+ *   - `instagram_business_manage_insights` is the correct scope for media insights on
+ *     the Instagram-Login flow (the Facebook-Login flow uses `instagram_manage_insights`,
+ *     which NOD does not use).
+ *   - `views` is a real metric and is available on Stories, Reels and feed posts. It is
+ *     the right one to bill on. `impressions` is deprecated for media created after
+ *     2 July 2024, so NOD must never fall back to it.
+ *   - The API returns nothing for media owned by personal accounts, which is exactly why
+ *     the CONNECTED_SCREENSHOT tier exists (docs/03 SocialAccount sub-states).
+ *   - Meta documents that some metrics are unavailable on accounts with fewer than 100
+ *     followers. NOD's eligibility floor is 300 followers (docs/05), so the floor sits
+ *     above that boundary — but see `insights()` for how a missing metric is handled.
  *
  * CLAUDE.md rule 6: NOD never posts on a user's behalf. The scope list below contains
- * no publishing permission, and `assertNoWriteScopes` fails the build path if one is
+ * no publishing permission — notably not `instagram_business_content_publish`, which is
+ * the one Meta offers for it — and `assertNoWriteScopes` fails at module load if one is
  * ever added.
  */
 
 import { hashSubject } from '@/lib/crypto'
 import type { ConnectedAccount, Media, SocialProfile, SocialProvider, SocialToken } from './types'
 
-/** Read-only scopes only. Adding a publish scope here throws at startup. */
+/**
+ * Read-only scopes only — verified 2026-09-07 (see the file header).
+ * Meta's full set also includes `instagram_business_content_publish`,
+ * `instagram_business_manage_messages` and `instagram_business_manage_comments`.
+ * NOD requests none of them, by rule.
+ */
 const SCOPES = ['instagram_business_basic', 'instagram_business_manage_insights'] as const
 
 const WRITE_SCOPE_MARKERS = ['publish', 'content_publish', 'manage_comments', 'manage_messages', 'write']
@@ -139,13 +161,30 @@ export class InstagramProvider implements SocialProvider {
   /**
    * Story insights are only readable while the Story is alive, so the hold-end job
    * schedules the pull at holdEndsAt minus 30 minutes (docs/06 section 1).
+   *
+   * Asks for `views` and `reach` only. Both are documented on Stories, Reels and feed
+   * posts, so one request shape covers every content type NOD supports. `impressions`
+   * is deliberately not requested: Meta deprecated it for media created after
+   * 2 July 2024, and billing a brand on a deprecated metric is not a position to be in.
+   *
+   * A metric Meta declines to return (small accounts, or a media type that does not
+   * carry it) comes back absent rather than zero. Returning 0 views would silently
+   * qualify a placement at the view floor and underpay the participant, so an absent
+   * `views` throws and the placement falls to the ops verification queue instead.
    */
   async insights(token: string, mediaId: string): Promise<{ views: number; reach: number | null }> {
     const response = await this.get<{ data: Array<{ name: string; values: Array<{ value: number }> }> }>(
       `${GRAPH}/${mediaId}/insights?metric=views,reach&access_token=${token}`,
     )
-    const byName = new Map(response.data.map((m) => [m.name, m.values[0]?.value ?? 0]))
-    return { views: byName.get('views') ?? 0, reach: byName.get('reach') ?? null }
+
+    const byName = new Map(response.data.map((m) => [m.name, m.values[0]?.value]))
+    const views = byName.get('views')
+
+    if (typeof views !== 'number') {
+      throw new Error(`Instagram returned no "views" metric for media ${mediaId}`)
+    }
+
+    return { views, reach: byName.get('reach') ?? null }
   }
 
   async refresh(token: string): Promise<SocialToken> {

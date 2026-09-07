@@ -70,3 +70,27 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/nod_test?schema=publ
    of one.
 3. **NOD never posts on anyone's behalf.** No social API write scope exists in the codebase;
    `assertNoWriteScopes` throws at module load if one is ever added.
+
+## Turning on the M5 automations
+
+Everything in Milestone 5 is written and tested. Each piece activates from configuration,
+not a deploy, and each has a working fallback until it does.
+
+| Set these | And this happens |
+|---|---|
+| `INPAINT_PROVIDER` + `INPAINT_API_KEY` | Placements render automatically. The ops generation queue becomes review-only; on any provider failure the placement falls back to it rather than costing the participant their 48 hours. |
+| `SWISH_CERT_PATH` + `SWISH_PAYER_ALIAS` | Payouts go through the Swish API instead of the CSV. Instruction ids are deterministic per (batch, wallet), so a retry cannot pay twice; an ambiguous result is queued for a human, never retried. |
+| `NOD_MARKET=DK` | The broker asks for MitID instead of BankID. `SE`, `NO` and `FI` work the same way. |
+| Nothing | Fraud v1 turns itself on once a campaign has 20 decided placements. The fill model switches from an upper-bound heuristic to measured claim and completion rates the moment the first campaign closes, and tells the brand which one it used. |
+
+## Seeing it locally
+
+`pnpm dev`, then open `/dev`. It lists every seeded participant, brand user and ops
+account with a button that signs you in as them — NOD has no password login, so this is
+the only practical way to walk the three surfaces. The page 404s in production and the
+cookie it sets is ignored there.
+
+`pnpm db:reset` puts the demo data back. You will want it: exercising the product leaves
+real consequences behind, because it is supposed to. Reject a placement for a missing
+disclosure and the participant picks up a strike and gets flagged, which correctly blocks
+their next claim.

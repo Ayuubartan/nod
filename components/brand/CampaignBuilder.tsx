@@ -46,6 +46,13 @@ type Draft = {
   /** Eligible accounts and their average views, for the fill-rate preview. */
   eligibleAccounts: number
   medianAvgViews: number
+  /** Measured rates from completed campaigns; null until there is history. */
+  rates: {
+    claimRate: number
+    completionRate: number
+    medianDaysToFill: number
+    sampleSize: number
+  } | null
 }
 
 const CITIES = ['stockholm', 'goteborg', 'malmo', 'uppsala']
@@ -114,8 +121,9 @@ export function CampaignBuilder({ draft }: { draft: Draft }) {
     }
   }
 
-  // Fill-rate heuristic — docs/02 B1 step 5: a simple estimate from eligible-account
-  // count and average views, replaced by a real model after campaign 1 (docs/09 M5).
+  // Fill forecast — docs/02 B1 step 5. Recomputed live as the brand moves the price,
+  // so it must stay synchronous; `estimateFill` in lib/fill-model.ts is the same
+  // arithmetic on the server for anything that needs it off-screen.
   const template = {
     fixedOre: form.fixedOre,
     cpmOre: form.cpmOre,
@@ -130,11 +138,29 @@ export function CampaignBuilder({ draft }: { draft: Draft }) {
     form.perPlacementMaxOre,
   )
   const placementsAffordable = perPlacement > 0 ? Math.floor(form.budgetOre / perPlacement) : 0
+
+  // With measured rates the forecast is capped by whichever runs out first, money or
+  // willing participants. Without them it is the budget-capacity upper bound.
+  const expectedClaims = draft.rates
+    ? Math.floor(draft.eligibleAccounts * draft.rates.claimRate)
+    : draft.eligibleAccounts
+  const expectedCompleted = draft.rates
+    ? Math.floor(Math.min(expectedClaims, placementsAffordable) * draft.rates.completionRate)
+    : Math.min(expectedClaims, placementsAffordable)
+
   const fillPercent =
-    draft.eligibleAccounts > 0
-      ? Math.min(100, Math.round((placementsAffordable / draft.eligibleAccounts) * 100))
+    placementsAffordable > 0
+      ? Math.min(100, Math.round((expectedCompleted / placementsAffordable) * 100))
       : 0
-  const estimatedDays = placementsAffordable > 0 ? Math.max(1, Math.ceil(placementsAffordable / 25)) : 0
+
+  const demandRatio = placementsAffordable > 0 ? expectedClaims / placementsAffordable : 0
+  const estimatedDays = draft.rates
+    ? demandRatio >= 1
+      ? Math.max(1, Math.round(draft.rates.medianDaysToFill / Math.max(1, demandRatio)))
+      : Math.round(draft.rates.medianDaysToFill)
+    : placementsAffordable > 0
+      ? Math.max(1, Math.ceil(placementsAffordable / 25))
+      : 0
 
   return (
     <div className="max-w-2xl">
@@ -499,6 +525,17 @@ export function CampaignBuilder({ draft }: { draft: Draft }) {
               At this price, expected fill ~{fillPercent}% in {estimatedDays} days (
               {placementsAffordable.toLocaleString('sv-SE')} placements at ~
               {formatKrDown(perPlacement)} reserved each).
+            </p>
+            <p className="text-xs text-[var(--color-ink-3)] mt-1">
+              {draft.rates
+                ? `Based on ${Math.round(draft.rates.claimRate * 100)}% claim and ${Math.round(
+                    draft.rates.completionRate * 100,
+                  )}% completion measured across ${draft.rates.sampleSize} completed ${
+                    draft.rates.sampleSize === 1 ? 'campaign' : 'campaigns'
+                  }.`
+                : `Upper bound: assumes every one of ${draft.eligibleAccounts.toLocaleString(
+                    'sv-SE',
+                  )} eligible accounts claims. Replaced by measured rates after the first campaign closes.`}
             </p>
           </div>
 

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { requireBrandUser } from '@/lib/auth'
 import { flag } from '@/lib/flags'
 import { CampaignBuilder } from '@/components/brand/CampaignBuilder'
+import { measureHistoricalRates } from '@/lib/fill-model'
 
 /** Campaign builder — docs/02 B1. */
 export const dynamic = 'force-dynamic'
@@ -45,6 +46,11 @@ export default async function EditCampaignPage({ params }: { params: Promise<{ i
   const sorted = eligible.map((a) => a.avgViews30d).sort((a, b) => a - b)
   const medianAvgViews = sorted.length > 0 ? (sorted[Math.floor(sorted.length / 2)] ?? 0) : 0
 
+  // Measured claim and completion rates from campaigns that have run to completion.
+  // Null until there is history, in which case the builder falls back to the heuristic
+  // and says so (docs/09 M5 task 5).
+  const rates = await measureHistoricalRates()
+
   return (
     <div>
       <h1 className="text-2xl mb-6">{campaign.name}</h1>
@@ -83,6 +89,7 @@ export default async function EditCampaignPage({ params }: { params: Promise<{ i
             : null,
           eligibleAccounts: eligible.length,
           medianAvgViews,
+          rates,
         }}
       />
     </div>

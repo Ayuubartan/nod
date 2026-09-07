@@ -161,23 +161,39 @@ Milestones M0–M4 are implemented; M5 is scaffolded behind its interfaces.
 | M2 | Done | Campaign builder, funding, go-live, marketplace, claim → approved, ops generation queue |
 | M3 | Done | Publish → hold → verify → settle → wallet → payout batch, strikes, referral bonus |
 | M4 | Done | Brand dashboard, reconciliation, PDF report, disputes, notifications matrix, flags, audit |
-| M5 | Scaffolded | `HostedInpaintEngine` and `SwishPayoutsProvider` are named classes behind their interfaces that throw until a provider is chosen; the training export job is implemented and running |
+| M5 | Implemented, gated on credentials | Every task below is written and tested; each activates from configuration rather than a deploy |
+
+### M5, task by task
+
+| # | Task | State |
+|---|---|---|
+| 1 | `HostedInpaintEngine` | Implemented in `lib/integrations/inpaint.ts` with adapters for OpenAI, Stability and Replicate. Builds the mask from the participant's chosen region, and asks for a photograph rather than an advert. Activates when `INPAINT_PROVIDER` + `INPAINT_API_KEY` are set; `FallbackEngine` drops back to the ops queue on any failure, so a model outage never costs a participant their 48 hours. The queue becomes review-only rather than disappearing. |
+| 2 | Real Instagram insights + post detection | Implemented since M1. Meta's live docs were read on 2026-09-07 and the `// VERIFIED:` comment in `lib/integrations/instagram.ts` now records what changed: `views` is the correct billable metric, `impressions` is deprecated for media created after 2 July 2024, and an absent `views` now throws to the ops queue instead of silently reading as zero. Still gated on Meta app review. |
+| 3 | Swish Payouts API | Implemented in `lib/integrations/swish-api.ts`: mutual TLS with the bank certificate, a separate signing key, and a deterministic instruction id per (batch, wallet) so a retry cannot pay twice. An ambiguous result is reported `PENDING_MANUAL_CHECK` rather than retried. Activates on `SWISH_CERT_PATH` + `SWISH_PAYER_ALIAS`; the manual CSV flow runs until then. |
+| 4 | Fraud score v1 | Implemented in `lib/fraud-v1.ts`: cluster timing, identical view counts, threshold probing and cross-campaign rejection rate, composed on top of v0 so it can only ever raise suspicion. Stays dormant until a campaign has 20 decided placements, so a pilot's first placements are not flagged by coincidence. Geo now derives from the platform's audience-by-country where exposed, and an unknown audience is never penalised. |
+| 5 | Fill-rate model | Implemented in `lib/fill-model.ts`. Measures claim rate, completion rate and days-to-fill from campaigns that have actually closed, and reports which basis it used — the builder tells the brand whether the forecast is measured data or an upper bound. Falls back to the heuristic until the first campaign closes. |
+| 6 | Training export | Implemented in `inngest/training.ts`. Weekly, consent re-checked at export time, pseudonymised per export so two exports cannot be joined, and timings relative rather than absolute. |
+| 7 | Second market | `ACR_VALUES` covers SE/DK/NO/FI and `NOD_MARKET` selects one; `acrFor()` picks same-device on mobile and QR on desktop for Swedish BankID. Broker docs verified 2026-09-07 (note the vendor's docs moved to docs.idura.app). `birthYearFromSubject` handles both a personnummer and MitID's ISO birthdate. Gated on the volume trigger in the plan, not on code. |
+
+**What M5 cannot finish without campaign 1:** the plan says "Update `docs/05` with the real numbers from campaign 1 before touching pricing code", and nothing here touches pricing. The fill model is the one piece that genuinely improves with data, and it is built to start using it the moment the first campaign closes — no deploy needed.
 
 ### What still needs a human, not a commit
 
 These are the items the docs themselves mark as external. None is a code gap.
 
-- **`// VERIFIED:` comments** in `lib/integrations/instagram.ts` and `bankid.ts` still say "not yet".
-  docs/06 requires reading the provider's live docs and recording the date and URL before
-  the real implementations are enabled. The fakes and the manual paths work today.
-- **Meta app review** for the insights scopes — weeks of lead time (docs/06 §1).
+- **Meta app review** for the insights scopes — weeks of lead time (docs/06 §1). The code
+  and the `// VERIFIED:` check are done; the approval is not.
 - **BankID broker contract** — the sandbox works from day one; production needs the agreement.
 - **[LAWYER]** items in docs/07: disclosure wording against current Konsumentverket guidance,
   the `subjectHash` retention basis, and whether a DPIA is required.
 - **[ACCOUNTANT]** items in docs/07 §5: agent vs principal (this decides VAT treatment and the
   shape of the income statement), `kontrolluppgift` obligations on payouts to private
   individuals, and the client-funds bank arrangement.
-- **Swish Företag** account, and later the Payouts API bank agreement and certificate.
+- **Swish Företag** account, and the Payouts API bank agreement and certificate. The API
+  client is written and tested; it needs the certificate files to switch on.
+- **An inpainting provider decision.** Three adapters exist. Which one NOD uses is a
+  quality judgement that wants a side-by-side on real participant photos, not a coin toss,
+  and their `// VERIFIED:` check is still outstanding.
 - **Domain** — `NEXT_PUBLIC_SITE_URL` is the only place it appears; nothing hardcodes `nod.se`.
 
 ### One number corrected against docs/01

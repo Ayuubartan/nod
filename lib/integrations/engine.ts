@@ -11,19 +11,10 @@
  */
 
 import type { PlacementEngine, Region, RenderResult } from './types'
+import { heuristicRegions } from '@/lib/regions'
 
-/**
- * Heuristic candidate surfaces used before there is a model: the centre, the lower
- * third and the right third. Coordinates are normalised 0..1 so they survive any
- * resize between the participant's upload and the render.
- */
-export function heuristicRegions(): Region[] {
-  return [
-    { x: 0.34, y: 0.36, w: 0.32, h: 0.28, label: 'centre' },
-    { x: 0.08, y: 0.62, w: 0.4, h: 0.3, label: 'lower-third' },
-    { x: 0.58, y: 0.24, w: 0.34, h: 0.34, label: 'right-third' },
-  ]
-}
+// Re-exported for server callers; lib/regions.ts is the client-safe home for it.
+export { heuristicRegions }
 
 /**
  * The pilot engine. `render` does not produce an image: it marks the job deferred, and
@@ -54,24 +45,50 @@ export class OpsQueueEngine implements PlacementEngine {
 }
 
 /**
- * M5 slot. Kept as a named class with the real shape so swapping it in is a one-line
- * change in `placementEngine()` rather than a refactor. Throws rather than silently
- * degrading, so a misconfiguration is loud.
+ * M5 implementation 2 lives in ./inpaint.ts, which pulls in sharp and the storage layer.
+ * It is imported lazily below so a deployment that has not enabled it never loads it.
  */
-export class HostedInpaintEngine implements PlacementEngine {
-  readonly name = 'hosted-inpaint'
 
-  constructor(private readonly endpoint = process.env.INPAINT_ENDPOINT ?? '') {}
+/**
+ * Wraps a real engine so a provider failure degrades to the ops queue instead of costing
+ * the participant their 48 hours (docs/03 P-04: retry twice, then a human).
+ *
+ * This is what lets M5 ship incrementally: the hosted engine can be turned on for real
+ * traffic while the manual queue stays as the safety net underneath it.
+ */
+export class FallbackEngine implements PlacementEngine {
+  readonly name: string
 
-  async candidates(): Promise<Region[]> {
-    return heuristicRegions()
+  constructor(
+    private readonly primary: PlacementEngine,
+    private readonly fallback: PlacementEngine = new OpsQueueEngine(),
+  ) {
+    this.name = `${primary.name}+fallback`
   }
 
-  async render(): Promise<RenderResult> {
-    if (!this.endpoint) {
-      throw new Error('HostedInpaintEngine requires INPAINT_ENDPOINT. Pick the provider before enabling it (docs/06 section 6).')
+  async candidates(imagePath: string): Promise<Region[]> {
+    try {
+      return await this.primary.candidates(imagePath)
+    } catch {
+      return this.fallback.candidates(imagePath)
     }
-    throw new Error('HostedInpaintEngine is not implemented yet — Milestone 5.')
+  }
+
+  async render(args: Parameters<PlacementEngine['render']>[0]): Promise<RenderResult> {
+    try {
+      return await this.primary.render(args)
+    } catch (error) {
+      console.error(
+        JSON.stringify({
+          level: 'error',
+          msg: 'placement engine failed, falling back to the ops queue',
+          engine: this.primary.name,
+          placementId: args.placementId,
+          error: String(error),
+        }),
+      )
+      return this.fallback.render(args)
+    }
   }
 }
 
@@ -95,9 +112,28 @@ export class FakeEngine implements PlacementEngine {
 
 let cached: PlacementEngine | null = null
 
+/**
+ * Engine selection, in the order docs/06 section 6 lists the implementations:
+ *   fake (tests) -> hosted inpaint when configured, behind a fallback -> ops queue.
+ */
 export function placementEngine(): PlacementEngine {
   if (cached) return cached
-  cached = process.env.NOD_FAKE_PROVIDERS === '1' ? new FakeEngine() : new OpsQueueEngine()
+
+  if (process.env.NOD_FAKE_PROVIDERS === '1') {
+    cached = new FakeEngine()
+    return cached
+  }
+
+  if (process.env.INPAINT_API_KEY && process.env.INPAINT_PROVIDER) {
+    // Required lazily so sharp and the storage client stay out of deployments that have
+    // not enabled the hosted engine.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { HostedInpaintEngine } = require('./inpaint') as typeof import('./inpaint')
+    cached = new FallbackEngine(new HostedInpaintEngine())
+    return cached
+  }
+
+  cached = new OpsQueueEngine()
   return cached
 }
 

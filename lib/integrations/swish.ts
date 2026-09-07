@@ -65,14 +65,8 @@ export class ManualSwishProvider implements PayoutProvider {
   }
 }
 
-/** M5 slot: the real Swish Payouts API (needs a bank agreement and a certificate). */
-export class SwishPayoutsProvider implements PayoutProvider {
-  readonly name = 'swish-api'
-
-  async send(): Promise<PayoutResult[]> {
-    throw new Error('Swish Payouts API is not implemented yet — Milestone 5 (docs/06 section 5).')
-  }
-}
+// The real Swish Payouts API (M5) lives in ./swish-api.ts: it needs mutual TLS with a
+// bank-issued certificate, so it is loaded lazily and only when configured.
 
 export class FakePayoutProvider implements PayoutProvider {
   readonly name = 'fake-payout'
@@ -88,9 +82,26 @@ export class FakePayoutProvider implements PayoutProvider {
 
 let cached: PayoutProvider | null = null
 
+/**
+ * Provider selection: fake in tests, the real Payouts API once the bank certificate is
+ * in place, and the manual CSV flow until then (docs/06 section 5).
+ */
 export function payoutProvider(): PayoutProvider {
   if (cached) return cached
-  cached = process.env.NOD_FAKE_PROVIDERS === '1' ? new FakePayoutProvider() : new ManualSwishProvider()
+
+  if (process.env.NOD_FAKE_PROVIDERS === '1') {
+    cached = new FakePayoutProvider()
+    return cached
+  }
+
+  if (process.env.SWISH_CERT_PATH && process.env.SWISH_PAYER_ALIAS) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { SwishPayoutsProvider } = require('./swish-api') as typeof import('./swish-api')
+    cached = new SwishPayoutsProvider()
+    return cached
+  }
+
+  cached = new ManualSwishProvider()
   return cached
 }
 

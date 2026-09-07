@@ -16,6 +16,12 @@
 import type { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/db'
 import { assessFraud, type FraudAssessment } from '@/lib/fraud'
+import {
+  assessFraudV1,
+  collectCrossCampaignSignals,
+  crossCampaignSignalsAreMeaningful,
+  geoMatchFrom,
+} from '@/lib/fraud-v1'
 import { disclosurePresent, similarity } from '@/lib/media'
 import { qualifiedViews as computeQualified } from '@/lib/money/calc'
 import { LIMITS } from '@/lib/money/rates'
@@ -37,6 +43,8 @@ export type VerificationInput = {
   engagements?: number | null
   accountAgeDays?: number
   geoMatch?: number | null
+  /** Raw audience-by-country from the platform API, when the account exposes it (M5). */
+  audienceByCountry?: Record<string, number> | null
   /** True when the post is still live — decides whether a fix window is offered. */
   stillLive?: boolean
 }
@@ -175,7 +183,12 @@ export async function verify(
     input.accountAgeDays ??
     Math.floor((now.getTime() - placement.account.createdAt.getTime()) / (24 * 60 * 60 * 1000))
 
-  const assessment = assessFraud({
+  // Geo comes from the API where the account exposes it; an explicit geoMatch wins, and
+  // an account whose audience NOD cannot see is never penalised for it.
+  const geoMatch =
+    input.geoMatch ?? geoMatchFrom(input.audienceByCountry, placement.campaign.countries)
+
+  const baseInput = {
     views: input.views,
     avgViews30d: placement.account.avgViews30d,
     followers: placement.account.followers,
@@ -183,8 +196,24 @@ export async function verify(
     engagements: input.engagements ?? null,
     priorQualified,
     priorFraudRejects,
-    geoMatch: input.geoMatch ?? null,
-  })
+    geoMatch,
+  }
+
+  // v1 adds cross-campaign pattern detection, but only once the campaign has enough
+  // decided placements for a "cluster" to be distinguishable from coincidence. Below
+  // that it would just add noise to an ops queue with a 48h SLA (docs/09 M5 task 4).
+  const assessment = (await crossCampaignSignalsAreMeaningful(placement.campaignId))
+    ? assessFraudV1(
+        baseInput,
+        await collectCrossCampaignSignals({
+          placementId: input.placementId,
+          campaignId: placement.campaignId,
+          userId: placement.userId,
+          views: input.views,
+          decidedAt: now,
+        }),
+      )
+    : assessFraud(baseInput)
 
   // --- check 6: qualified views
   const qualified = computeQualified(input.views, assessment.geoFactor, assessment.fraudDiscount)

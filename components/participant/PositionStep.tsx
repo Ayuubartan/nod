@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { submitPosition } from '@/app/(participant)/actions'
 import { EVENTS, track } from '@/lib/analytics'
-import { heuristicRegions } from '@/lib/integrations/engine'
+import { heuristicRegions } from '@/lib/regions'
 
 type Asset = { id: string; name: string }
 type Region = { x: number; y: number; w: number; h: number; label?: string }

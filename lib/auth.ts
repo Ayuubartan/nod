@@ -48,15 +48,28 @@ export async function supabaseServer() {
   })
 }
 
+/** Dev-only session cookie, set by /dev. Never consulted in production. */
+export const DEV_AUTH_COOKIE = 'NOD_DEV_AUTH'
+
+/** True only outside production. Every dev shortcut in this file is gated on it. */
+export function devAuthAllowed(): boolean {
+  return process.env.NODE_ENV !== 'production'
+}
+
 /**
  * The signed-in auth id, or null.
  *
- * In development with no Supabase project configured, `NOD_DEV_AUTH_ID` stands in for a
- * session so the whole product is walkable locally. It is ignored in production.
+ * Outside production, a `NOD_DEV_AUTH` cookie (set from /dev) or the `NOD_DEV_AUTH_ID`
+ * env var stands in for a Supabase session, so the whole product is walkable locally
+ * with no auth provider configured. Both are ignored in production — the guard is the
+ * first thing this function checks, so there is no path to them from a real deploy.
  */
 export async function currentAuthId(): Promise<string | null> {
-  if (process.env.NODE_ENV !== 'production' && process.env.NOD_DEV_AUTH_ID) {
-    return process.env.NOD_DEV_AUTH_ID
+  if (devAuthAllowed()) {
+    const store = await cookies()
+    const fromCookie = store.get(DEV_AUTH_COOKIE)?.value
+    if (fromCookie) return fromCookie
+    if (process.env.NOD_DEV_AUTH_ID) return process.env.NOD_DEV_AUTH_ID
   }
 
   try {
