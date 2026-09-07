@@ -9,7 +9,9 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  // DECISION: named after what the Vercel Neon integration injects, so a deploy needs no
+  // env renaming. Supabase's integration calls it POSTGRES_URL_NON_POOLING (docs/12).
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 // ---------------------------------------------------------------- enums

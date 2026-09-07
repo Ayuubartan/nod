@@ -17,4 +17,4 @@ process.env.NEXT_PUBLIC_SITE_URL ??= 'http://localhost:3000'
 const testUrl =
   process.env.TEST_DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/nod_test?schema=public'
 process.env.DATABASE_URL = testUrl
-process.env.DIRECT_URL = testUrl
+process.env.DATABASE_URL_UNPOOLED = testUrl

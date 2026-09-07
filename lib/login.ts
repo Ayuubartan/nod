@@ -35,7 +35,7 @@ export type LoginError =
   | 'noBrandAccount'
 
 export type RequestResult =
-  | { ok: true; /** Only set when no mail provider is configured, and never in production. */ devCode?: string }
+  | { ok: true; /** Only set when no mail was sent; in production only with NOD_DEMO_LOGIN_CODE=1. */ devCode?: string }
   | { ok: false; error: LoginError }
 
 export type VerifyResult =
@@ -80,7 +80,11 @@ export async function requestCode(
   ])
 
   const { sent } = await loginCodeEmail(email, code, locale)
-  const showCode = !sent && process.env.NODE_ENV !== 'production'
+  // DECISION: a demo deploy without a mail provider would otherwise be unenterable, so
+  // NOD_DEMO_LOGIN_CODE=1 lets production show the code on the page — only while no
+  // mail was sent. Setting RESEND_API_KEY makes the mail go out and the hint vanish.
+  const demo = process.env.NOD_DEMO_LOGIN_CODE === '1'
+  const showCode = !sent && (process.env.NODE_ENV !== 'production' || demo)
   return showCode ? { ok: true, devCode: code } : { ok: true }
 }
 

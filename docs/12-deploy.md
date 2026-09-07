@@ -28,7 +28,7 @@ Create a project at supabase.com, **region EU (Stockholm or Frankfurt)**. Then:
    - `DATABASE_URL` = the **Transaction pooler** URI (port 6543) with
      `?pgbouncer=true&connection_limit=1` appended — this is what the serverless
      functions use.
-   - `DIRECT_URL` = the **Direct connection** URI (port 5432) — what
+   - `DATABASE_URL_UNPOOLED` = the **Direct connection** URI (port 5432) — what
      `prisma migrate deploy` uses during the build.
 2. Project Settings → API: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
    `SUPABASE_SERVICE_ROLE_KEY`.
@@ -37,8 +37,13 @@ Create a project at supabase.com, **region EU (Stockholm or Frankfurt)**. Then:
    URLs only.
 
 If you add Supabase through the Vercel Marketplace instead, it injects differently named
-variables. Map them: `DATABASE_URL` ← `POSTGRES_PRISMA_URL`, `DIRECT_URL` ←
+variables. Map them: `DATABASE_URL` ← `POSTGRES_PRISMA_URL`, `DATABASE_URL_UNPOOLED` ←
 `POSTGRES_URL_NON_POOLING`; the `SUPABASE_*` names match.
+
+The demo deploy uses **Neon** from the Vercel Marketplace instead (free tier, EU). Its
+integration injects `DATABASE_URL` and `DATABASE_URL_UNPOOLED` under exactly those
+names, which is why the Prisma schema uses them. Neon has no file storage, so uploads
+need the Supabase bucket (or Vercel Blob) before a real pilot.
 
 Seed data: after the first deploy, run once from your machine against the production
 database (`DATABASE_URL=<direct url> pnpm db:seed`) if you want the demo brand,
@@ -73,7 +78,7 @@ Variables. The full list for **Production**:
 | Variable | Value |
 | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | `https://<your-domain>` — used in emails, share links and OAuth redirects |
-| `DATABASE_URL`, `DIRECT_URL` | from step 1 |
+| `DATABASE_URL`, `DATABASE_URL_UNPOOLED` | from step 1 (injected automatically by the Neon or Supabase integration) |
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | from step 1 |
 | `SUPABASE_STORAGE_BUCKET` | `nod-media` |
 | `RESEND_API_KEY`, `EMAIL_FROM`, `OPS_EMAIL` | from step 2 |
@@ -81,6 +86,7 @@ Variables. The full list for **Production**:
 | `BANKID_SUBJECT_SALT` | a long random string; **never change it** once participants are verified, or every subject hash stops matching |
 | `NOD_MARKET` | `SE` |
 | `NOD_FAKE_PROVIDERS` | `1` for a demo deploy (see below); **unset** for a real pilot |
+| `NOD_DEMO_LOGIN_CODE` | `1` shows the sign-in code on the page while no mail provider is set, so a demo without Resend can be entered — by anyone with the URL. Remove it the moment `RESEND_API_KEY` exists. |
 
 Then `vercel --prod`. Vercel builds, migrates, and gives you a URL. Point the domain at
 it under Settings → Domains and set `NEXT_PUBLIC_SITE_URL` to match.

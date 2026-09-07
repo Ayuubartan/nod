@@ -38,7 +38,7 @@ Set-VercelEnv 'NEXT_PUBLIC_SITE_URL'  'https://nod-ayuubartans-projects.vercel.a
 
 Write-Host ""
 Write-Host "Still needed (Vercel dashboard -> Settings -> Environment Variables):"
-Write-Host "  DATABASE_URL, DIRECT_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,"
+Write-Host "  DATABASE_URL, DATABASE_URL_UNPOOLED, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,"
 Write-Host "  SUPABASE_SERVICE_ROLE_KEY   (Supabase)"
 Write-Host "  RESEND_API_KEY              (Resend)"
 Write-Host "Then: vercel --prod"
