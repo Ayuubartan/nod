@@ -168,6 +168,8 @@
     }
   },
   "brands": {
+    "metaTitle": "For brands",
+    "metaDescription": "NOD places your product naturally in the everyday posts of real, BankID-verified people in your target market.",
     "hero": {
       "title": "Reach thousands of real social circles through one campaign.",
       "sub": "NOD places your product naturally in the everyday posts of real, BankID-verified people in your target market. Disclosed, contextual, verified per view. One dashboard. One effective CPM.",
@@ -654,6 +656,8 @@
     "audit": "Audit"
   },
   "auth": {
+    "participantPageTitle": "Sign in",
+    "brandPageTitle": "Brand sign-in",
     "participantKicker": "Sign in",
     "participantTitle": "Sign in or create an account",
     "participantHint": "We'll email you a six-digit code. New here? You get an account right after the code — no password.",

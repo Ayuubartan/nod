@@ -7,10 +7,9 @@ import { DEFAULTS } from '@/lib/money/rates'
 // Dynamic for the same reason as the landing page: the locale lives in a cookie.
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  title: 'For brands',
-  description:
-    'NOD places your product naturally in the everyday posts of real, BankID-verified people in your target market.',
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('brands')
+  return { title: t('metaTitle'), description: t('metaDescription') }
 }
 
 /** /brands — docs/01. Brand side uses the blue accent, numbers first (docs/10). */

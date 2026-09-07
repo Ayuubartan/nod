@@ -36,7 +36,7 @@
     "accounts": "Konton",
     "invite": "Bjud in",
     "settings": "Inställningar",
-    "forBrands": "Är du ett brand?",
+    "forBrands": "Är du ett varumärke?",
     "signOut": "Logga ut",
     "signIn": "Logga in"
   },
@@ -44,16 +44,16 @@
     "eyebrow": "NOD · Stockholm beta",
     "hero": {
       "title": "Posta som vanligt. Tjäna på uppmärksamheten du redan har.",
-      "sub": "Brands betalar för att synas naturligt i dina bilder och stories. Du väljer brand, du väljer var, du godkänner allt. Sen postar du som vanligt och får betalt per visning.",
+      "sub": "Varumärken betalar för att synas naturligt i dina bilder och stories. Du väljer varumärke, du väljer var, du godkänner allt. Sen postar du som vanligt och får betalt per visning.",
       "ctaPrimary": "Ställ dig i kön",
-      "ctaSecondary": "Är du ett brand?",
+      "ctaSecondary": "Är du ett varumärke?",
       "phoneCaption": "En vanlig bild. En liten nod. 42 kr."
     },
     "how": {
       "title": "Så funkar det",
       "step1Title": "Välj en kampanj.",
-      "step1Body": "Bläddra bland brands som betalar just nu. Ta bara de du gillar.",
-      "step2Title": "Placera brandet.",
+      "step1Body": "Bläddra bland varumärken som betalar just nu. Ta bara de du gillar.",
+      "step2Title": "Placera varumärket.",
       "step2Body": "Ladda upp bilden du ändå skulle posta. Välj var produkten ska synas. Godkänn resultatet.",
       "step3Title": "Posta och få betalt.",
       "step3Body": "Posta till ditt eget konto med tydlig reklammärkning. Vi verifierar visningarna och betalar via Swish."
@@ -78,7 +78,7 @@
       "card2Title": "Alltid märkt som reklam",
       "card2Body": "Varje inlägg har tydlig reklammärkning. Det är lagen, och det är så vi håller det ärligt.",
       "card3Title": "Verifierat med BankID",
-      "card3Body": "En person, ett konto. Brands vet att varje deltagare är verklig. Inga bottar, inga fejkkonton."
+      "card3Body": "En person, ett konto. Varumärken vet att varje deltagare är verklig. Inga bottar, inga fejkkonton."
     },
     "who": {
       "title": "Vem kan vara med?",
@@ -99,7 +99,7 @@
       "q1": "Måste jag ha många följare?",
       "a1": "Nej. Från cirka 300 följare eller 100 snittvisningar.",
       "q2": "Vad händer med min bild?",
-      "a2": "Du laddar upp den, väljer var brandet ska synas och ser resultatet innan något publiceras. Du postar den själv. NOD postar aldrig åt dig.",
+      "a2": "Du laddar upp den, väljer var varumärket ska synas och ser resultatet innan något publiceras. Du postar den själv. NOD postar aldrig åt dig.",
       "q3": "Hur får jag betalt?",
       "a3": "Swish, inom 48 timmar efter verifiering. Minsta utbetalning 100 kr.",
       "q4": "Är det lagligt?",
@@ -164,10 +164,12 @@
       "contact": "Kontakt",
       "rights": "NOD",
       "cookies": "Cookies",
-      "brandAgreement": "Brandvillkor"
+      "brandAgreement": "Varumärkesvillkor"
     }
   },
   "brands": {
+    "metaTitle": "För varumärken",
+    "metaDescription": "NOD placerar din produkt naturligt i vardagsinlägg från riktiga, BankID-verifierade personer i din målgrupp.",
     "hero": {
       "title": "Nå tusentals verkliga sociala nätverk med en kampanj.",
       "sub": "NOD placerar din produkt naturligt i vardagsinlägg från riktiga, BankID-verifierade personer i din målgrupp. Märkt som reklam, kontextuellt, verifierat per visning. En dashboard. En effektiv CPM.",
@@ -180,7 +182,7 @@
       "cpm": "Effektiv CPM"
     },
     "how": {
-      "title": "Så funkar det för brands",
+      "title": "Så funkar det för varumärken",
       "step1": "Sätt budget, målgrupp och material",
       "step2": "Vi matchar behöriga deltagare",
       "step3": "De placerar och postar själva, märkt som reklam",
@@ -342,7 +344,7 @@
       "GENERATING": "Skapas",
       "GENERATION_FAILED": "Misslyckades",
       "PARTICIPANT_REVIEW": "Väntar på dig",
-      "BRAND_REVIEW": "Brandet granskar",
+      "BRAND_REVIEW": "Varumärket granskar",
       "APPROVED": "Redo att posta",
       "PUBLISHED": "Publicerad",
       "VERIFYING": "Verifieras",
@@ -352,7 +354,7 @@
       "REJECTED": "Nekad",
       "EXPIRED": "Utgången",
       "REJECTED_BY_PARTICIPANT": "Du nekade",
-      "REJECTED_BY_BRAND": "Brandet nekade",
+      "REJECTED_BY_BRAND": "Varumärket nekade",
       "DISPUTED": "Bestrids"
     },
     "brandStates": {
@@ -376,7 +378,7 @@
       }
     },
     "position": {
-      "title": "Var ska brandet synas?",
+      "title": "Var ska varumärket synas?",
       "sub": "Välj ett förslag eller rita en egen ruta.",
       "product": "Produkt",
       "confirm": "Fortsätt",
@@ -403,7 +405,7 @@
       "swap": "Byt produkt",
       "reject": "Neka",
       "rejectReason": "Varför?",
-      "brandReviewing": "Brandet granskar – oftast under 24 timmar."
+      "brandReviewing": "Varumärket granskar – oftast under 24 timmar."
     },
     "approved": {
       "title": "Redo att posta",
@@ -649,17 +651,19 @@
     "verification": "Verifiering",
     "payouts": "Utbetalningar",
     "participants": "Deltagare",
-    "brands": "Brands",
+    "brands": "Varumärken",
     "flags": "Flaggor",
     "audit": "Logg"
   },
   "auth": {
+    "participantPageTitle": "Logga in",
+    "brandPageTitle": "Logga in – varumärke",
     "participantKicker": "Logga in",
     "participantTitle": "Logga in eller skapa konto",
     "participantHint": "Vi mejlar en sexsiffrig kod. Är du ny får du ett konto direkt efter koden — inget lösenord.",
-    "brandKicker": "För brands",
-    "brandTitle": "Logga in till ditt brandkonto",
-    "brandHint": "Brandkonton skapas av NOD. Använd adressen ditt konto är registrerat på, så mejlar vi en kod.",
+    "brandKicker": "För varumärken",
+    "brandTitle": "Logga in till ditt varumärkeskonto",
+    "brandHint": "Varumärkeskonton skapas av NOD. Använd adressen ditt konto är registrerat på, så mejlar vi en kod.",
     "emailLabel": "E-post",
     "sendCode": "Skicka kod",
     "sending": "Skickar…",
@@ -670,7 +674,7 @@
     "changeEmail": "Byt adress",
     "resend": "Skicka ny kod",
     "devCode": "Ingen mejlleverantör är konfigurerad, så koden visas här: {code}",
-    "switchToBrand": "Är du ett brand? Logga in här.",
+    "switchToBrand": "Är du ett varumärke? Logga in här.",
     "switchToParticipant": "Är du kreatör? Logga in här.",
     "signOut": "Logga ut",
     "errors": {
@@ -679,7 +683,7 @@
       "noCode": "Det finns ingen giltig kod för den adressen. Be om en ny.",
       "wrongCode": "Fel kod. Kontrollera mejlet och försök igen.",
       "tooManyAttempts": "För många felaktiga försök. Be om en ny kod.",
-      "noBrandAccount": "Den adressen hör inte till något brandkonto. Kontakta hello@nod.se så hjälper vi dig."
+      "noBrandAccount": "Den adressen hör inte till något varumärkeskonto. Kontakta hello@nod.se så hjälper vi dig."
     }
   }
 }

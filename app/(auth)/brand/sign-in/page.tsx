@@ -1,4 +1,6 @@
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { getSession } from '@/lib/auth'
 import { safeNext } from '@/lib/login'
 import { LoginForm } from '@/components/LoginForm'
@@ -8,6 +10,11 @@ import { LoginForm } from '@/components/LoginForm'
  * (docs/02 section B). No self-serve signup by design (docs/09 "Not in scope").
  */
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('auth')
+  return { title: t('brandPageTitle') }
+}
 
 export default async function BrandSignInPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const { next } = await searchParams

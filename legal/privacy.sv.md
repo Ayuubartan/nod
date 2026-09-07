@@ -41,7 +41,7 @@ Om — och bara om — du kryssar i den separata rutan använder vi anonymiserad
 | BankID-hash | Sparas även efter radering, för att blockera återregistrering |
 | Övriga uppgifter | Raderas på begäran, med 30 dagars ångerfrist |
 
-## Vad brands ser
+## Vad varumärken ser
 
 Varumärken ser aggregerad statistik, din handle och länken till ditt publicerade inlägg — offentlig information. De ser **aldrig** din e-post, ditt telefonnummer, ditt Swish-nummer, din ålder eller några identitetsuppgifter.
 

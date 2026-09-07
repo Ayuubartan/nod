@@ -10,17 +10,17 @@ Route group: `app/(marketing)/`. Routes: `/` (participant-first), `/brands`, `/w
 - Eyebrow: `NOD · Stockholm beta`
 - H1 (sv): **Posta som vanligt. Tjäna på uppmärksamheten du redan har.**
 - H1 (en): **Post like you normally do. Earn from the attention you already have.**
-- Sub (sv): Brands betalar för att synas naturligt i dina bilder och stories. Du väljer brand, du väljer var, du godkänner allt. Sen postar du som vanligt och får betalt per visning.
+- Sub (sv): Varumärken betalar för att synas naturligt i dina bilder och stories. Du väljer varumärke, du väljer var, du godkänner allt. Sen postar du som vanligt och får betalt per visning.
 - Sub (en): Brands pay to appear naturally in your photos and Stories. You pick the brand, you pick where, you approve everything. Then you post as usual and get paid per view.
 - CTA primary: `Ställ dig i kön` / `Join the waitlist` → scrolls to form
-- CTA secondary: `Är du ett brand?` / `Are you a brand?` → `/brands`
+- CTA secondary: `Är du ett varumärke?` / `Are you a brand?` → `/brands`
 - Visual: a phone mock showing a normal café photo, a small amber "nod" marker on the cup, and a wallet card "+42 kr". No stock photos of influencers.
 
 ### 2. How it works (3 steps)
 | # | sv | en |
 |---|---|---|
-| 1 | **Välj en kampanj.** Bläddra bland brands som betalar just nu. Ta bara de du gillar. | **Pick a campaign.** Browse brands paying right now. Only take the ones you like. |
-| 2 | **Placera brandet.** Ladda upp bilden du ändå skulle posta. Välj var produkten ska synas. Godkänn resultatet. | **Place the brand.** Upload the photo you were going to post anyway. Choose where the product appears. Approve the result. |
+| 1 | **Välj en kampanj.** Bläddra bland varumärken som betalar just nu. Ta bara de du gillar. | **Pick a campaign.** Browse brands paying right now. Only take the ones you like. |
+| 2 | **Placera varumärket.** Ladda upp bilden du ändå skulle posta. Välj var produkten ska synas. Godkänn resultatet. | **Place the brand.** Upload the photo you were going to post anyway. Choose where the product appears. Approve the result. |
 | 3 | **Posta och få betalt.** Posta till ditt eget konto med tydlig reklammärkning. Vi verifierar visningarna och betalar via Swish. | **Post and get paid.** Post to your own account with clear ad disclosure. We verify the views and pay via Swish. |
 
 ### 3. Earnings estimator (interactive)
@@ -59,7 +59,7 @@ Fields (all required unless noted):
 On submit: insert `WaitlistEntry`, send confirmation email (Resend) with position number and a personal referral link (`nod.se/?ref=CODE` — domain placeholder), show success state with share buttons (copy link, Instagram Story share image).
 
 ### 8. Footer
-NOD · Stockholm · hello@ (placeholder) · Privacy · Terms · Language toggle · "Är du ett brand?"
+NOD · Stockholm · hello@ (placeholder) · Privacy · Terms · Language toggle · "Är du ett varumärke?"
 
 ## `/brands` page
 
