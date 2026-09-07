@@ -99,3 +99,20 @@ cookie it sets is ignored there.
 real consequences behind, because it is supposed to. Reject a placement for a missing
 disclosure and the participant picks up a strike and gets flagged, which correctly blocks
 their next claim.
+
+## The intro video
+
+`docs/media/nod-intro.mp4` is a 79-second explainer (1080p, narrated) that walks both
+sides of the marketplace: the problem, the participant flow, getting paid, the brand
+dashboard with a live creative swap, and the trust rules. It is rendered from code, not
+edited by hand: `scripts/intro-video/render.mjs` draws every frame as SVG in the app's
+own palette and pipes them through ffmpeg.
+
+```sh
+pnpm video:voice   # Windows only: narration WAVs via the built-in speech synthesizer
+pnpm video         # renders docs/media/nod-intro.mp4 (~5 min); add --quick for a 540p preview
+```
+
+Narration lines live in `scripts/intro-video/narration.json`; swap the voice files in
+`scripts/intro-video/.build/vo/` for a recorded human read and re-run `pnpm video`.
+`ffmpeg` must be on PATH.

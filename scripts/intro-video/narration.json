@@ -1,0 +1,14 @@
+{
+  "voice": "Microsoft Zira Desktop",
+  "rate": 0,
+  "lines": [
+    { "id": "s1-logo", "text": "This is NOD." },
+    { "id": "s2-problem", "text": "Ads interrupt. Influencers cost a fortune. And everyone else posts for free." },
+    { "id": "s3-idea", "text": "NOD puts real products into the posts people were already going to share, and pays them for every verified view." },
+    { "id": "s4-flow", "text": "Verify with Bank I D. Pick a campaign. Upload the photo you were about to post. NOD places the product. You approve it, and publish it yourself." },
+    { "id": "s5-paid", "text": "Views are verified. Disclosure is checked. And the money lands in your wallet." },
+    { "id": "s6-brand", "text": "For brands: upload a product once, set a budget, and NOD distributes it into hundreds of real posts. Change the creative any time. Placements that haven't been approved yet re-render instantly." },
+    { "id": "s7-trust", "text": "Bank I D verified people. Always disclosed. Paid only on verified views. And NOD never posts on anyone's behalf." },
+    { "id": "s8-cta", "text": "NOD. Post as usual. Get paid." }
+  ]
+}

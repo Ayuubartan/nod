@@ -18,7 +18,9 @@
     "db:push": "prisma db push",
     "db:seed": "tsx --conditions=react-server prisma/seed.ts",
     "inngest:dev": "inngest-cli dev -u http://localhost:3000/api/inngest",
-    "db:reset": "tsx prisma/reset.ts"
+    "db:reset": "tsx prisma/reset.ts",
+    "video:voice": "powershell -NoProfile -File scripts/intro-video/tts.ps1",
+    "video": "node scripts/intro-video/render.mjs"
   },
   "prisma": {
     "seed": "tsx --conditions=react-server prisma/seed.ts"

@@ -18,3 +18,6 @@ coverage/
 playwright-report/
 test-results/
 .storage/
+
+# intro video build artefacts (voice WAVs, composites, check frames)
+scripts/intro-video/.build/

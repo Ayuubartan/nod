@@ -146,6 +146,24 @@ anything waiting on me.*
    → in-flight placements re-render in the winter palette.
 4. `/dev` → ops → generation queue — empty unless `engine.autoRender` is off.
 
+### 5. Intro video — `scripts/intro-video/`
+
+An explainer/ad for NOD, rendered from code so it stays in sync with the product's
+palette and copy: `docs/media/nod-intro.mp4`, 1920×1080, 30 fps, 78.6 s, narrated.
+
+- `render.mjs` describes eight scenes as functions of time that return SVG (logo →
+  problem → idea → participant flow → getting paid → brand dashboard with a creative
+  swap → trust rules → call to action). sharp rasterises each frame, ffmpeg encodes
+  them from stdin, then a second pass mixes the narration and a synthesised pad.
+- The flow and brand scenes use real renders from the seed: Anna's kitchen photo with
+  the autumn and winter bags, and the shelf/sill composites from the creative swap, so
+  the "re-render" moment in the video is the actual output of `LocalCompositeEngine`.
+- `narration.json` + `tts.ps1` produce the voice with the Windows speech synthesizer
+  (Zira). It is a placeholder read; drop recorded WAVs with the same ids into
+  `.build/vo/` and re-run `pnpm video`. Missing WAVs fall back to music only.
+- `--frame <t> --png <file>` dumps a single frame, which is how the layout was checked
+  (contact sheets of eight frames per half).
+
 ### Still open
 
 - The compositor is a compositor: it does not relight, occlude or match perspective. The
@@ -153,3 +171,5 @@ anything waiting on me.*
 - Swaps re-render synchronously in the brand's request. Fine at pilot scale (tens of
   placements); at hundreds it should fan out to an Inngest job per placement.
 - Retired assets stay visible as "retired" in the manager; there is no un-retire yet.
+- The video's narration is synthetic. A human read (Swedish, ideally) is the obvious
+  upgrade; the timeline gives each scene ~1 s of slack after its line.
