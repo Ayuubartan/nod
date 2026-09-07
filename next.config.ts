@@ -12,6 +12,9 @@ const nextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: '12mb' as const },
   },
+  // lib/legal.ts reads legal/*.md from disk at request time; on Vercel only traced
+  // files ship with the function, so include them explicitly for every route.
+  outputFileTracingIncludes: { '/**/*': ['./legal/**/*'] },
   async headers() {
     return [
       {

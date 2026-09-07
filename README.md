@@ -114,6 +114,13 @@ real consequences behind, because it is supposed to. Reject a placement for a mi
 disclosure and the participant picks up a strike and gets flagged, which correctly blocks
 their next claim.
 
+## Deploying
+
+Vercel (Stockholm region) + Supabase (Postgres, private storage bucket) + Resend for
+mail. `docs/12-deploy.md` is the runbook; the short version is `vercel link`,
+`scripts/vercel-env.ps1`, paste the Supabase and Resend values into the Vercel
+dashboard, `vercel --prod`. Migrations run inside the build.
+
 ## The intro video
 
 `docs/media/nod-intro.mp4` is a 79-second explainer (1080p, narrated) that walks both
