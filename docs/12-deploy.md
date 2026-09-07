@@ -90,7 +90,11 @@ Every template lives in `lib/email.ts` in both languages; nothing else changes.
 
 ## 3. Vercel
 
-Project is linked from this directory (`.vercel/` is git-ignored).
+Project is linked from this directory (`.vercel/` is git-ignored) and connected to
+GitHub (`Ayuubartan/nod`, private): every push to `main` builds and deploys
+production; pull requests get preview URLs. `vercel deploy --prod` from a laptop still
+works but is no longer the normal path — push instead. CI (`.github/workflows/ci.yml`)
+runs typecheck, lint and the test suite on the same push.
 `powershell -NoProfile -File scripts/vercel-env.ps1` generates the two secrets and sets
 the fixed configuration in one go; the rest you paste in Settings → Environment
 Variables. The full list for **Production**:
