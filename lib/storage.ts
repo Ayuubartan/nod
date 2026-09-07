@@ -1,23 +1,46 @@
 /**
- * Supabase Storage — docs/08. Originals, generated versions and screenshots.
+ * Media storage — docs/08. Originals, generated versions and screenshots.
  *
- * Everything is private: media is served through signed URLs, never a public bucket,
- * because a participant's original photo is their own unpublished content.
+ * Everything is private: media is served through signed URLs or the authorised
+ * /api/media proxy, never a public bucket, because a participant's original photo is
+ * their own unpublished content.
  *
- * With no Supabase project configured, files are written under .storage/ so the whole
- * flow is walkable locally (docs/08: "Fakes activate when a provider key is absent").
+ * Three backends, chosen by which keys exist:
+ *   - Supabase Storage  (NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY)
+ *   - Vercel Blob       (BLOB_READ_WRITE_TOKEN)
+ *   - .storage/ on disk (nothing set) so the whole flow is walkable locally
+ *     (docs/08: "Fakes activate when a provider key is absent")
+ *
+ * DECISION: Vercel Blob is here because the demo deploy runs on Vercel + Neon, which
+ * has no file storage, and a blob store is one CLI command away. Reads always go
+ * through /api/media, so the access rules there apply regardless of backend. The store
+ * itself is private or public at creation time (the CLI can only create public ones;
+ * the dashboard offers private) and the SDK must be told which: BLOB_ACCESS=public
+ * for a store the CLI made — the blob URLs are then reachable by anyone holding a
+ * placement id, acceptable for a demo with fake providers, not for a pilot. Supabase
+ * stays the pilot choice (docs/08): it can serve resized signed URLs, Blob cannot.
  */
 
 import 'server-only'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { createClient } from '@supabase/supabase-js'
+import { del as blobDel, get as blobGet, put as blobPut } from '@vercel/blob'
 
 const BUCKET = process.env.SUPABASE_STORAGE_BUCKET ?? 'nod-media'
 const LOCAL_ROOT = '.storage'
 
-const isConfigured = () =>
-  Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
+type Backend = 'supabase' | 'blob' | 'local'
+
+export function backend(): Backend {
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) return 'supabase'
+  if (process.env.BLOB_READ_WRITE_TOKEN) return 'blob'
+  return 'local'
+}
+
+const isConfigured = () => backend() === 'supabase'
+
+const blobAccess = () => (process.env.BLOB_ACCESS === 'public' ? 'public' : 'private')
 
 function serviceClient() {
   return createClient(
@@ -45,10 +68,17 @@ export async function put(
   body: Buffer,
   contentType: string,
 ): Promise<StoragePath> {
-  if (!isConfigured()) {
+  if (backend() === 'local') {
     const file = join(process.cwd(), LOCAL_ROOT, path)
     await mkdir(dirname(file), { recursive: true })
     await writeFile(file, body)
+    return path
+  }
+
+  if (backend() === 'blob') {
+    // Deterministic paths (see `paths`) are the contract, so no random suffix, and a
+    // re-render of the same version overwrites in place.
+    await blobPut(path, body, { access: blobAccess(), contentType, addRandomSuffix: false, allowOverwrite: true })
     return path
   }
 
@@ -61,8 +91,14 @@ export async function put(
 }
 
 export async function get(path: StoragePath): Promise<Buffer> {
-  if (!isConfigured()) {
+  if (backend() === 'local') {
     return readFile(join(process.cwd(), LOCAL_ROOT, path))
+  }
+
+  if (backend() === 'blob') {
+    const result = await blobGet(path, { access: blobAccess() })
+    if (!result?.stream) throw new Error(`Storage download failed: ${path} not found`)
+    return Buffer.from(await new Response(result.stream).arrayBuffer())
   }
 
   const { data, error } = await serviceClient().storage.from(BUCKET).download(path)
@@ -71,11 +107,18 @@ export async function get(path: StoragePath): Promise<Buffer> {
 }
 
 export async function remove(path: StoragePath): Promise<void> {
-  if (!isConfigured()) return
+  if (backend() === 'local') return
+  if (backend() === 'blob') {
+    await blobDel(path)
+    return
+  }
   await serviceClient().storage.from(BUCKET).remove([path])
 }
 
-/** A short-lived signed URL. Media is never public. */
+/**
+ * A short-lived signed URL. Media is never public. Only Supabase can sign; the other
+ * backends go through the authorised proxy.
+ */
 export async function signedUrl(path: StoragePath, expiresInSeconds = 3600): Promise<string> {
   if (!isConfigured()) return `/api/media/${encodeURIComponent(path)}`
 

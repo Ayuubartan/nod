@@ -19,6 +19,7 @@
     "db:seed": "tsx --conditions=react-server prisma/seed.ts",
     "inngest:dev": "inngest-cli dev -u http://localhost:3000/api/inngest",
     "db:reset": "tsx prisma/reset.ts",
+    "storage:push": "tsx --conditions=react-server scripts/storage-push.ts",
     "video:voice": "powershell -NoProfile -File scripts/intro-video/tts.ps1",
     "video": "node scripts/intro-video/render.mjs"
   },
@@ -31,6 +32,7 @@
     "@sentry/nextjs": "^10.73.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
+    "@vercel/blob": "^2.8.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "inngest": "^3.27.5",

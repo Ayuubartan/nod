@@ -182,19 +182,41 @@ async function main() {
   console.info('  campaigns: 3')
 
   // ---- demo photos a participant can upload in the walkthrough
-  await writeLocal('demo/kitchen.jpg', await demoKitchen())
-  await writeLocal('demo/desk.jpg', await demoDesk())
-  console.info('  demo photos: .storage/demo/kitchen.jpg, .storage/demo/desk.jpg')
+  await store('demo/kitchen.jpg', await demoKitchen(), 'image/jpeg')
+  await store('demo/desk.jpg', await demoDesk(), 'image/jpeg')
+  console.info('  demo photos: demo/kitchen.jpg, demo/desk.jpg')
 
   await seedPlacements()
   console.info('Seed complete.')
 }
 
-/** Local storage mirror of lib/storage.ts's fallback — the seed must not import server-only code. */
-async function writeLocal(path: string, body: Buffer): Promise<void> {
+/**
+ * Writes a file to whichever storage backend the environment points at (Supabase,
+ * Vercel Blob, or .storage/), so a seed run against a hosted database also puts the
+ * images where that deploy will read them. lib/storage is server-only; without
+ * `--conditions=react-server` the import throws and we mirror its local fallback.
+ */
+async function store(path: string, body: Buffer, contentType: string): Promise<void> {
+  const put = await storagePut()
+  if (put) {
+    await put(path, body, contentType)
+    return
+  }
   const file = join(process.cwd(), '.storage', path)
   await mkdir(dirname(file), { recursive: true })
   await writeFile(file, body)
+}
+
+let storagePutPromise: Promise<typeof import('../lib/storage')['put'] | null> | undefined
+function storagePut() {
+  storagePutPromise ??= import('../lib/storage').then(
+    (m) => {
+      console.info(`  storage backend: ${m.backend()}`)
+      return m.put
+    },
+    () => null,
+  )
+  return storagePutPromise
 }
 
 /**
@@ -256,7 +278,7 @@ async function seedPlacements(): Promise<void> {
     const { id } = await claim({ campaignId: 'seed-campaign-live', userId: user.id, socialAccountId: account.id, contentType: 'post' })
 
     const originalPath = `originals/${id}.jpg`
-    await writeLocal(originalPath, photo)
+    await store(originalPath, photo, 'image/jpeg')
     await upload({ placementId: id, storagePath: originalPath, perceptualHash: `seed${index}`.padEnd(16, '0'), contentType: 'post' }, actor)
     await position(id, { region: regions[index]!, assetId: asset.id, candidates: regions.slice(0, 3) }, actor)
     const outcome = await render.generate(id, actor)
@@ -356,7 +378,7 @@ async function seedCampaign(args: {
   ]
   for (const asset of assets) {
     const storagePath = `assets/${args.id}/${asset.id}.png`
-    await writeLocal(storagePath, await asset.art())
+    await store(storagePath, await asset.art(), 'image/png')
     await prisma.campaignAsset.upsert({
       where: { id: asset.id },
       create: { id: asset.id, campaignId: campaign.id, name: asset.name, storagePath, placementTypes: asset.types },

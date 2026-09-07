@@ -197,10 +197,32 @@ Tests: `tests/session.test.ts` (tamper, expiry, junk) and `tests/login.db.test.t
 (hashing, rate limit, supersede, existing/new creator, brand ok/refused, brand address
 never becomes a creator identity, attempt burn, replay, expiry, open-redirect guard).
 
+### 7. Live on Vercel — `docs/12-deploy.md`, `lib/storage.ts`
+
+The demo runs at nod-ayuubartans-projects.vercel.app: Vercel (arn1) + Neon Postgres from
+the Marketplace, migrations in the build command, production database seeded.
+
+- Neon has no file storage, so `lib/storage.ts` gained a third backend, **Vercel Blob**,
+  chosen when `BLOB_READ_WRITE_TOKEN` exists and the Supabase keys do not. Reads still
+  go through `/api/media`, so the access rules there hold for every backend. The CLI
+  can only create public stores, hence `BLOB_ACCESS=public` for the demo and a
+  DECISION comment on why that is not the pilot setup.
+- The seed now writes media through `lib/storage` (a seed against a hosted database
+  puts the images where that deploy reads them), and `pnpm storage:push` copies an
+  existing `.storage/` into the configured store for databases seeded earlier.
+- Swedish copy said "brand"/"brands" throughout — an anglicism the Swedish pages should
+  not carry. Now varumärke/varumärken/varumärket/varumärkeskonto everywhere in
+  `sv.json`, the privacy policy and docs/01. The `/brands` and sign-in pages had
+  hardcoded English titles; they use `generateMetadata` with translations like the
+  legal pages.
+
 ### Still open
 
 - Social sign-in (Google/Apple via Supabase, docs/08) is still unwired; the email code
   is the only live method. Both can coexist: `currentAuthId()` already reads either.
+- The live demo's seeded placement images live in a local `.storage/`; they show once
+  `pnpm storage:push` has run with the Blob token (docs/12). New uploads on the live
+  site go straight to the store.
 - The compositor is a compositor: it does not relight, occlude or match perspective. The
   hosted inpaint engine (M5 task 1) sits above it for that and activates on credentials.
 - Swaps re-render synchronously in the brand's request. Fine at pilot scale (tens of

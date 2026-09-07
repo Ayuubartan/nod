@@ -42,8 +42,25 @@ variables. Map them: `DATABASE_URL` ← `POSTGRES_PRISMA_URL`, `DATABASE_URL_UNP
 
 The demo deploy uses **Neon** from the Vercel Marketplace instead (free tier, EU). Its
 integration injects `DATABASE_URL` and `DATABASE_URL_UNPOOLED` under exactly those
-names, which is why the Prisma schema uses them. Neon has no file storage, so uploads
-need the Supabase bucket (or Vercel Blob) before a real pilot.
+names, which is why the Prisma schema uses them.
+
+### Media without Supabase — Vercel Blob
+
+Neon has no file storage, so the demo keeps media in a **Vercel Blob** store.
+`lib/storage.ts` picks Blob whenever `BLOB_READ_WRITE_TOKEN` exists and the Supabase
+keys do not; every read still goes through the authorised `/api/media` proxy.
+
+    vercel blob store add nod-media --region fra1     # answer Y, link to the project
+
+The CLI only creates **public** stores, so also set `BLOB_ACCESS=public` — the blob URLs
+are then reachable by anyone who knows a placement id. Fine for a demo behind fake
+providers, not for a pilot: create the store as *private* in the dashboard instead
+(Storage → Create → Blob → Private) and leave `BLOB_ACCESS` unset, or use Supabase.
+
+If the database was seeded from your machine, the images are in your local `.storage/`
+and not in the store. Push them once: pull the token (`vercel env pull .env.local`,
+keep only `BLOB_READ_WRITE_TOKEN` and `BLOB_ACCESS`) and run `pnpm storage:push`.
+Seeding with the token present writes straight to the store.
 
 Seed data: after the first deploy, run once from your machine against the production
 database (`DATABASE_URL=<direct url> pnpm db:seed`) if you want the demo brand,
@@ -81,6 +98,7 @@ Variables. The full list for **Production**:
 | `DATABASE_URL`, `DATABASE_URL_UNPOOLED` | from step 1 (injected automatically by the Neon or Supabase integration) |
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | from step 1 |
 | `SUPABASE_STORAGE_BUCKET` | `nod-media` |
+| `BLOB_READ_WRITE_TOKEN`, `BLOB_ACCESS` | only without Supabase: injected by `vercel blob store add`; `public` for a CLI-created store |
 | `RESEND_API_KEY`, `EMAIL_FROM`, `OPS_EMAIL` | from step 2 |
 | `ENCRYPTION_KEY` | 32 random bytes, base64 — `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` |
 | `BANKID_SUBJECT_SALT` | a long random string; **never change it** once participants are verified, or every subject hash stops matching |
@@ -119,8 +137,8 @@ change; each provider then activates as soon as its own keys exist (docs/06).
 3. `/sign-in` with a fresh address lands in onboarding.
 4. `/dev` is a 404.
 5. `/brand/campaigns` in a private window redirects to the sign-in.
-6. Upload a screenshot on a placement; it appears in the Supabase bucket, and the
-   image is served from `/api/media/...` (signed), not a public URL.
+6. Upload a screenshot on a placement; it appears in the Supabase bucket (or the Blob
+   store), and the image is served from `/api/media/...`, not a public URL.
 
 ## Rate limiting on Vercel
 
