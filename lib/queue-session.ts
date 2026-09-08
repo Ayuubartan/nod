@@ -70,16 +70,27 @@ export function queueLink(entryId: string, via: 'email' | 'sms'): string {
   return `${siteUrl}/queue?t=${token}`
 }
 
+/** The cookie as name/value/options, for whoever holds the response. */
+export function queueCookie(entryId: string) {
+  const exp = Math.floor(Date.now() / 1000) + COOKIE_MAX_AGE_S
+  return {
+    name: QUEUE_COOKIE,
+    value: encodeQueueToken({ entryId, via: 'cookie', exp }),
+    options: {
+      httpOnly: true,
+      sameSite: 'lax' as const,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      maxAge: COOKIE_MAX_AGE_S,
+    },
+  }
+}
+
+/** From a Server Action only — a Server Component cannot write cookies (see /queue/open). */
 export async function setQueueCookie(entryId: string): Promise<void> {
   const store = await cookies()
-  const exp = Math.floor(Date.now() / 1000) + COOKIE_MAX_AGE_S
-  store.set(QUEUE_COOKIE, encodeQueueToken({ entryId, via: 'cookie', exp }), {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: COOKIE_MAX_AGE_S,
-  })
+  const cookie = queueCookie(entryId)
+  store.set(cookie.name, cookie.value, cookie.options)
 }
 
 export async function readQueueCookie(): Promise<string | null> {

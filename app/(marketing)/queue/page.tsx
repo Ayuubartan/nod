@@ -3,17 +3,18 @@ import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { prisma } from '@/lib/db'
 import { flags } from '@/lib/flags'
-import { levelFor, markEmailVerified, nextLevel, rankOf, weeklyLeaderboard, weeklyStanding } from '@/lib/queue'
-import { decodeQueueToken, readQueueCookie, setQueueCookie } from '@/lib/queue-session'
+import { levelFor, nextLevel, rankOf, weeklyLeaderboard, weeklyStanding } from '@/lib/queue'
+import { readQueueCookie } from '@/lib/queue-session'
 import { QueueStatus, type QueueView } from '@/components/marketing/QueueStatus'
 import { QueueLinkForm } from '@/components/marketing/QueueLinkForm'
 
 /**
  * Page two of the game (docs/13): where you are, what moves you, who to invite.
  *
- * Identity is the NOD_QUEUE cookie, or a signed token in ?t= from a mail or SMS,
- * which sets the cookie and — when it came by mail — proves the address. The URL
- * is then cleaned so the token never sits in the address bar or a screenshot.
+ * Identity is the NOD_QUEUE cookie, or a signed token in ?t= from a mail or SMS.
+ * A page cannot write cookies, so a token is handed to /queue/open, which sets the
+ * cookie, proves the address when the token came by mail, and comes back here
+ * without it — the token never sits in the address bar or a screenshot.
  */
 export const dynamic = 'force-dynamic'
 
@@ -24,14 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function QueuePage({ searchParams }: { searchParams: Promise<{ t?: string }> }) {
   const { t: token } = await searchParams
-  if (token) {
-    const decoded = decodeQueueToken(token)
-    if (decoded) {
-      if (decoded.via === 'email') await markEmailVerified(decoded.entryId)
-      await setQueueCookie(decoded.entryId)
-    }
-    redirect('/queue')
-  }
+  if (token) redirect(`/queue/open?t=${encodeURIComponent(token)}`)
 
   const entryId = await readQueueCookie()
   const entry = entryId ? await prisma.waitlistEntry.findFirst({ where: { id: entryId, deletedAt: null } }) : null

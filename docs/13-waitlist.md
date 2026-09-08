@@ -22,7 +22,8 @@ Rank, city, top-X%, points, level with progress bar, next goal, the invite link 
 copy / SMS / WhatsApp / Snapchat / story image, the task list (email, phone,
 profile, interests), this week's city leaderboard, the latest events, SMS settings
 and *Leave the queue*. Identity is the `NOD_QUEUE` cookie or a signed `?t=` token
-from a mail/SMS (`lib/queue-session.ts`); a token that arrived by mail also proves
+from a mail/SMS, opened by `/queue/open` (a route handler — a page cannot write
+cookies), which sets the cookie (`lib/queue-session.ts`); a token that arrived by mail also proves
 the address. No cookie → "email me my link".
 
 ## Rules (`lib/queue.ts`)
