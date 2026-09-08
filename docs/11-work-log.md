@@ -197,6 +197,30 @@ Tests: `tests/session.test.ts` (tamper, expiry, junk) and `tests/login.db.test.t
 (hashing, rate limit, supersede, existing/new creator, brand ok/refused, brand address
 never becomes a creator identity, attempt burn, replay, expiry, open-redirect guard).
 
+### 10. After joining
+
+What happened after someone joined was two dead ends. The waitlist ended in "we'll be
+in touch" with no way into the product; a creator who found /sign-in instead typed
+the same city, age and handle again under a fresh identity; and the first thing
+either saw after onboarding was an empty campaign list behind a "verify with BankID
+to unlock" banner — a wall in front of nothing.
+
+Now: the waitlist success screen has one primary action, *Open your account*, which
+requests the sign-in code for the address they just used and shows the code field in
+place (`LoginForm` in embedded mode). The confirmation mail says the same and links
+to sign-in. Onboarding reads the waitlist entry for the session's address and uses
+its answers as defaults; a waitlist referral becomes an account referral when the
+referrer has an account (`prefillFromWaitlist`, tested). `/campaigns` is the home
+screen: while the creator cannot claim yet, or there is nothing to claim, the top of
+the page is a countdown to Friday's drop and a four-row checklist — connect account,
+BankID, notifications (asks permission in place), invite — with their per-post
+estimate. Done rows stay as receipts; when everything is done the block says so.
+The queue position keeps its meaning: who is told first when a drop opens.
+
+Not changed: brand sign-in stays invite-only (ops creates brand users from an
+enquiry), and the email-code login itself. A magic link would save typing six
+digits; not worth a token flow yet.
+
 ### 9. Booga
 
 The public name is Booga, on joinbooga.se. `lib/brand.ts` holds the constants; i18n,

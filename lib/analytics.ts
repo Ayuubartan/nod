@@ -82,6 +82,7 @@ export const EVENTS = {
   waitlistViewed: 'waitlist_viewed',
   estimatorUsed: 'estimator_used',
   waitlistSubmitted: 'waitlist_submitted',
+  waitlistOpenAccount: 'waitlist_open_account',
   referralLinkCopied: 'referral_link_copied',
   brandEnquirySubmitted: 'brand_enquiry_submitted',
   onboardingStepViewed: 'onboarding_step_viewed',

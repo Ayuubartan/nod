@@ -113,7 +113,7 @@
     },
     "waitlist": {
       "title": "Ställ dig i kön",
-      "sub": "Stockholm först. Vi hör av oss när vi öppnar för dig.",
+      "sub": "Stockholm först. Ställ dig i kön och öppna ditt konto direkt – då är du redo när första droppet öppnar.",
       "handle": "Instagram- eller TikTok-handle",
       "handlePlaceholder": "@dittkonto",
       "city": "Stad",
@@ -127,7 +127,7 @@
       "submit": "Ställ dig i kön",
       "submitting": "Skickar…",
       "successTitle": "Du är med.",
-      "successBody": "Du är nummer {position} i kön. Vi hör av oss innan första kampanjen.",
+      "successBody": "Du är nummer {position} i kön. Öppna ditt konto nu så är allt klart när första droppet öppnar – de längst fram får veta först.",
       "successReferral": "Bjud in en kompis så flyttas ni båda fram.",
       "copyLink": "Kopiera din länk",
       "shareStory": "Dela som story",
@@ -155,7 +155,11 @@
         "consent": "Du måste godkänna för att gå med",
         "duplicate": "Den här e-posten står redan i kön.",
         "rateLimited": "För många försök. Vänta en stund."
-      }
+      },
+      "openAccount": "Öppna ditt konto",
+      "openAccountHint": "Tar en minut. Vi mejlar en kod – inget lösenord.",
+      "openTitle": "Nästan inne",
+      "openBody": "Skriv koden vi mejlade dig. Sen fyller vi i det du redan berättat."
     },
     "footer": {
       "city": "Stockholm",
@@ -334,8 +338,24 @@
       "period": "Period",
       "contentTypes": "Innehållstyper",
       "claim": "Ta kampanjen",
-      "claimWith": "Ta med",
-      "locked": "Verifiera med BankID för att låsa upp kampanjer"
+      "claimWith": "Ta med"
+    },
+    "ready": {
+      "title": "Nästa drop",
+      "sub": "Kampanjer släpps fredagar 18:00. Så här är du redo:",
+      "connect": "Koppla ditt konto",
+      "connectDone": "Konto kopplat",
+      "connectHint": "Vi räknar ut vad du får per inlägg.",
+      "verify": "Verifiera med BankID",
+      "verifyDone": "Verifierad",
+      "verifyHint": "Krävs för att ta en kampanj. Gör det nu, så slipper du kön på fredag.",
+      "notify": "Slå på notiser",
+      "notifyDone": "Notiser på",
+      "notifyHint": "Vi säger till när droppet öppnar. Budgetarna tar slut snabbt.",
+      "invite": "Bjud in en kompis",
+      "inviteHint": "Du får {amount} när kompisens första placering godkänns.",
+      "estimate": "Ungefär {amount} per inlägg med ditt konto.",
+      "allSet": "Allt klart. Vi hör av oss när droppet öppnar."
     }
   },
   "placement": {

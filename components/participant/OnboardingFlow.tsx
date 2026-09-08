@@ -53,12 +53,15 @@ export function OnboardingFlow({
   email,
   existing,
   nextDrop,
+  prefill = null,
 }: {
   authId: string
   /** The address the sign-in code was sent to; stored on the User for next time. */
   email: string | null
   existing: Existing
   nextDrop: string
+  /** Answers from the waitlist entry with the same address, if any. */
+  prefill?: { city: string | null; ageBracket: string | null; handle: string | null; referredByCode: string | null } | null
 }) {
   const t = useTranslations('onboarding')
   const common = useTranslations('common')
@@ -69,10 +72,10 @@ export function OnboardingFlow({
   const [error, setError] = useState<string | null>(null)
 
   // step 1
-  const [city, setCity] = useState(existing?.city ?? 'stockholm')
-  const [ageBracket, setAgeBracket] = useState(existing?.ageBracket ?? '')
+  const [city, setCity] = useState(existing?.city ?? prefill?.city ?? 'stockholm')
+  const [ageBracket, setAgeBracket] = useState(existing?.ageBracket ?? prefill?.ageBracket ?? '')
   // step 2
-  const [handle, setHandle] = useState('')
+  const [handle, setHandle] = useState(prefill?.handle ?? '')
   const [accounts, setAccounts] = useState<ExistingAccount[]>(existing?.accounts ?? [])
   // step 5
   const [quizAnswer, setQuizAnswer] = useState<string | null>(null)
@@ -98,7 +101,8 @@ export function OnboardingFlow({
       city,
       ageBracket,
       locale: 'sv',
-      referredByCode: new URLSearchParams(window.location.search).get('ref'),
+      // A shared link wins; otherwise the referral they joined the waitlist through.
+      referredByCode: new URLSearchParams(window.location.search).get('ref') ?? prefill?.referredByCode ?? null,
     })
     setPending(false)
     if (result.ok) go(2)

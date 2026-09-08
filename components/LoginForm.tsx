@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { requestLoginCode, verifyLoginCode } from '@/app/(auth)/actions'
 import type { LoginError } from '@/lib/login'
@@ -11,10 +11,24 @@ type Audience = 'PARTICIPANT' | 'BRAND'
 /**
  * Two screens: address, then code. Shared by creators and brand users — the audience
  * decides the copy and what an unknown address means (new creator vs. no such brand).
+ *
+ * Embedded (`initialEmail` + `embedded`) it is the second half of the waitlist form:
+ * the address is already known, the code is requested at once, and only the code
+ * screen is shown — joining the waitlist and opening the account are one motion.
  */
-export function LoginForm({ audience, next }: { audience: Audience; next: string | null }) {
+export function LoginForm({
+  audience,
+  next,
+  initialEmail = '',
+  embedded = false,
+}: {
+  audience: Audience
+  next: string | null
+  initialEmail?: string
+  embedded?: boolean
+}) {
   const t = useTranslations('auth')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(initialEmail)
   const [code, setCode] = useState('')
   const [sent, setSent] = useState(false)
   const [devCode, setDevCode] = useState<string | null>(null)
@@ -23,8 +37,7 @@ export function LoginForm({ audience, next }: { audience: Audience; next: string
 
   const brand = audience === 'BRAND'
 
-  function onRequest(e: React.FormEvent) {
-    e.preventDefault()
+  function request() {
     setError(null)
     start(async () => {
       const result = await requestLoginCode({ email, audience })
@@ -34,6 +47,21 @@ export function LoginForm({ audience, next }: { audience: Audience; next: string
       setSent(true)
     })
   }
+
+  function onRequest(e: React.FormEvent) {
+    e.preventDefault()
+    request()
+  }
+
+  // With a known address the code goes out immediately, once.
+  const requested = useRef(false)
+  useEffect(() => {
+    if (initialEmail && !requested.current) {
+      requested.current = true
+      request()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialEmail])
 
   function onVerify(e: React.FormEvent) {
     e.preventDefault()
@@ -46,12 +74,18 @@ export function LoginForm({ audience, next }: { audience: Audience; next: string
   }
 
   return (
-    <div className="max-w-sm mx-auto">
-      <p className="text-xs uppercase tracking-wide text-[var(--color-ink-3)] mb-2">
-        {brand ? t('brandKicker') : t('participantKicker')}
-      </p>
-      <h1 className="text-2xl mb-2">{brand ? t('brandTitle') : t('participantTitle')}</h1>
-      <p className="text-sm text-[var(--color-ink-2)] mb-6">{brand ? t('brandHint') : t('participantHint')}</p>
+    <div className={embedded ? '' : 'max-w-sm mx-auto'}>
+      {!embedded && (
+        <>
+          <p className="text-xs uppercase tracking-wide text-[var(--color-ink-3)] mb-2">
+            {brand ? t('brandKicker') : t('participantKicker')}
+          </p>
+          <h1 className="text-2xl mb-2">{brand ? t('brandTitle') : t('participantTitle')}</h1>
+          <p className="text-sm text-[var(--color-ink-2)] mb-6">
+            {brand ? t('brandHint') : t('participantHint')}
+          </p>
+        </>
+      )}
 
       {!sent ? (
         <form onSubmit={onRequest} className="card p-5 flex flex-col gap-4">
@@ -100,11 +134,20 @@ export function LoginForm({ audience, next }: { audience: Audience; next: string
             </p>
           )}
           {error && <p className="text-sm text-[var(--color-red)]">{t(`errors.${error}`)}</p>}
-          <button className="btn btn-primary w-full" type="submit" disabled={pending || code.length !== 6}>
+          <button
+            className="btn btn-primary w-full"
+            type="submit"
+            disabled={pending || code.length !== 6}
+          >
             {pending ? t('checking') : t('verify')}
           </button>
           <div className="flex justify-between text-xs text-[var(--color-ink-2)]">
-            <button type="button" className="underline" onClick={() => setSent(false)} disabled={pending}>
+            <button
+              type="button"
+              className="underline"
+              onClick={() => setSent(false)}
+              disabled={pending}
+            >
               {t('changeEmail')}
             </button>
             <button type="button" className="underline" onClick={onRequest} disabled={pending}>
@@ -114,17 +157,19 @@ export function LoginForm({ audience, next }: { audience: Audience; next: string
         </form>
       )}
 
-      <p className="text-sm text-[var(--color-ink-2)] mt-6 text-center">
-        {brand ? (
-          <Link href="/sign-in" className="underline">
-            {t('switchToParticipant')}
-          </Link>
-        ) : (
-          <Link href="/brand/sign-in" className="underline">
-            {t('switchToBrand')}
-          </Link>
-        )}
-      </p>
+      {!embedded && (
+        <p className="text-sm text-[var(--color-ink-2)] mt-6 text-center">
+          {brand ? (
+            <Link href="/sign-in" className="underline">
+              {t('switchToParticipant')}
+            </Link>
+          ) : (
+            <Link href="/brand/sign-in" className="underline">
+              {t('switchToBrand')}
+            </Link>
+          )}
+        </p>
+      )}
     </div>
   )
 }

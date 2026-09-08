@@ -48,6 +48,11 @@ test.describe('landing page', () => {
     // Success state shows a queue position and a referral link.
     await expect(page.getByText(/Du är med|You're in/)).toBeVisible({ timeout: 15_000 })
     await expect(page.getByText(/\?ref=/)).toBeVisible()
+
+    // The door into the account: the code goes to the address they just joined with.
+    await page.getByRole('button', { name: /Öppna ditt konto|Open your account/ }).click()
+    await expect(page.getByText(/Nästan inne|Almost in/)).toBeVisible()
+    await expect(page.getByLabel(/Sexsiffrig kod|Six-digit code/)).toBeVisible({ timeout: 15_000 })
   })
 
   test('serves the legal drafts', async ({ page }) => {

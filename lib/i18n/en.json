@@ -113,7 +113,7 @@
     },
     "waitlist": {
       "title": "Join the waitlist",
-      "sub": "Stockholm first. We'll be in touch when we open up for you.",
+      "sub": "Stockholm first. Join the queue and open your account right away – you’ll be ready when the first drop opens.",
       "handle": "Instagram or TikTok handle",
       "handlePlaceholder": "@youraccount",
       "city": "City",
@@ -127,7 +127,7 @@
       "submit": "Join the waitlist",
       "submitting": "Sending…",
       "successTitle": "You're in.",
-      "successBody": "You're number {position} in the queue. We'll be in touch before the first campaign.",
+      "successBody": "You’re number {position} in the queue. Open your account now so everything is set when the first drop opens – the front of the queue hears first.",
       "successReferral": "Invite a friend and you both move up.",
       "copyLink": "Copy your link",
       "shareStory": "Share as a Story",
@@ -155,7 +155,11 @@
         "consent": "You need to agree to join",
         "duplicate": "That email is already on the list.",
         "rateLimited": "Too many attempts. Wait a moment."
-      }
+      },
+      "openAccount": "Open your account",
+      "openAccountHint": "Takes a minute. We email a code – no password.",
+      "openTitle": "Almost in",
+      "openBody": "Enter the code we emailed you. Then we fill in what you already told us."
     },
     "footer": {
       "city": "Stockholm",
@@ -334,8 +338,24 @@
       "period": "Period",
       "contentTypes": "Content types",
       "claim": "Claim this campaign",
-      "claimWith": "Claim with",
-      "locked": "Verify with BankID to unlock campaigns"
+      "claimWith": "Claim with"
+    },
+    "ready": {
+      "title": "Next drop",
+      "sub": "Campaigns go live Fridays at 18:00. Here’s how to be ready:",
+      "connect": "Connect your account",
+      "connectDone": "Account connected",
+      "connectHint": "We work out what you earn per post.",
+      "verify": "Verify with BankID",
+      "verifyDone": "Verified",
+      "verifyHint": "Needed to claim a campaign. Do it now and skip the queue on Friday.",
+      "notify": "Turn on notifications",
+      "notifyDone": "Notifications on",
+      "notifyHint": "We tell you when the drop opens. Budgets run out fast.",
+      "invite": "Invite a friend",
+      "inviteHint": "You get {amount} when your friend’s first placement is approved.",
+      "estimate": "About {amount} per post with your account.",
+      "allSet": "All set. We’ll let you know when the drop opens."
     }
   },
   "placement": {

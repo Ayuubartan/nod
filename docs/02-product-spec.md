@@ -28,6 +28,17 @@ BankID is **not** in onboarding. It gates the first claim (see A3).
 > soon as money is pending) and in settings; training consent lives in settings, default
 > off; the done screen offers the notification permission. `completeOnboarding` still
 > accepts the old fields.
+>
+> **After joining (2026-09-08):** the waitlist and the account are one journey. The
+> waitlist success screen opens the account on the spot (the sign-in code goes to the
+> address just typed), the confirmation mail links to sign-in, and onboarding is
+> pre-filled from the waitlist entry with the same address — city, age, handle, and
+> the referral, mapped to the referrer's account when they have one (`lib/waitlist.ts`).
+> The first screen after onboarding is `/campaigns`, which until the creator can claim
+> (account connected + BankID) or while there is nothing to claim shows the countdown
+> to the next drop and the steps to be ready: connect, verify, notifications, invite.
+> The old "verify with BankID to unlock campaigns" wall is gone — browsing was never
+> locked, only claiming is.
 
 Track drop-off per screen in PostHog. Targets: ≥60% complete 1→9, ≥70% accept Creator switch.
 

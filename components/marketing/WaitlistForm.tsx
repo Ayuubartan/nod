@@ -4,12 +4,22 @@ import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { joinWaitlist, type WaitlistResult } from '@/app/(marketing)/actions'
 import { EVENTS, track } from '@/lib/analytics'
+import { LoginForm } from '@/components/LoginForm'
 
 const CITIES = ['stockholm', 'goteborg', 'malmo', 'uppsala', 'other'] as const
 /** No under-18 option exists anywhere in this list, by design (docs/07 section 6). */
 const AGE_BRACKETS = ['18-20', '21-25', '26-30', '31+'] as const
 const FOLLOWER_BRACKETS = ['lt300', '300-1k', '1k-5k', '5k-20k', '20k+'] as const
-const CATEGORIES = ['gym', 'food', 'study', 'travel', 'fashion', 'gaming', 'nightlife', 'hobby'] as const
+const CATEGORIES = [
+  'gym',
+  'food',
+  'study',
+  'travel',
+  'fashion',
+  'gaming',
+  'nightlife',
+  'hobby',
+] as const
 
 export function WaitlistForm() {
   const t = useTranslations('marketing.waitlist')
@@ -22,6 +32,9 @@ export function WaitlistForm() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<Extract<WaitlistResult, { ok: true }> | null>(null)
   const [copied, setCopied] = useState(false)
+  // The address they just joined with; opening the account sends the code to it.
+  const [joinedEmail, setJoinedEmail] = useState('')
+  const [opening, setOpening] = useState(false)
 
   // Referral code arrives as ?ref=CODE on a shared link (docs/01 section 7).
   useEffect(() => {
@@ -53,6 +66,7 @@ export function WaitlistForm() {
     setPending(false)
     if (result.ok) {
       setSuccess(result)
+      setJoinedEmail(String(formData.get('email') ?? '').trim())
       track(EVENTS.waitlistSubmitted, {
         position: result.position,
         city: formData.get('city'),
@@ -65,6 +79,30 @@ export function WaitlistForm() {
     }
   }
 
+  // DECISION: the waitlist used to end in "we'll be in touch". Now it ends in the
+  // account: one tap sends the sign-in code to the address they just typed, and the
+  // answers they gave here become the defaults in onboarding (lib/waitlist.ts). The
+  // queue position still decides who is told first when a drop opens.
+  if (success && opening) {
+    return (
+      <section className="section" id="waitlist">
+        <div className="wrap max-w-xl">
+          <div className="card p-6">
+            <span className="nod-marker mb-5 block" aria-hidden="true" />
+            <h2 className="text-2xl mb-2">{t('openTitle')}</h2>
+            <p className="text-sm text-[var(--color-ink-2)] mb-5">{t('openBody')}</p>
+            <LoginForm
+              audience="PARTICIPANT"
+              next="/onboarding"
+              initialEmail={joinedEmail}
+              embedded
+            />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   if (success) {
     return (
       <section className="section" id="waitlist">
@@ -72,7 +110,20 @@ export function WaitlistForm() {
           <div className="card p-6 text-center">
             <span className="nod-marker mx-auto mb-5 block" aria-hidden="true" />
             <h2 className="text-2xl mb-2">{t('successTitle')}</h2>
-            <p className="text-[var(--color-ink-2)] mb-6">{t('successBody', { position: success.position })}</p>
+            <p className="text-[var(--color-ink-2)] mb-5">
+              {t('successBody', { position: success.position })}
+            </p>
+            <button
+              type="button"
+              className="btn btn-primary w-full sm:w-auto mb-2"
+              onClick={() => {
+                track(EVENTS.waitlistOpenAccount, {})
+                setOpening(true)
+              }}
+            >
+              {t('openAccount')}
+            </button>
+            <p className="text-xs text-[var(--color-ink-3)] mb-8">{t('openAccountHint')}</p>
             <p className="text-sm text-[var(--color-ink-2)] mb-3">{t('successReferral')}</p>
             <code className="block text-sm tabular bg-[var(--color-bg)] border border-[var(--color-line)] rounded-lg px-3 py-2 mb-4 break-all">
               {success.shareUrl}
@@ -80,7 +131,7 @@ export function WaitlistForm() {
             <div className="flex flex-col sm:flex-row gap-2 justify-center">
               <button
                 type="button"
-                className="btn btn-primary"
+                className="btn btn-secondary"
                 onClick={() => {
                   void navigator.clipboard.writeText(success.shareUrl)
                   setCopied(true)
@@ -89,7 +140,11 @@ export function WaitlistForm() {
               >
                 {copied ? common('copied') : t('copyLink')}
               </button>
-              <a className="btn btn-secondary" href={`/api/og/invite/${success.referralCode}`} download>
+              <a
+                className="btn btn-secondary"
+                href={`/api/og/invite/${success.referralCode}`}
+                download
+              >
                 {t('shareStory')}
               </a>
             </div>
@@ -155,7 +210,13 @@ export function WaitlistForm() {
             <label className="label" htmlFor="followersBracket">
               {t('followersBracket')}
             </label>
-            <select id="followersBracket" name="followersBracket" required defaultValue="" className="field">
+            <select
+              id="followersBracket"
+              name="followersBracket"
+              required
+              defaultValue=""
+              className="field"
+            >
               <option value="" disabled>
                 —
               </option>
@@ -188,7 +249,14 @@ export function WaitlistForm() {
             <label className="label" htmlFor="email">
               {t('email')}
             </label>
-            <input id="email" name="email" type="email" required autoComplete="email" className="field" />
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              className="field"
+            />
           </div>
 
           <div>
@@ -205,7 +273,12 @@ export function WaitlistForm() {
           </div>
 
           <label className="flex gap-3 items-start text-sm text-[var(--color-ink-2)]">
-            <input type="checkbox" name="consent" required className="mt-1 size-4 accent-[var(--color-amber)]" />
+            <input
+              type="checkbox"
+              name="consent"
+              required
+              className="mt-1 size-4 accent-[var(--color-amber)]"
+            />
             <span>
               {t('consent')}{' '}
               <a href="/privacy" className="underline">

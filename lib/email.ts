@@ -107,22 +107,26 @@ export async function sendWaitlistConfirmation(args: {
   locale?: Locale
 }): Promise<void> {
   const locale = args.locale ?? 'sv'
+  // The account is one sign-in away, so the mail says so — the same address opens it.
+  const signInUrl = `${siteUrl}/sign-in`
   const html =
     locale === 'sv'
       ? shell(
           `<h1 style="font-size:22px;margin:0 0 12px">Du är med.</h1>
-           <p style="margin:0 0 16px;color:#5C554D">Du är nummer <strong style="color:#14110F">${args.position}</strong> i kön. Vi hör av oss innan första kampanjen drar igång i Stockholm.</p>
-           <p style="margin:0 0 8px;color:#5C554D">Bjud in en kompis så flyttas ni båda fram:</p>
-           <p style="margin:0 0 20px"><code style="background:#FAF7F2;padding:8px 12px;border-radius:8px;display:inline-block">${args.shareUrl}</code></p>
-           ${button(args.shareUrl, 'Dela din länk')}`,
+           <p style="margin:0 0 16px;color:#5C554D">Du är nummer <strong style="color:#14110F">${args.position}</strong> i kön. Kampanjer släpps fredagar 18:00, Stockholm först – de längst fram får veta först.</p>
+           <p style="margin:0 0 16px;color:#5C554D">Öppna ditt konto redan nu med samma e-postadress, så är allt klart när droppet öppnar. Inget lösenord – vi mejlar en kod.</p>
+           ${button(signInUrl, 'Öppna ditt konto')}
+           <p style="margin:24px 0 8px;color:#5C554D">Bjud in en kompis så flyttas ni båda fram:</p>
+           <p style="margin:0"><code style="background:#FAF7F2;padding:8px 12px;border-radius:8px;display:inline-block">${args.shareUrl}</code></p>`,
           locale,
         )
       : shell(
           `<h1 style="font-size:22px;margin:0 0 12px">You're in.</h1>
-           <p style="margin:0 0 16px;color:#5C554D">You're number <strong style="color:#14110F">${args.position}</strong> in the queue. We'll be in touch before the first Stockholm campaign goes live.</p>
-           <p style="margin:0 0 8px;color:#5C554D">Invite a friend and you both move up:</p>
-           <p style="margin:0 0 20px"><code style="background:#FAF7F2;padding:8px 12px;border-radius:8px;display:inline-block">${args.shareUrl}</code></p>
-           ${button(args.shareUrl, 'Share your link')}`,
+           <p style="margin:0 0 16px;color:#5C554D">You're number <strong style="color:#14110F">${args.position}</strong> in the queue. Campaigns go live Fridays at 18:00, Stockholm first – the front of the queue hears first.</p>
+           <p style="margin:0 0 16px;color:#5C554D">Open your account now with this same address so everything is set when the drop opens. No password – we email a code.</p>
+           ${button(signInUrl, 'Open your account')}
+           <p style="margin:24px 0 8px;color:#5C554D">Invite a friend and you both move up:</p>
+           <p style="margin:0"><code style="background:#FAF7F2;padding:8px 12px;border-radius:8px;display:inline-block">${args.shareUrl}</code></p>`,
           locale,
         )
 

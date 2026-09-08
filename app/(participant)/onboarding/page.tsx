@@ -4,9 +4,14 @@ import { currentAuthId } from '@/lib/auth'
 import { readSession } from '@/lib/session'
 import { OnboardingFlow } from '@/components/participant/OnboardingFlow'
 import { nextDropLabel } from '@/lib/marketplace'
+import { prefillFromWaitlist } from '@/lib/waitlist'
 
 /**
- * Onboarding — docs/02 A1, nine screens, target under five minutes.
+ * Onboarding — docs/02 A1, five screens, target under three minutes.
+ *
+ * Someone who joined the waitlist first has already told us their city, age and
+ * handle; those come back as defaults so the waitlist is the first half of
+ * onboarding rather than a separate form (lib/waitlist.ts).
  *
  * BankID is deliberately NOT here: it gates the first claim, not sign-up (docs/02 A1).
  * Sign-in is: the email code (/sign-in) proves an address and mints the auth id that
@@ -28,6 +33,8 @@ export default async function OnboardingPage() {
 
   // Already onboarded — nothing to do here.
   if (user && user.state !== 'SIGNED_UP') redirect('/campaigns')
+
+  const prefill = user ? null : await prefillFromWaitlist(email)
 
   return (
     <OnboardingFlow
@@ -52,6 +59,7 @@ export default async function OnboardingPage() {
           : null
       }
       nextDrop={nextDropLabel().toISOString()}
+      prefill={prefill}
     />
   )
 }

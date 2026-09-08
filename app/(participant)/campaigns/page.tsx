@@ -2,12 +2,19 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { requireParticipant } from '@/lib/auth'
 import { marketplaceFor, nextDropLabel, type MarketplaceTab } from '@/lib/marketplace'
-import { formatKrDown } from '@/lib/money/calc'
+import { estimateParticipantOre, formatKrDown } from '@/lib/money/calc'
+import { DEFAULTS, ESTIMATOR_RANGE } from '@/lib/money/rates'
+import { prisma } from '@/lib/db'
 import { Countdown } from '@/components/Countdown'
+import { GetReady } from '@/components/participant/GetReady'
 
 /**
  * Marketplace — docs/02 section A2.
  * Every card shows what THIS participant would earn on THEIR best eligible account.
+ *
+ * It is also the home screen after joining. Until the creator is ready to claim (an
+ * account connected, BankID done) or while there is nothing to claim, the top of the
+ * page is the countdown to the next drop and the steps to be ready for it.
  */
 export const dynamic = 'force-dynamic'
 
@@ -25,22 +32,42 @@ export default async function CampaignsPage({
   const activeTab = (TABS as string[]).includes(tab ?? '') ? (tab as MarketplaceTab) : 'forYou'
   const cards = await marketplaceFor(user.id, activeTab)
 
-  const locked = user.state === 'SIGNED_UP' || user.state === 'ONBOARDED'
+  const account = await prisma.socialAccount.findFirst({
+    where: { userId: user.id, deletedAt: null },
+    orderBy: { avgViews30d: 'desc' },
+    select: { avgViews30d: true },
+  })
+  const checks = {
+    connected: account !== null,
+    verified: user.state !== 'SIGNED_UP' && user.state !== 'ONBOARDED',
+    notifications: user.pushSubscription !== null,
+  }
+  const ready = checks.connected && checks.verified
+  const showGetReady = !ready || cards.length === 0
 
   return (
     <div>
       <h1 className="text-2xl mb-4">{t('title')}</h1>
 
-      {locked && (
-        <div className="card p-4 mb-5 border-[var(--color-amber)]">
-          <p className="text-sm mb-3">{t('detail.locked')}</p>
-          <Link href="/verify" className="btn btn-primary text-sm">
-            {t('reasons.notVerified')}
-          </Link>
-        </div>
+      {showGetReady && (
+        <GetReady
+          nextDrop={nextDropLabel()}
+          checks={checks}
+          estimate={
+            account
+              ? formatKrDown(
+                  estimateParticipantOre(ESTIMATOR_RANGE.high, account.avgViews30d || 450),
+                )
+              : null
+          }
+          referralBonus={formatKrDown(DEFAULTS.referralBonusOre)}
+        />
       )}
 
-      <nav className="flex gap-2 overflow-x-auto pb-2 mb-4 -mx-5 px-5" aria-label="Campaign filters">
+      <nav
+        className="flex gap-2 overflow-x-auto pb-2 mb-4 -mx-5 px-5"
+        aria-label="Campaign filters"
+      >
         {TABS.map((name) => (
           <Link
             key={name}
@@ -54,12 +81,19 @@ export default async function CampaignsPage({
       </nav>
 
       {cards.length === 0 ? (
-        <div className="card p-6 text-center">
-          <h2 className="text-lg mb-1">{t('empty.title')}</h2>
-          <p className="text-sm text-[var(--color-ink-2)]">
-            {t('empty.sub', { date: nextDropLabel().toLocaleString('sv-SE', { dateStyle: 'medium', timeStyle: 'short' }) })}
-          </p>
-        </div>
+        showGetReady ? null : (
+          <div className="card p-6 text-center">
+            <h2 className="text-lg mb-1">{t('empty.title')}</h2>
+            <p className="text-sm text-[var(--color-ink-2)]">
+              {t('empty.sub', {
+                date: nextDropLabel().toLocaleString('sv-SE', {
+                  dateStyle: 'medium',
+                  timeStyle: 'short',
+                }),
+              })}
+            </p>
+          </div>
+        )
       ) : (
         <ul className="grid gap-3">
           {cards.map(({ campaign, eligibility, remainingPercent, endsAt }) => (
