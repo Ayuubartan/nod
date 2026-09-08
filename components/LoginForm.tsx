@@ -104,7 +104,19 @@ export function LoginForm({
               placeholder={brand ? 'namn@foretag.se' : 'namn@exempel.se'}
             />
           </label>
-          {error && <p className="text-sm text-[var(--color-red)]">{t(`errors.${error}`)}</p>}
+          {error && (
+            <p className="text-sm text-[var(--color-red)]">
+              {t(`errors.${error}`)}
+              {error === 'waitlistOnly' && (
+                <>
+                  {' '}
+                  <Link href="/queue" className="underline">
+                    {t('toQueue')}
+                  </Link>
+                </>
+              )}
+            </p>
+          )}
           <button className="btn btn-primary w-full" type="submit" disabled={pending || !email}>
             {pending ? t('sending') : t('sendCode')}
           </button>
@@ -133,7 +145,19 @@ export function LoginForm({
               {t('devCode', { code: devCode })}
             </p>
           )}
-          {error && <p className="text-sm text-[var(--color-red)]">{t(`errors.${error}`)}</p>}
+          {error && (
+            <p className="text-sm text-[var(--color-red)]">
+              {t(`errors.${error}`)}
+              {error === 'waitlistOnly' && (
+                <>
+                  {' '}
+                  <Link href="/queue" className="underline">
+                    {t('toQueue')}
+                  </Link>
+                </>
+              )}
+            </p>
+          )}
           <button
             className="btn btn-primary w-full"
             type="submit"

@@ -583,26 +583,128 @@ model PayoutBatch {
 
 // ---------------------------------------------------------------- marketing
 
+/// The pre-launch queue (docs/13). Rank is derived: order by points desc, createdAt asc.
+/// `position` is the join order and never changes; `points` is a cached sum of
+/// WaitlistPoint rows, updated in the same transaction as the row that explains it.
 model WaitlistEntry {
-  id               String          @id @default(cuid())
-  handle           String
-  platform         AccountPlatform
-  city             String
-  ageBracket       String
-  followersBracket String
-  categories       String[]        @default([])
+  id               String           @id @default(cuid())
   email            String
-  referralCode     String          @unique
-  referredBy       String?
-  consentAt        DateTime
-  position         Int             @default(0)
+  phone            String?
+  city             String
+  /// Profile completion — asked for after joining, each worth points (docs/13 section 3).
+  displayName      String?
+  handle           String?
+  platform         AccountPlatform?
+  ageBracket       String?
+  followersBracket String?
+  categories       String[]         @default([])
+
+  referralCode String  @unique
+  /// The referrer's referralCode. Counted only once this entry verifies (docs/13 section 5).
+  referredBy   String?
+
+  /// Join order, 1-based. Kept as "you were #317 in line" and as the final tiebreak.
+  position          Int @default(0)
+  points            Int @default(0)
+  verifiedReferrals Int @default(0)
+  level             Int @default(0)
+
+  emailVerifiedAt DateTime?
+  phoneVerifiedAt DateTime?
+  /// First of the two above — the moment a referral through this entry counts.
+  verifiedAt      DateTime?
+  priorityAt      DateTime?
+  accessGrantedAt DateTime?
+  accessExpiresAt DateTime?
+  convertedUserId String?
+
+  /// Consent is recorded per purpose (docs/07): the waitlist itself, and SMS about it.
+  consentAt          DateTime
+  smsConsentAt       DateTime?
+  marketingConsentAt DateTime?
+  smsOptOutAt        DateTime?
+  lastSmsAt          DateTime?
+  /// Rank at the last SMS, so the next one can say how far they moved.
+  lastNotifiedRank   Int?
+  lastActiveAt       DateTime?
+
+  signupSource String?
+  utmSource    String?
+  utmMedium    String?
+  utmCampaign  String?
+  /// HMAC of the signup IP — abuse signal only, never the address itself.
+  ipHash       String?
+
+  pointsLedger WaitlistPoint[]
+  events       WaitlistEvent[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   @@index([email])
+  @@index([phone])
   @@index([referredBy])
+  @@index([ipHash])
+  @@index([points(sort: Desc), createdAt])
+  @@index([city, verifiedAt])
+}
+
+/// Append-only: why an entry has the points it has.
+model WaitlistPoint {
+  id        String        @id @default(cuid())
+  entry     WaitlistEntry @relation(fields: [entryId], references: [id])
+  entryId   String
+  amount    Int
+  reason    String
+  /// The thing the points are for (a referred entry id, a boost id), so it is awarded once.
+  refId     String?
+  createdAt DateTime      @default(now())
+
+  @@unique([entryId, reason, refId])
+  @@index([entryId])
+}
+
+enum WaitlistEventType {
+  SIGNED_UP
+  EMAIL_VERIFIED
+  PHONE_VERIFIED
+  PROFILE_COMPLETED
+  FRIEND_JOINED
+  FRIEND_VERIFIED
+  RANK_CHANGED
+  LEVEL_UNLOCKED
+  REWARD_UNLOCKED
+  ACCESS_GRANTED
+  ACCESS_USED
+}
+
+/// What happened to an entry, in order. The SMS digest reads rows with notifiedAt null
+/// (docs/13 section 4); the queue page shows the last few.
+model WaitlistEvent {
+  id         String            @id @default(cuid())
+  entry      WaitlistEntry     @relation(fields: [entryId], references: [id])
+  entryId    String
+  type       WaitlistEventType
+  data       Json?
+  notifiedAt DateTime?
+  createdAt  DateTime          @default(now())
+
+  @@index([entryId, createdAt])
+  @@index([notifiedAt, createdAt])
+}
+
+/// One-time SMS code for verifying a waitlist phone number (lib/queue.ts).
+model PhoneCode {
+  id         String    @id @default(cuid())
+  phone      String
+  codeHash   String
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([phone, createdAt])
 }
 
 model BrandEnquiry {

@@ -197,6 +197,36 @@ Tests: `tests/session.test.ts` (tamper, expiry, junk) and `tests/login.db.test.t
 (hashing, rate limit, supersede, existing/new creator, brand ok/refused, brand address
 never becomes a creator identity, attempt burn, replay, expiry, open-redirect guard).
 
+### 11. The waitlist game — `docs/13-waitlist.md`
+
+The waitlist was a form and a thank-you. Now it is the first product: join with city,
+mobile and email, land on `/queue` with a rank, a level and an invite link, and move
+up by doing real things — confirm email, verify phone, fill in the profile, and above
+all get friends to join *and verify*. Points are a ledger (`WaitlistPoint`, unique
+per reason and reference, so nothing double-awards), state changes are events
+(`WaitlistEvent`), and rank is computed from the ledger on every page load. Nothing
+is faked: no invented scarcity, no phantom referrals, no positions that are not the
+sum of rows.
+
+Referrals count only on verification and never for the same email, phone or IP
+hash; the person still sees "a friend confirmed — did not count". SMS exists but is
+polite: separate consent, one digest per six hours at most, silent 22–08, STOP on
+the inbound webhook, and the whole channel behind `waitlist.smsEnabled`. Access is
+a gate flag: while it is up, only people ops let through (`/ops/waitlist`, 48h
+window, audited) can open an account; sign-in says so and points back to the queue.
+
+Old fields (handle, age, followers, categories) moved from the join form to
+`/queue` where they earn points; the columns are nullable now, and onboarding
+prefill copes. `/r/CODE` sets a referral cookie and lands on the form. Privacy policy
+has the queue bullet and two purpose rows. Counsel should read docs/13 before the
+numbers get big.
+
+Tests: `tests/queue.test.ts` (levels, phone normalisation, percentile, referral
+rules, digest text, week start) and `tests/queue.db.test.ts` (join → rank,
+duplicate → link, referral credit on verify + level + priority, self/same-IP not
+counted, idempotent points, profile points, grant order + expiry, digest with the
+fake SMS provider, STOP, the sign-in gate).
+
 ### 10. After joining
 
 What happened after someone joined was two dead ends. The waitlist ended in "we'll be

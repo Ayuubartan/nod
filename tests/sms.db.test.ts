@@ -35,8 +35,15 @@ afterAll(async () => {
 })
 
 describe('the allowlist — only three notifications may cost money', () => {
-  it('permits exactly the three docs/06 section 7 names', () => {
-    expect([...SMS_ELIGIBLE]).toEqual(['campaignLive', 'claimExpiring', 'approvedPostNow'])
+  it('permits exactly the docs/06 section 7 names, plus the docs/13 waitlist ones', () => {
+    expect([...SMS_ELIGIBLE]).toEqual([
+      'campaignLive',
+      'claimExpiring',
+      'approvedPostNow',
+      'waitlistVerify',
+      'waitlistDigest',
+      'waitlistAccess',
+    ])
   })
 
   it('throws rather than quietly sending for anything else', async () => {

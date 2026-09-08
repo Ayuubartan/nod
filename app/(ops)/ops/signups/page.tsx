@@ -66,6 +66,9 @@ export default async function OpsSignupsPage() {
               <th className="text-left font-semibold px-4 py-3">Handle</th>
               <th className="text-left font-semibold px-4 py-3">Email</th>
               <th className="text-left font-semibold px-4 py-3">City</th>
+              <th className="text-left font-semibold px-4 py-3">Verified</th>
+              <th className="text-left font-semibold px-4 py-3">Points</th>
+              <th className="text-left font-semibold px-4 py-3">Level</th>
               <th className="text-left font-semibold px-4 py-3">Age</th>
               <th className="text-left font-semibold px-4 py-3">Followers</th>
               <th className="text-left font-semibold px-4 py-3">Categories</th>
@@ -77,19 +80,29 @@ export default async function OpsSignupsPage() {
               <tr key={entry.id} className="border-b border-[var(--color-line)] last:border-0 align-top">
                 <td className="px-4 py-3 tabular whitespace-nowrap text-[var(--color-ink-2)]">{when(entry.createdAt)}</td>
                 <td className="px-4 py-3 font-medium whitespace-nowrap">
-                  @{entry.handle} <span className="text-xs text-[var(--color-ink-3)]">{entry.platform}</span>
+                  {entry.handle ? `@${entry.handle}` : '—'}{' '}
+                  <span className="text-xs text-[var(--color-ink-3)]">{entry.platform ?? ''}</span>
                 </td>
                 <td className="px-4 py-3">{entry.email}</td>
                 <td className="px-4 py-3 text-[var(--color-ink-2)]">{entry.city}</td>
-                <td className="px-4 py-3 text-[var(--color-ink-2)]">{entry.ageBracket}</td>
-                <td className="px-4 py-3 text-[var(--color-ink-2)]">{entry.followersBracket}</td>
+                <td className="px-4 py-3 text-xs text-[var(--color-ink-2)] whitespace-nowrap">
+                  {entry.emailVerifiedAt ? 'email ' : ''}
+                  {entry.phoneVerifiedAt ? 'phone' : ''}
+                  {!entry.verifiedAt && '—'}
+                </td>
+                <td className="px-4 py-3 tabular">{entry.points}</td>
+                <td className="px-4 py-3 tabular">
+                  {entry.level} <span className="text-xs text-[var(--color-ink-3)]">({entry.verifiedReferrals} ref)</span>
+                </td>
+                <td className="px-4 py-3 text-[var(--color-ink-2)]">{entry.ageBracket ?? '—'}</td>
+                <td className="px-4 py-3 text-[var(--color-ink-2)]">{entry.followersBracket ?? '—'}</td>
                 <td className="px-4 py-3 text-xs text-[var(--color-ink-2)]">{entry.categories.join(', ') || '—'}</td>
                 <td className="px-4 py-3 text-xs tabular">{entry.referredBy ?? '—'}</td>
               </tr>
             ))}
             {waitlist.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-[var(--color-ink-3)]">
+                <td colSpan={11} className="px-4 py-8 text-center text-[var(--color-ink-3)]">
                   Nobody on the waitlist yet.
                 </td>
               </tr>

@@ -8,6 +8,7 @@ Personuppgiftsansvarig: Booga, Stockholm. Kontakt: hello@joinbooga.se.
 
 ## Vad vi samlar in
 
+- **Kön (väntelistan)**: e-post, stad och – om du anger det – mobilnummer, namn på topplistan, handle, ålders- och följargrupp och intressen. Vi sparar vem som bjöd in dig (en kod), dina poäng och händelserna bakom dem, samt en hash av din IP-adress för att stoppa själv-inbjudningar. Sms om kön skickas bara om du separat sagt ja; du kan stänga av på din plats-sida eller genom att svara STOPP. Du kan lämna kön när som helst – då raderas din plats.
 - **Konto**: mobilnummer eller e-post, stad, åldersgrupp, språk.
 - **Identitet (BankID)**: vi sparar **aldrig ditt personnummer**. Vi sparar en envägshash av det identitetsnummer vår BankID-leverantör returnerar, ditt födelseår och tidpunkten för verifieringen. Hashen används för att säkerställa en person per konto och för att blockera återregistrering efter avstängning.
 - **Sociala konton**: handle, konto-ID hos plattformen, kontotyp, följarantal, snittvisningar, kategorier och en krypterad åtkomsttoken. Vi begär **endast läsbehörighet**. Vi publicerar aldrig, ändrar aldrig, följer aldrig och skickar aldrig meddelanden åt dig.
@@ -24,6 +25,8 @@ Personuppgiftsansvarig: Booga, Stockholm. Kontakt: hello@joinbooga.se.
 | Förhindra bedrägeri | Berättigat intresse (intresseavvägning dokumenterad) |
 | Träningsdata för placeringsmotorn | Samtycke, separat och frivilligt |
 | Marknadsföringsmejl | Samtycke |
+| Sms om din plats i kön | Samtycke, separat och valfritt |
+| Poäng, nivåer och inbjudningar i kön | Avtal (villkoren för kön) och berättigat intresse för missbruksskydd |
 | Bokföring | Rättslig förpliktelse |
 
 ## Träningsdata

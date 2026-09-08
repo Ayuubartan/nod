@@ -20,39 +20,37 @@ test.describe('landing page', () => {
     // The three example rows are recomputed, never hardcoded.
     await expect(page.getByText('38 kr')).toBeVisible()
 
-    // Under 18 is not offered anywhere (docs/07 section 6).
-    const ageOptions = await page.locator('#ageBracket option').allTextContents()
-    expect(ageOptions.join(' ')).not.toMatch(/1[0-7]\b/)
-    expect(ageOptions).toContain('18-20')
+    // The form asks for the minimum (docs/13): city, mobile, email — nothing else.
+    await expect(page.locator('#city')).toHaveValue('stockholm')
+    await expect(page.locator('#phone')).toBeVisible()
+    await expect(page.locator('#email')).toBeVisible()
 
     // Language toggle switches the copy.
     await page.getByRole('button', { name: 'English' }).first().click()
     await expect(page.getByRole('heading', { level: 1 })).toContainText(/Post like you normally do/i)
   })
 
-  test('validates the waitlist form and stores a signup', async ({ page }) => {
+  test('joins the queue and lands on your place in it', async ({ page }) => {
     await page.goto('/#waitlist')
 
     const unique = `e2e-${Date.now()}@example.se`
 
-    await page.fill('#handle', '@e2e_tester')
     await page.selectOption('#city', 'stockholm')
-    await page.selectOption('#ageBracket', '21-25')
-    await page.selectOption('#followersBracket', '300-1k')
-    await page.getByRole('button', { name: 'Gym' }).first().click()
     await page.fill('#email', unique)
     await page.check('input[name="consent"]')
 
     await page.getByRole('button', { name: /Ställ dig i kön|Join the waitlist/ }).click()
 
-    // Success state shows a queue position and a referral link.
-    await expect(page.getByText(/Du är med|You're in/)).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByText(/\?ref=/)).toBeVisible()
-
-    // The door into the account: the code goes to the address they just joined with.
-    await page.getByRole('button', { name: /Öppna ditt konto|Open your account/ }).click()
+    // Page two (docs/13): a real rank, the level ladder, the personal invite link.
+    await expect(page).toHaveURL(/\/queue/, { timeout: 15_000 })
+    await expect(page.getByText(/^#\d/).first()).toBeVisible()
     await expect(page.getByText(/Nästan inne|Almost in/)).toBeVisible()
-    await expect(page.getByLabel(/Sexsiffrig kod|Six-digit code/)).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/\/r\/[A-Z0-9]+/)).toBeVisible()
+
+    // Under 18 is not offered anywhere (docs/07 section 6) — the profile task on this page.
+    const ageOptions = await page.getByLabel(/^(Ålder|Age)$/).locator('option').allTextContents()
+    expect(ageOptions.join(' ')).not.toMatch(/1[0-7]\b/)
+    expect(ageOptions).toContain('18-20')
   })
 
   test('serves the legal drafts', async ({ page }) => {

@@ -113,7 +113,7 @@
     },
     "waitlist": {
       "title": "Join the waitlist",
-      "sub": "Stockholm first. Join the queue and open your account right away – you’ll be ready when the first drop opens.",
+      "sub": "Stockholm first. Join the queue, see your place right away and move up by inviting friends.",
       "handle": "Instagram or TikTok handle",
       "handlePlaceholder": "@youraccount",
       "city": "City",
@@ -126,11 +126,6 @@
       "consentPrivacyLink": "Read the privacy policy",
       "submit": "Join the waitlist",
       "submitting": "Sending…",
-      "successTitle": "You're in.",
-      "successBody": "You’re number {position} in the queue. Open your account now so everything is set when the first drop opens – the front of the queue hears first.",
-      "successReferral": "Invite a friend and you both move up.",
-      "copyLink": "Copy your link",
-      "shareStory": "Share as a Story",
       "cityOptions": {
         "stockholm": "Stockholm",
         "goteborg": "Gothenburg",
@@ -154,12 +149,16 @@
         "categories": "Pick at least one category",
         "consent": "You need to agree to join",
         "duplicate": "That email is already on the list.",
-        "rateLimited": "Too many attempts. Wait a moment."
+        "rateLimited": "Too many attempts. Wait a moment.",
+        "phone": "Enter a Swedish mobile number, e.g. 070-123 45 67",
+        "phoneTaken": "That number is already used by someone in the queue."
       },
-      "openAccount": "Open your account",
-      "openAccountHint": "Takes a minute. We email a code – no password.",
-      "openTitle": "Almost in",
-      "openBody": "Enter the code we emailed you. Then we fill in what you already told us."
+      "phone": "Mobile number",
+      "phoneHint": "Optional. Verify it on the next page for points – and get a text when something happens, if you want.",
+      "smsConsent": "Yes, text me when my place changes or when it is my turn.",
+      "smsConsentHint": "At most one text every six hours, never at night. Reply STOP any time.",
+      "already": "That email is already in the queue – we have mailed you a link to your place.",
+      "alreadyLink": "Already have the link? Go to your place."
     },
     "footer": {
       "city": "Stockholm",
@@ -679,7 +678,8 @@
     "signups": "Signups",
     "brands": "Brands",
     "flags": "Flags",
-    "audit": "Audit"
+    "audit": "Audit",
+    "waitlist": "Queue"
   },
   "auth": {
     "participantPageTitle": "Sign in",
@@ -709,7 +709,128 @@
       "noCode": "There is no valid code for that address. Request a new one.",
       "wrongCode": "Wrong code. Check the email and try again.",
       "tooManyAttempts": "Too many wrong attempts. Request a new code.",
-      "noBrandAccount": "That address doesn't belong to a brand account. Contact hello@joinbooga.se and we'll help."
+      "noBrandAccount": "That address doesn't belong to a brand account. Contact hello@joinbooga.se and we'll help.",
+      "waitlistOnly": "The queue is not open for your address yet. Join the queue or invite friends to move up."
+    },
+    "toQueue": "See your place in the queue"
+  },
+  "queue": {
+    "metaTitle": "Your place in the queue",
+    "youreIn": "You're in.",
+    "almostIn": "Almost in",
+    "topPercent": "Top {percent}%",
+    "points": "{points} points",
+    "ofTotal": "{total} in the queue right now",
+    "nextLevel": "{count, plural, one {One more friend} other {# more friends}} → {level}",
+    "oneMore": "just one left",
+    "priorityAtNext": "unlocks priority access",
+    "topLevel": "Top level. Thank you – you are helping build this.",
+    "positionNote": "You were number {position} when you joined. Your place is recalculated from points every time you load the page.",
+    "shareText": "I'm in the queue for Booga – post as usual and get paid. Get in line behind me: {url}",
+    "cities": {
+      "stockholm": "Stockholm",
+      "goteborg": "Gothenburg",
+      "malmo": "Malmö",
+      "uppsala": "Uppsala",
+      "other": "Other city"
+    },
+    "levels": {
+      "queue": "In queue",
+      "connector": "Connector",
+      "social": "Social",
+      "insider": "Insider",
+      "founding": "Founding"
+    },
+    "access": {
+      "doneTitle": "Your account is open.",
+      "doneBody": "You have already opened your account. Sign in to see the drop.",
+      "signIn": "Sign in",
+      "turnTitle": "YOUR TURN!",
+      "openTitle": "Open your account",
+      "turnBody": "Your invite is valid until {until}. We email a code – no password.",
+      "openBody": "The queue is open. Open your account now so everything is ready when the first drop opens.",
+      "open": "Open account"
+    },
+    "invite": {
+      "title": "Invite friends",
+      "body": "Every friend who confirms their place gives you 250 points and takes you closer to the next level. Only real confirmations count.",
+      "copy": "Copy link",
+      "sms": "Text",
+      "story": "Story image"
+    },
+    "tasks": {
+      "title": "How to move up",
+      "email": "Confirm email",
+      "emailHint": "Click the link in the email we sent.",
+      "phone": "Verify mobile number",
+      "phoneSoon": "SMS verification opens soon.",
+      "profile": "Complete your profile",
+      "interests": "Pick what you post about"
+    },
+    "week": {
+      "title": "This week – {city}",
+      "you": "You are #{rank} this week with {points} points.",
+      "none": "No points this week yet. Invite someone.",
+      "me": "You",
+      "anonymous": "Someone in the queue",
+      "empty": "Nobody in {city} has earned points this week yet. Be the first."
+    },
+    "events": {
+      "title": "Latest",
+      "emailVerified": "Email confirmed",
+      "phoneVerified": "Mobile number verified · +{points}",
+      "profile": "Profile completed · +{points}",
+      "friendJoined": "A friend joined the queue through your link",
+      "friendVerified": "A friend confirmed their place · +{points}",
+      "friendNotCounted": "A friend confirmed – but did not count (same person or network).",
+      "level": "New level: {level} · +{bonus}",
+      "boost": "Today's boost · +{points}",
+      "access": "You got access – your invite is valid for 48 hours"
+    },
+    "phone": {
+      "number": "Mobile number",
+      "send": "Send code",
+      "code": "Code",
+      "confirm": "Confirm",
+      "devCode": "Test code (development only):",
+      "errors": {
+        "rateLimited": "Too many attempts. Wait a moment.",
+        "smsUnavailable": "SMS is not switched on yet. Try again later.",
+        "phoneTaken": "That number is already used by someone in the queue.",
+        "phone": "Enter a Swedish mobile number.",
+        "noSession": "We can't find your place. Open the link from the email again.",
+        "noCode": "There is no valid code. Request a new one.",
+        "wrongCode": "Wrong code. Try again.",
+        "tooManyAttempts": "Too many wrong attempts. Request a new code."
+      }
+    },
+    "profile": {
+      "displayName": "Name on the leaderboard (optional)",
+      "save": "Save",
+      "nameHint": "The name only shows on the weekly leaderboard. Without one you appear as \"Someone in the queue\"."
+    },
+    "sms": {
+      "title": "SMS settings",
+      "body": "We only text when something happened: a friend confirmed, you reached a new level, or it is your turn. At most one every six hours, never between 22:00 and 08:00.",
+      "toggle": "Text me",
+      "noPhone": "Verify a mobile number first.",
+      "stopHint": "You can always reply STOP to a text to switch it off.",
+      "leave": "Leave the queue",
+      "leaveConfirm": "Leave the queue? Your place and your points disappear.",
+      "leaveYes": "Yes, leave",
+      "leaveNo": "No, stay"
+    },
+    "link": {
+      "title": "Find your place",
+      "body": "Enter the email you joined with and we will mail a link to your place.",
+      "email": "Email",
+      "sending": "Sending…",
+      "submit": "Email my link",
+      "sent": "If that address is in the queue, we have mailed a link. Check your inbox.",
+      "rateLimited": "Too many attempts. Wait a moment.",
+      "invalidEmail": "That doesn't look like an email address.",
+      "notYet": "Not in the queue yet?",
+      "join": "Join the queue"
     }
   }
 }

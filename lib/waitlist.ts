@@ -52,8 +52,8 @@ export async function prefillFromWaitlist(email: string | null | undefined): Pro
 
   return {
     city: CITIES.includes(entry.city) ? entry.city : null,
-    ageBracket: AGE_BRACKETS.includes(entry.ageBracket) ? entry.ageBracket : null,
-    handle: entry.handle.replace(/^@/, '') || null,
+    ageBracket: entry.ageBracket && AGE_BRACKETS.includes(entry.ageBracket) ? entry.ageBracket : null,
+    handle: entry.handle?.replace(/^@/, '') || null,
     referredByCode,
   }
 }

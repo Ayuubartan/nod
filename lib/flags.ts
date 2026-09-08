@@ -50,6 +50,12 @@ export const FLAG_DEFAULTS = {
   'notify.smsFallbackEnabled': false,
   'notify.slackEnabled': true,
 
+  // the waitlist game (docs/13) — SMS costs money and the gate changes who can sign in
+  'waitlist.smsEnabled': false,
+  'waitlist.gate': false,
+  'waitlist.boostMultiplier': 1,
+  'waitlist.dailyBoostCount': 0,
+
   // placement engine — off sends every render to the ops queue (the M2 pilot mode)
   'engine.autoRender': true,
 

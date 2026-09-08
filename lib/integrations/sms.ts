@@ -5,8 +5,8 @@
  *
  * Three constraints the spec imposes, enforced here rather than left to call sites:
  *
- *   1. Only those three notification kinds may ever send an SMS. `SMS_ELIGIBLE` is the
- *      allowlist and `sendSms` refuses anything else.
+ *   1. Only those three notification kinds — plus the waitlist ones from docs/13 — may
+ *      ever send an SMS. `SMS_ELIGIBLE` is the allowlist and `sendSms` refuses anything else.
  *   2. It is flag-gated, because it costs real money per message.
  *   3. It is a fallback, not a duplicate: it sends only when web push is unavailable for
  *      that participant, so nobody is billed twice for one notification.
@@ -21,7 +21,17 @@ import { BRAND } from '../brand'
 import { log } from '@/lib/logger'
 
 /** The only notifications permitted to cost money. */
-export const SMS_ELIGIBLE = ['campaignLive', 'claimExpiring', 'approvedPostNow'] as const
+export const SMS_ELIGIBLE = [
+  'campaignLive',
+  'claimExpiring',
+  'approvedPostNow',
+  // the waitlist game (docs/13): a verification code, an aggregated digest, and
+  // the one message that matters most — access granted. Separately flag-gated
+  // (waitlist.smsEnabled) and consent-checked in lib/waitlist-sms.ts.
+  'waitlistVerify',
+  'waitlistDigest',
+  'waitlistAccess',
+] as const
 export type SmsKind = (typeof SMS_ELIGIBLE)[number]
 
 export type SmsResult = { ok: true; reference: string } | { ok: false; error: string }

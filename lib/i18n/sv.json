@@ -113,7 +113,7 @@
     },
     "waitlist": {
       "title": "Ställ dig i kön",
-      "sub": "Stockholm först. Ställ dig i kön och öppna ditt konto direkt – då är du redo när första droppet öppnar.",
+      "sub": "Stockholm först. Ställ dig i kön, se din plats direkt och flytta fram genom att bjuda in vänner.",
       "handle": "Instagram- eller TikTok-handle",
       "handlePlaceholder": "@dittkonto",
       "city": "Stad",
@@ -126,11 +126,6 @@
       "consentPrivacyLink": "Läs integritetspolicyn",
       "submit": "Ställ dig i kön",
       "submitting": "Skickar…",
-      "successTitle": "Du är med.",
-      "successBody": "Du är nummer {position} i kön. Öppna ditt konto nu så är allt klart när första droppet öppnar – de längst fram får veta först.",
-      "successReferral": "Bjud in en kompis så flyttas ni båda fram.",
-      "copyLink": "Kopiera din länk",
-      "shareStory": "Dela som story",
       "cityOptions": {
         "stockholm": "Stockholm",
         "goteborg": "Göteborg",
@@ -154,12 +149,16 @@
         "categories": "Välj minst en kategori",
         "consent": "Du måste godkänna för att gå med",
         "duplicate": "Den här e-posten står redan i kön.",
-        "rateLimited": "För många försök. Vänta en stund."
+        "rateLimited": "För många försök. Vänta en stund.",
+        "phone": "Ange ett svenskt mobilnummer, t.ex. 070-123 45 67",
+        "phoneTaken": "Det numret används redan av någon i kön."
       },
-      "openAccount": "Öppna ditt konto",
-      "openAccountHint": "Tar en minut. Vi mejlar en kod – inget lösenord.",
-      "openTitle": "Nästan inne",
-      "openBody": "Skriv koden vi mejlade dig. Sen fyller vi i det du redan berättat."
+      "phone": "Mobilnummer",
+      "phoneHint": "Valfritt. Verifiera numret på nästa sida så får du poäng – och sms när något händer, om du vill.",
+      "smsConsent": "Ja, skicka sms när min plats ändras eller när det är min tur.",
+      "smsConsentHint": "Max ett sms per sex timmar, aldrig nattetid. Svara STOPP när du vill.",
+      "already": "Den e-posten står redan i kön – vi har mejlat dig en länk till din plats.",
+      "alreadyLink": "Har du redan länken? Gå till din plats."
     },
     "footer": {
       "city": "Stockholm",
@@ -679,7 +678,8 @@
     "signups": "Anmälningar",
     "brands": "Varumärken",
     "flags": "Flaggor",
-    "audit": "Logg"
+    "audit": "Logg",
+    "waitlist": "Kön"
   },
   "auth": {
     "participantPageTitle": "Logga in",
@@ -709,7 +709,128 @@
       "noCode": "Det finns ingen giltig kod för den adressen. Be om en ny.",
       "wrongCode": "Fel kod. Kontrollera mejlet och försök igen.",
       "tooManyAttempts": "För många felaktiga försök. Be om en ny kod.",
-      "noBrandAccount": "Den adressen hör inte till något varumärkeskonto. Kontakta hello@joinbooga.se så hjälper vi dig."
+      "noBrandAccount": "Den adressen hör inte till något varumärkeskonto. Kontakta hello@joinbooga.se så hjälper vi dig.",
+      "waitlistOnly": "Kön är inte öppen än för din adress. Ställ dig i kön eller bjud in vänner för att komma fram."
+    },
+    "toQueue": "Se din plats i kön"
+  },
+  "queue": {
+    "metaTitle": "Din plats i kön",
+    "youreIn": "Du är med.",
+    "almostIn": "Nästan inne",
+    "topPercent": "Topp {percent} %",
+    "points": "{points} poäng",
+    "ofTotal": "{total} i kön just nu",
+    "nextLevel": "{count, plural, one {En vän till} other {# vänner till}} → {level}",
+    "oneMore": "bara en kvar",
+    "priorityAtNext": "ger prioriterad tillgång",
+    "topLevel": "Högsta nivån. Tack – du är med och bygger det här.",
+    "positionNote": "Du var nummer {position} när du ställde dig i kön. Din plats räknas om efter poäng, varje gång du laddar sidan.",
+    "shareText": "Jag står i kön till Booga – posta som vanligt och få betalt. Ställ dig bakom mig: {url}",
+    "cities": {
+      "stockholm": "Stockholm",
+      "goteborg": "Göteborg",
+      "malmo": "Malmö",
+      "uppsala": "Uppsala",
+      "other": "Annan stad"
+    },
+    "levels": {
+      "queue": "I kön",
+      "connector": "Connector",
+      "social": "Social",
+      "insider": "Insider",
+      "founding": "Founding"
+    },
+    "access": {
+      "doneTitle": "Ditt konto är öppet.",
+      "doneBody": "Du har redan öppnat ditt konto. Logga in för att se droppen.",
+      "signIn": "Logga in",
+      "turnTitle": "DIN TUR!",
+      "openTitle": "Öppna ditt konto",
+      "turnBody": "Din inbjudan gäller till {until}. Vi mejlar en kod – inget lösenord.",
+      "openBody": "Kön är öppen. Öppna ditt konto nu så är allt klart när första droppet öppnar.",
+      "open": "Öppna kontot"
+    },
+    "invite": {
+      "title": "Bjud in vänner",
+      "body": "Varje vän som bekräftar sin plats ger dig 250 poäng och tar dig närmare nästa nivå. Bara riktiga bekräftelser räknas.",
+      "copy": "Kopiera länk",
+      "sms": "Sms",
+      "story": "Story-bild"
+    },
+    "tasks": {
+      "title": "Så flyttar du fram",
+      "email": "Bekräfta e-post",
+      "emailHint": "Klicka på länken i mejlet vi skickade.",
+      "phone": "Verifiera mobilnummer",
+      "phoneSoon": "Sms-verifiering öppnar snart.",
+      "profile": "Fyll i din profil",
+      "interests": "Välj vad du postar om"
+    },
+    "week": {
+      "title": "Veckans topplista – {city}",
+      "you": "Du ligger på plats {rank} den här veckan med {points} poäng.",
+      "none": "Inga poäng den här veckan än. Bjud in någon.",
+      "me": "Du",
+      "anonymous": "Någon i kön",
+      "empty": "Ingen i {city} har fått poäng den här veckan än. Bli först."
+    },
+    "events": {
+      "title": "Senaste",
+      "emailVerified": "E-post bekräftad",
+      "phoneVerified": "Mobilnummer verifierat · +{points}",
+      "profile": "Profil ifylld · +{points}",
+      "friendJoined": "En vän ställde sig i kön via din länk",
+      "friendVerified": "En vän bekräftade sin plats · +{points}",
+      "friendNotCounted": "En vän bekräftade – men räknades inte (samma person eller nät).",
+      "level": "Ny nivå: {level} · +{bonus}",
+      "boost": "Dagens boost · +{points}",
+      "access": "Du fick tillgång – din inbjudan gäller i 48 timmar"
+    },
+    "phone": {
+      "number": "Mobilnummer",
+      "send": "Skicka kod",
+      "code": "Kod",
+      "confirm": "Bekräfta",
+      "devCode": "Testkod (visas bara i utveckling):",
+      "errors": {
+        "rateLimited": "För många försök. Vänta en stund.",
+        "smsUnavailable": "Sms är inte igång än. Försök igen senare.",
+        "phoneTaken": "Det numret används redan av någon i kön.",
+        "phone": "Ange ett svenskt mobilnummer.",
+        "noSession": "Vi hittar inte din plats. Öppna länken från mejlet igen.",
+        "noCode": "Det finns ingen giltig kod. Be om en ny.",
+        "wrongCode": "Fel kod. Försök igen.",
+        "tooManyAttempts": "För många felaktiga försök. Be om en ny kod."
+      }
+    },
+    "profile": {
+      "displayName": "Namn på topplistan (valfritt)",
+      "save": "Spara",
+      "nameHint": "Namnet syns bara på veckans topplista. Utan namn visas du som \"Någon i kön\"."
+    },
+    "sms": {
+      "title": "Sms-inställningar",
+      "body": "Vi skickar bara sms när något hänt: en vän bekräftade, du nådde en ny nivå, eller det är din tur. Högst ett per sex timmar, aldrig mellan 22 och 08.",
+      "toggle": "Skicka sms till mig",
+      "noPhone": "Verifiera ett mobilnummer först.",
+      "stopHint": "Du kan alltid svara STOPP på ett sms för att stänga av.",
+      "leave": "Lämna kön",
+      "leaveConfirm": "Vill du lämna kön? Din plats och dina poäng försvinner.",
+      "leaveYes": "Ja, lämna",
+      "leaveNo": "Nej, stanna"
+    },
+    "link": {
+      "title": "Hitta din plats",
+      "body": "Skriv e-posten du ställde dig i kön med så mejlar vi en länk till din plats.",
+      "email": "E-post",
+      "sending": "Skickar…",
+      "submit": "Mejla min länk",
+      "sent": "Om adressen står i kön har vi mejlat en länk. Kolla inkorgen.",
+      "rateLimited": "För många försök. Vänta en stund.",
+      "invalidEmail": "Det där ser inte ut som en e-postadress.",
+      "notYet": "Inte i kön än?",
+      "join": "Ställ dig i kön"
     }
   }
 }

@@ -8,6 +8,7 @@ Controller: Booga, Stockholm. Contact: hello@joinbooga.se.
 
 ## What we collect
 
+- **The queue (waitlist)**: email, city and – if you give them – mobile number, leaderboard name, handle, age and follower bracket and interests. We store who invited you (a code), your points and the events behind them, and a hash of your IP address to stop self-invites. Texts about the queue are only sent if you separately said yes; switch them off on your place page or by replying STOP. You can leave the queue at any time – your place is then erased.
 - **Account**: mobile number or email, city, age bracket, language.
 - **Identity (BankID)**: we **never store your personnummer**. We store a one-way hash of the subject identifier our BankID broker returns, your birth year, and the time of verification. The hash exists to enforce one person per account and to block re-registration after removal.
 - **Social accounts**: handle, platform account ID, account type, follower count, average views, categories, and an encrypted access token. We request **read-only access**. We never post, never edit, never follow and never message on your behalf.
@@ -24,6 +25,8 @@ Controller: Booga, Stockholm. Contact: hello@joinbooga.se.
 | Preventing fraud | Legitimate interest (balancing test documented) |
 | Training data for the placement engine | Consent, separate and optional |
 | Marketing email | Consent |
+| Texts about your place in the queue | Consent, separate and optional |
+| Points, levels and invites in the queue | Contract (the queue terms) and legitimate interest for abuse prevention |
 | Bookkeeping | Legal obligation |
 
 ## Training data

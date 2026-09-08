@@ -13,6 +13,7 @@ import { rateLimit } from '@/lib/rate-limit'
 import { brandSafetyCheck } from '@/lib/media'
 import { identityProvider } from '@/lib/integrations/bankid'
 import { IdentityError, onboard, signUp, verifyIdentity } from '@/lib/state/participant'
+import { markConverted } from '@/lib/queue'
 import {
   claim,
   ClaimError,
@@ -59,6 +60,8 @@ export async function createParticipant(input: unknown): Promise<ActionResult<{ 
   if (existing) return { ok: true, data: { userId: existing.id } }
 
   const user = await signUp(parsed.data, referralCode)
+  // The queue entry, if there was one, has done its job (docs/13: ACCESS_USED).
+  if (parsed.data.email) await markConverted(parsed.data.email, user.id)
   return { ok: true, data: { userId: user.id } }
 }
 

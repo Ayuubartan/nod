@@ -512,3 +512,27 @@ export async function opsRehashOriginal(placementId: string, formData: FormData)
   revalidatePath('/ops/generation')
   return { ok: true }
 }
+
+// ---------------------------------------------------------------- waitlist (docs/13)
+
+/**
+ * Let the next N people through the gate — verified first, then priority levels, then
+ * points. Each one is told by SMS (if consented) and email. Audited like any other
+ * ops action; nobody in the queue moves without a row saying who opened the door.
+ */
+export async function opsGrantWaitlistAccess(rawCount: unknown): Promise<ActionResult<{ granted: number }>> {
+  const actor = await opsActor()
+  const count = z.number().int().min(1).max(500).safeParse(rawCount)
+  if (!count.success) return fail('invalid')
+
+  const { grantAccess } = await import('@/lib/queue')
+  const { announceAccess } = await import('@/lib/waitlist-sms')
+  const granted = await grantAccess(count.data)
+  for (const entry of granted) {
+    await announceAccess(entry)
+    await auditAction(prisma, 'WaitlistEntry', entry.id, 'OPS_GRANT_ACCESS', actor, { until: entry.accessExpiresAt?.toISOString() ?? null })
+  }
+
+  revalidatePath('/ops/waitlist')
+  return { ok: true, data: { granted: granted.length } }
+}

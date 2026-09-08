@@ -1,40 +1,40 @@
 'use server'
 
-import { headers } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { z } from 'zod'
 import { prisma } from '@/lib/db'
-import { referralCode } from '@/lib/crypto'
 import { emit } from '@/lib/events'
 import { rateLimit } from '@/lib/rate-limit'
-import { sendWaitlistConfirmation, sendBrandEnquiryToOps } from '@/lib/email'
+import { sendWaitlistConfirmation, sendQueueLink, sendBrandEnquiryToOps } from '@/lib/email'
+import { CITIES, joinQueue, normalisePhone } from '@/lib/queue'
+import { queueLink, setQueueCookie } from '@/lib/queue-session'
+import { REF_COOKIE } from '@/lib/referral-cookie'
 
 /**
- * Marketing form actions — docs/01 sections 7 and /brands.
+ * Marketing form actions — docs/01 section 7, docs/13 (the waitlist game).
  *
  * Both actions validate with zod, rate-limit by IP, and never trust a client-supplied
  * referral code beyond looking it up.
  */
 
-const CITIES = ['stockholm', 'goteborg', 'malmo', 'uppsala', 'other'] as const
-// 18 is the floor everywhere in NOD — there is no under-18 option, by design (docs/07 section 6).
-const AGE_BRACKETS = ['18-20', '21-25', '26-30', '31+'] as const
-const FOLLOWER_BRACKETS = ['lt300', '300-1k', '1k-5k', '5k-20k', '20k+'] as const
-const CATEGORIES = ['gym', 'food', 'study', 'travel', 'fashion', 'gaming', 'nightlife', 'hobby', 'other'] as const
-
 const waitlistSchema = z.object({
-  handle: z
+  city: z.enum(CITIES, { message: 'city' }),
+  phone: z
     .string()
     .trim()
-    .min(2, 'handle')
-    .max(80, 'handle')
-    .transform((v) => v.replace(/^@/, '').trim()),
-  city: z.enum(CITIES, { message: 'city' }),
-  ageBracket: z.enum(AGE_BRACKETS, { message: 'ageBracket' }),
-  followersBracket: z.enum(FOLLOWER_BRACKETS, { message: 'followersBracket' }),
-  categories: z.array(z.enum(CATEGORIES)).min(1, 'categories'),
-  email: z.string().trim().toLowerCase().email('email'),
+    .max(32)
+    .optional()
+    .nullable()
+    .transform((v) => (v ? v : null)),
+  email: z.string().trim().toLowerCase().email('email').max(254, 'email'),
   referredBy: z.string().trim().max(32).optional().nullable(),
   consent: z.literal(true, { message: 'consent' }),
+  smsConsent: z.boolean().optional().default(false),
+  marketingConsent: z.boolean().optional().default(false),
+  source: z.string().trim().max(64).optional().nullable(),
+  utmSource: z.string().trim().max(64).optional().nullable(),
+  utmMedium: z.string().trim().max(64).optional().nullable(),
+  utmCampaign: z.string().trim().max(64).optional().nullable(),
 })
 
 export type WaitlistResult =
@@ -42,22 +42,11 @@ export type WaitlistResult =
   | { ok: false; error: string }
 
 /**
- * A handle can arrive as "@name", "name", or a full profile URL. TikTok URLs and
- * handles are recognisable; anything else is treated as Instagram (docs/01: "auto-detect
- * platform from @ or URL").
+ * Page one of the game: the least we can ask. The reply sets the NOD_QUEUE cookie so
+ * the client can go straight to /queue, and the confirmation mail carries the link
+ * that proves the address. Someone who is already in gets their link mailed instead
+ * of an error they cannot act on.
  */
-function detectPlatform(raw: string): 'INSTAGRAM' | 'TIKTOK' {
-  const value = raw.toLowerCase()
-  if (value.includes('tiktok.com') || value.startsWith('tt:')) return 'TIKTOK'
-  return 'INSTAGRAM'
-}
-
-function normaliseHandle(raw: string): string {
-  const urlMatch = raw.match(/(?:instagram\.com|tiktok\.com)\/@?([A-Za-z0-9._-]+)/i)
-  if (urlMatch?.[1]) return urlMatch[1]
-  return raw.replace(/^@/, '')
-}
-
 export async function joinWaitlist(input: unknown): Promise<WaitlistResult> {
   const head = await headers()
   const ip = head.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
@@ -72,57 +61,59 @@ export async function joinWaitlist(input: unknown): Promise<WaitlistResult> {
   }
   const data = parsed.data
 
-  const existing = await prisma.waitlistEntry.findFirst({
-    where: { email: data.email, deletedAt: null },
-    select: { id: true },
-  })
-  if (existing) return { ok: false, error: 'duplicate' }
-
-  // Only attribute to a referral code that actually exists.
-  let referredBy: string | null = null
-  if (data.referredBy) {
-    const referrer = await prisma.waitlistEntry.findUnique({
-      where: { referralCode: data.referredBy.toUpperCase() },
-      select: { referralCode: true },
-    })
-    referredBy = referrer?.referralCode ?? null
+  let phone: string | null = null
+  if (data.phone) {
+    phone = normalisePhone(data.phone)
+    if (!phone) return { ok: false, error: 'phone' }
   }
 
-  const code = await uniqueReferralCode()
-  const position = (await prisma.waitlistEntry.count({ where: { deletedAt: null } })) + 1
+  // A shared link may have set the referral cookie before the form was ever seen.
+  const store = await cookies()
+  const referredBy = data.referredBy || store.get(REF_COOKIE)?.value || null
 
-  const entry = await prisma.waitlistEntry.create({
-    data: {
-      handle: normaliseHandle(data.handle),
-      platform: detectPlatform(data.handle),
-      city: data.city,
-      ageBracket: data.ageBracket,
-      followersBracket: data.followersBracket,
-      categories: data.categories,
-      email: data.email,
-      referralCode: code,
-      referredBy,
-      consentAt: new Date(),
-      position,
-    },
+  const result = await joinQueue({
+    email: data.email,
+    phone,
+    city: data.city,
+    referredBy,
+    smsConsent: data.smsConsent,
+    marketingConsent: data.marketingConsent,
+    signupSource: data.source ?? null,
+    utmSource: data.utmSource ?? null,
+    utmMedium: data.utmMedium ?? null,
+    utmCampaign: data.utmCampaign ?? null,
+    ip,
   })
 
+  if (!result.ok) {
+    if (result.error === 'duplicate') {
+      const existing = await prisma.waitlistEntry.findFirst({
+        where: { email: data.email, deletedAt: null },
+        select: { id: true },
+      })
+      if (existing) await sendQueueLink({ email: data.email, queueUrl: queueLink(existing.id, 'email') })
+    }
+    return { ok: false, error: result.error }
+  }
+
+  const { entry } = result
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
-  const shareUrl = `${siteUrl}/?ref=${code}`
+  const shareUrl = `${siteUrl}/r/${entry.referralCode}`
 
-  await sendWaitlistConfirmation({ email: data.email, position, shareUrl, handle: entry.handle })
-  await emit({ name: 'waitlist/joined', data: { entryId: entry.id, position, referredBy }, id: `waitlist:${entry.id}` })
+  await setQueueCookie(entry.id)
+  await sendWaitlistConfirmation({
+    email: entry.email,
+    position: entry.position,
+    queueUrl: queueLink(entry.id, 'email'),
+    shareUrl,
+  })
+  await emit({
+    name: 'waitlist/joined',
+    data: { entryId: entry.id, position: entry.position, referredBy: entry.referredBy },
+    id: `waitlist:${entry.id}`,
+  })
 
-  return { ok: true, position, referralCode: code, shareUrl }
-}
-
-async function uniqueReferralCode(): Promise<string> {
-  for (let attempt = 0; attempt < 8; attempt++) {
-    const code = referralCode()
-    const clash = await prisma.waitlistEntry.findUnique({ where: { referralCode: code }, select: { id: true } })
-    if (!clash) return code
-  }
-  throw new Error('Could not allocate a unique referral code')
+  return { ok: true, position: entry.position, referralCode: entry.referralCode, shareUrl }
 }
 
 // ---------------------------------------------------------------- brand enquiry

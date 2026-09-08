@@ -16,6 +16,7 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
     { href: '/ops/payouts', label: t('payouts') },
     { href: '/ops/participants', label: t('participants') },
     { href: '/ops/signups', label: t('signups') },
+    { href: '/ops/waitlist', label: t('waitlist') },
     { href: '/ops/brands', label: t('brands') },
     { href: '/ops/flags', label: t('flags') },
     { href: '/ops/audit', label: t('audit') },

@@ -23,7 +23,7 @@ const TABLES = [
   'PlacementVersion', 'Placement', 'CampaignAsset', 'PayoutTemplate', 'Campaign',
   'BrandUser', 'Brand', 'PayoutBatch', 'Wallet', 'Strike', 'Referral', 'Identity',
   'SocialAccount', 'User', 'AuditLog', 'Flag', 'WaitlistEntry', 'BrandEnquiry',
-  'IdempotencyKey', 'LoginCode',
+  'IdempotencyKey', 'LoginCode', 'WaitlistPoint', 'WaitlistEvent', 'PhoneCode',
 ]
 
 export async function resetDb(): Promise<void> {

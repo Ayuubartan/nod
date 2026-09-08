@@ -102,30 +102,27 @@ export async function loginCodeEmail(email: string, code: string, locale: Locale
 export async function sendWaitlistConfirmation(args: {
   email: string
   position: number
+  /** Signed link to /queue — opening it verifies the address (lib/queue-session.ts). */
+  queueUrl: string
   shareUrl: string
-  handle: string
   locale?: Locale
 }): Promise<void> {
   const locale = args.locale ?? 'sv'
-  // The account is one sign-in away, so the mail says so — the same address opens it.
-  const signInUrl = `${siteUrl}/sign-in`
   const html =
     locale === 'sv'
       ? shell(
           `<h1 style="font-size:22px;margin:0 0 12px">Du är med.</h1>
-           <p style="margin:0 0 16px;color:#5C554D">Du är nummer <strong style="color:#14110F">${args.position}</strong> i kön. Kampanjer släpps fredagar 18:00, Stockholm först – de längst fram får veta först.</p>
-           <p style="margin:0 0 16px;color:#5C554D">Öppna ditt konto redan nu med samma e-postadress, så är allt klart när droppet öppnar. Inget lösenord – vi mejlar en kod.</p>
-           ${button(signInUrl, 'Öppna ditt konto')}
-           <p style="margin:24px 0 8px;color:#5C554D">Bjud in en kompis så flyttas ni båda fram:</p>
+           <p style="margin:0 0 16px;color:#5C554D">Du är nummer <strong style="color:#14110F">${args.position}</strong> i kön. Bekräfta din e-post så räknas du – och se din plats, dina poäng och din inbjudningslänk.</p>
+           ${button(args.queueUrl, 'Bekräfta och se din plats')}
+           <p style="margin:24px 0 8px;color:#5C554D">Varje vän som går med via din länk och bekräftar sig flyttar dig framåt:</p>
            <p style="margin:0"><code style="background:#FAF7F2;padding:8px 12px;border-radius:8px;display:inline-block">${args.shareUrl}</code></p>`,
           locale,
         )
       : shell(
           `<h1 style="font-size:22px;margin:0 0 12px">You're in.</h1>
-           <p style="margin:0 0 16px;color:#5C554D">You're number <strong style="color:#14110F">${args.position}</strong> in the queue. Campaigns go live Fridays at 18:00, Stockholm first – the front of the queue hears first.</p>
-           <p style="margin:0 0 16px;color:#5C554D">Open your account now with this same address so everything is set when the drop opens. No password – we email a code.</p>
-           ${button(signInUrl, 'Open your account')}
-           <p style="margin:24px 0 8px;color:#5C554D">Invite a friend and you both move up:</p>
+           <p style="margin:0 0 16px;color:#5C554D">You're number <strong style="color:#14110F">${args.position}</strong> in the queue. Confirm your email to count – and see your place, your points and your invite link.</p>
+           ${button(args.queueUrl, 'Confirm and see your place')}
+           <p style="margin:24px 0 8px;color:#5C554D">Every friend who joins through your link and confirms moves you up:</p>
            <p style="margin:0"><code style="background:#FAF7F2;padding:8px 12px;border-radius:8px;display:inline-block">${args.shareUrl}</code></p>`,
           locale,
         )
@@ -135,6 +132,59 @@ export async function sendWaitlistConfirmation(args: {
     subject: locale === 'sv' ? `Du är nummer ${args.position} i kön` : `You're number ${args.position} in the queue`,
     html,
     tag: 'waitlist_confirmation',
+  })
+}
+
+/** "Email me my link" on /queue when the cookie is gone. */
+export async function sendQueueLink(args: { email: string; queueUrl: string; locale?: Locale }): Promise<void> {
+  const locale = args.locale ?? 'sv'
+  const html =
+    locale === 'sv'
+      ? shell(
+          `<h1 style="font-size:22px;margin:0 0 12px">Din plats i kön</h1>
+           <p style="margin:0 0 16px;color:#5C554D">Här är din personliga länk. Den gäller i 30 dagar.</p>
+           ${button(args.queueUrl, 'Se din plats')}`,
+          locale,
+        )
+      : shell(
+          `<h1 style="font-size:22px;margin:0 0 12px">Your place in the queue</h1>
+           <p style="margin:0 0 16px;color:#5C554D">Here is your personal link. It works for 30 days.</p>
+           ${button(args.queueUrl, 'See your place')}`,
+          locale,
+        )
+  await send({
+    to: args.email,
+    subject: locale === 'sv' ? 'Din plats i kön' : 'Your place in the queue',
+    html,
+    tag: 'queue_link',
+  })
+}
+
+/** Ops opened the doors: 48 hours to sign in (docs/13). */
+export async function sendAccessGranted(args: { email: string; link: string; expiresAt: Date | null; locale?: Locale }): Promise<void> {
+  const locale = args.locale ?? 'sv'
+  const until = args.expiresAt
+    ? args.expiresAt.toLocaleString(locale === 'sv' ? 'sv-SE' : 'en-GB', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Stockholm' })
+    : null
+  const html =
+    locale === 'sv'
+      ? shell(
+          `<h1 style="font-size:22px;margin:0 0 12px">Din tur.</h1>
+           <p style="margin:0 0 16px;color:#5C554D">${BRAND} öppnar för dig nu. Öppna ditt konto med samma e-postadress – inget lösenord, vi mejlar en kod.${until ? ` Din invite gäller till ${until}.` : ''}</p>
+           ${button(args.link, 'Öppna ditt konto')}`,
+          locale,
+        )
+      : shell(
+          `<h1 style="font-size:22px;margin:0 0 12px">Your turn.</h1>
+           <p style="margin:0 0 16px;color:#5C554D">${BRAND} is opening for you now. Open your account with this same address – no password, we email a code.${until ? ` Your invite is valid until ${until}.` : ''}</p>
+           ${button(args.link, 'Open your account')}`,
+          locale,
+        )
+  await send({
+    to: args.email,
+    subject: locale === 'sv' ? `Din tur – ${BRAND} öppnar för dig` : `Your turn – ${BRAND} is opening for you`,
+    html,
+    tag: 'waitlist_access',
   })
 }
 

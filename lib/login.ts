@@ -20,6 +20,8 @@ import type { LoginAudience } from '@prisma/client'
 import { prisma } from './db'
 import { loginCodeEmail } from './email'
 import type { Locale } from './i18n/config'
+import { flag } from './flags'
+import { hasAccess } from './queue'
 import { rateLimit } from './rate-limit'
 import { randomToken } from './crypto'
 
@@ -33,6 +35,7 @@ export type LoginError =
   | 'wrongCode'
   | 'tooManyAttempts'
   | 'noBrandAccount'
+  | 'waitlistOnly'
 
 export type RequestResult =
   | { ok: true; /** Only set when no mail was sent; in production only with NOD_DEMO_LOGIN_CODE=1. */ devCode?: string }
@@ -162,7 +165,12 @@ export async function resolveIdentity(email: string, audience: LoginAudience): P
     return { ok: true, authId: user.authId, email, next }
   }
 
-  // First visit: the auth id is minted here and the User row follows in onboarding.
+  // First visit. While the gate is up (docs/13), only people the queue has let through
+  // may open an account; everyone else is sent back to their place in line. The gate
+  // is a flag so ops can open the doors without a deploy.
+  if ((await flag('waitlist.gate')) && !(await hasAccess(email))) return { ok: false, error: 'waitlistOnly' }
+
+  // The auth id is minted here and the User row follows in onboarding.
   return { ok: true, authId: `email_${randomToken(12)}`, email, next: '/onboarding' }
 }
 
