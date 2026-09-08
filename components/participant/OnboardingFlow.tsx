@@ -338,7 +338,7 @@ export function OnboardingFlow({
               type="checkbox"
               checked={termsAccepted}
               onChange={(e) => setTermsAccepted(e.target.checked)}
-              className="mt-1 size-4 accent-[var(--color-amber)]"
+              className="mt-1 size-4 accent-[var(--color-orange)]"
             />
             <span>{t('terms.accept')}</span>
           </label>

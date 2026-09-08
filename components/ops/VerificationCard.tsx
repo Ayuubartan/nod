@@ -149,7 +149,7 @@ export function VerificationCard({
             type="checkbox"
             checked={label}
             onChange={(e) => setLabel(e.target.checked)}
-            className="size-4 accent-[var(--color-amber)]"
+            className="size-4 accent-[var(--color-orange)]"
           />
           Paid partnership label on
         </label>
@@ -159,7 +159,7 @@ export function VerificationCard({
             type="checkbox"
             checked={stillLive}
             onChange={(e) => setStillLive(e.target.checked)}
-            className="size-4 accent-[var(--color-amber)]"
+            className="size-4 accent-[var(--color-orange)]"
           />
           Post is still live
         </label>

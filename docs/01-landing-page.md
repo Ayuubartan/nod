@@ -8,8 +8,8 @@ Route group: `app/(marketing)/`. Routes: `/` (participant-first), `/brands`, `/w
 
 ### 1. Hero
 - Eyebrow: `NOD · Stockholm beta`
-- H1 (sv): **Posta som vanligt. Tjäna på uppmärksamheten du redan har.**
-- H1 (en): **Post like you normally do. Earn from the attention you already have.**
+- H1 (sv): **Vem kan Boogaa mig?** (docs/10 — "BOOGAA" in the teal brush block)
+- H1 (en): **Who can Boogaa me?**
 - Sub (sv): Varumärken betalar för att synas naturligt i dina bilder och stories. Du väljer varumärke, du väljer var, du godkänner allt. Sen postar du som vanligt och får betalt per visning.
 - Sub (en): Brands pay to appear naturally in your photos and Stories. You pick the brand, you pick where, you approve everything. Then you post as usual and get paid per view.
 - CTA primary: `Ställ dig i kön` / `Join the waitlist` → scrolls to form
@@ -63,8 +63,8 @@ NOD · Stockholm · hello@ (placeholder) · Privacy · Terms · Language toggle 
 
 ## `/brands` page
 
-- H1 (en): **Reach thousands of real social circles through one campaign.**
-- H1 (sv): **Nå tusentals verkliga sociala nätverk med en kampanj.**
+- H1 (en): **Who can Boogaa me?**
+- H1 (sv): **Vem kan Boogaa mig?** (docs/10 — "BOOGAA" in the teal brush block)
 - Sub: NOD places your product naturally in the everyday posts of real, BankID-verified people in your target market. Disclosed, contextual, verified per view. One dashboard. One effective CPM.
 - Three stats blocks (labelled illustrative until real): participants in Stockholm beta · verified placements · effective CPM range
 - "How it works for brands" — 4 steps: set budget + audience + assets → we match eligible participants → they place and post → you see qualified views and pay only for those

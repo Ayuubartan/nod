@@ -1,7 +1,7 @@
 {
   "common": {
-    "brand": "Booga",
-    "tagline": "Post like you normally do.",
+    "brand": "Boogaa",
+    "tagline": "Get paid for the content you already post.",
     "loading": "Loading…",
     "save": "Save",
     "cancel": "Cancel",
@@ -41,22 +41,31 @@
     "signIn": "Sign in"
   },
   "marketing": {
-    "eyebrow": "Booga · Stockholm beta",
+    "eyebrow": "Stockholm beta",
     "hero": {
-      "title": "Post like you normally do. Earn from the attention you already have.",
-      "sub": "Brands pay to appear naturally in your photos and Stories. You pick the brand, you pick where, you approve everything. Then you post as usual and get paid per view.",
-      "ctaPrimary": "Join the waitlist",
+      "title": "Who can <brand>Boogaa</brand> me?",
+      "sub": "Get paid for the content you already post. Brands pay to appear naturally in your photos and Stories — you pick the brand, you approve everything, you post it yourself.",
+      "ctaPrimary": "Join BOOGAA →",
       "ctaSecondary": "Are you a brand?",
-      "phoneCaption": "An ordinary photo. A small nod. 42 kr."
+      "phoneCaption": "An ordinary photo. A small Boogaa. 42 kr.",
+      "ctaLearn": "Learn more",
+      "note": "I got Boogaa'd.",
+      "chips": {
+        "creators": "Creators",
+        "brands": "Brands",
+        "community": "Community",
+        "stockholm": "Stockholm",
+        "reach": "Real reach"
+      }
     },
     "how": {
       "title": "How it works",
       "step1Title": "Pick a campaign.",
       "step1Body": "Browse brands paying right now. Only take the ones you like.",
-      "step2Title": "Place the brand.",
-      "step2Body": "Upload the photo you were going to post anyway. Choose where the product appears. Approve the result.",
-      "step3Title": "Post and get paid.",
-      "step3Body": "Post to your own account with clear ad disclosure. We verify the views and pay via Swish."
+      "step2Title": "Post like normal.",
+      "step2Body": "Upload the photo you were going to post anyway, choose where the product goes, approve the result — then post it to your own account with clear ad disclosure.",
+      "step3Title": "Get paid.",
+      "step3Body": "We verify the views and pay via Swish within 48 hours. From 300 followers. No fees, ever."
     },
     "estimator": {
       "title": "What could you earn?",
@@ -81,7 +90,7 @@
       "card3Body": "One person, one account. Brands know every participant is real. No bots, no fakes."
     },
     "who": {
-      "title": "Who is it for?",
+      "title": "Community",
       "line": "You don't need to be an influencer. 300 followers is enough.",
       "chips": {
         "gym": "Gym",
@@ -99,7 +108,7 @@
       "q1": "Do I need many followers?",
       "a1": "No. From around 300 followers or 100 average views.",
       "q2": "What happens to my photo?",
-      "a2": "You upload it, choose where the brand goes, and see the result before anything is published. You post it yourself. Booga never posts for you.",
+      "a2": "You upload it, choose where the brand goes, and see the result before anything is published. You post it yourself. Boogaa never posts for you.",
       "q3": "How do I get paid?",
       "a3": "Swish, within 48 hours of verification. Minimum payout 100 kr.",
       "q4": "Is this legal?",
@@ -122,7 +131,7 @@
       "categories": "What do you post most?",
       "email": "Email",
       "referralCode": "Referral code",
-      "consent": "I agree Booga stores my details to contact me about the beta.",
+      "consent": "I agree Boogaa stores my details to contact me about the beta.",
       "consentPrivacyLink": "Read the privacy policy",
       "submit": "Join the waitlist",
       "submitting": "Sending…",
@@ -165,17 +174,35 @@
       "privacy": "Privacy",
       "terms": "Terms",
       "contact": "Contact",
-      "rights": "Booga",
+      "rights": "Boogaa",
       "cookies": "Cookies",
       "brandAgreement": "Brand agreement"
+    },
+    "nav": {
+      "home": "Home",
+      "features": "Features",
+      "community": "Community",
+      "forBrands": "For brands",
+      "join": "Join BOOGAA"
+    },
+    "stats": {
+      "waiting": "{count, plural, one {# person waiting} other {# people waiting}}",
+      "posting": "{count, plural, one {# creator posting} other {# creators posting}}",
+      "reach": "{count} collective reach"
+    },
+    "lines": {
+      "post": "People post. Brands pay. Everyone wins.",
+      "internet": "Same internet. Better people.",
+      "further": "Good people go further.",
+      "footer": "You post. Brands Boogaa. You get paid."
     }
   },
   "brands": {
     "metaTitle": "For brands",
-    "metaDescription": "Booga places your product naturally in the everyday posts of real, BankID-verified people in your target market.",
+    "metaDescription": "Boogaa places your product naturally in the everyday posts of real, BankID-verified people in your target market.",
     "hero": {
       "title": "Reach thousands of real social circles through one campaign.",
-      "sub": "Booga places your product naturally in the everyday posts of real, BankID-verified people in your target market. Disclosed, contextual, verified per view. One dashboard. One effective CPM.",
+      "sub": "Boogaa places your product naturally in the everyday posts of real, BankID-verified people in your target market. Disclosed, contextual, verified per view. One dashboard. One effective CPM.",
       "cta": "Book a call"
     },
     "stats": {
@@ -224,7 +251,7 @@
       "orContinueWith": "Or continue with",
       "city": "City",
       "ageBracket": "Age",
-      "under18": "Booga is only for people aged 18 and over."
+      "under18": "Boogaa is only for people aged 18 and over."
     },
     "connect": {
       "title": "Connect your Instagram",
@@ -254,7 +281,7 @@
     },
     "terms": {
       "title": "Terms",
-      "accept": "I accept Booga's terms and privacy policy",
+      "accept": "I accept Boogaa's terms and privacy policy",
       "quizTitle": "One quick question",
       "quizQuestion": "Which of these is correct ad disclosure?",
       "quizOptionA": "Ad – in partnership with {brand}, first in the caption",
@@ -266,7 +293,7 @@
     },
     "training": {
       "title": "Help us get better",
-      "consent": "Let Booga use anonymised versions of my placement choices and images to improve the placement engine.",
+      "consent": "Let Boogaa use anonymised versions of my placement choices and images to improve the placement engine.",
       "note": "Entirely optional. Doesn't affect your payout. You can change it any time in settings."
     },
     "payout": {
@@ -297,8 +324,8 @@
     "qrHint": "Scan with the BankID app",
     "waiting": "Waiting for BankID…",
     "success": "Verified.",
-    "under18": "Booga is only for people aged 18 and over.",
-    "duplicate": "This person already has a Booga account.",
+    "under18": "Boogaa is only for people aged 18 and over.",
+    "duplicate": "This person already has a Boogaa account.",
     "failed": "Verification didn't go through. Try again."
   },
   "campaigns": {
@@ -594,8 +621,8 @@
     },
     "nextStep": {
       "DRAFT": "Finish the builder and submit for review.",
-      "SUBMITTED": "Booga is reviewing your campaign — usually within one working day.",
-      "RETURNED": "Booga sent the campaign back with notes. Edit and resubmit.",
+      "SUBMITTED": "Boogaa is reviewing your campaign — usually within one working day.",
+      "RETURNED": "Boogaa sent the campaign back with notes. Edit and resubmit.",
       "AWAITING_FUNDS": "Fund the campaign to lock in the next drop.",
       "FUNDED": "Funded. Goes live at the next Friday drop.",
       "LIVE": "Live — participants are claiming now.",
@@ -689,7 +716,7 @@
     "participantHint": "We'll email you a six-digit code. New here? You get an account right after the code — no password.",
     "brandKicker": "For brands",
     "brandTitle": "Sign in to your brand account",
-    "brandHint": "Brand accounts are created by Booga. Use the address your account is registered with and we will email a code.",
+    "brandHint": "Brand accounts are created by Boogaa. Use the address your account is registered with and we will email a code.",
     "emailLabel": "Email",
     "sendCode": "Send code",
     "sending": "Sending…",
@@ -726,7 +753,7 @@
     "priorityAtNext": "unlocks priority access",
     "topLevel": "Top level. Thank you – you are helping build this.",
     "positionNote": "You were number {position} when you joined. Your place is recalculated from points every time you load the page.",
-    "shareText": "I'm in the queue for Booga – post as usual and get paid. Get in line behind me: {url}",
+    "shareText": "I'm in the queue for Boogaa – post as usual and get paid. Get in line behind me: {url}",
     "cities": {
       "stockholm": "Stockholm",
       "goteborg": "Gothenburg",

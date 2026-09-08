@@ -82,7 +82,7 @@ export function Estimator() {
                 max={20_000}
                 step={100}
                 value={followers}
-                className="w-full accent-[var(--color-amber)]"
+                className="w-full accent-[var(--color-orange)]"
                 onChange={(e) => setFollowers(Number(e.target.value))}
                 onPointerUp={() => report({ followers })}
               />
@@ -99,7 +99,7 @@ export function Estimator() {
                 max={10_000}
                 step={50}
                 value={effectiveViews}
-                className="w-full accent-[var(--color-amber)]"
+                className="w-full accent-[var(--color-orange)]"
                 onChange={(e) => setViews(Number(e.target.value))}
                 onPointerUp={() => report({ views: effectiveViews })}
               />

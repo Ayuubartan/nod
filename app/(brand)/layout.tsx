@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { BRAND } from '@/lib/brand'
+import { Logo } from '@/components/Logo'
 import { getTranslations } from 'next-intl/server'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { SignOutButton } from '@/components/SignOutButton'
@@ -13,9 +13,7 @@ export default async function BrandLayout({ children }: { children: React.ReactN
       <header className="border-b border-[var(--color-line)]">
         <div className="wrap max-w-6xl flex items-center justify-between h-14">
           <div className="flex items-center gap-6">
-            <Link href="/brand/campaigns" className="font-[family-name:var(--font-display)] font-extrabold text-lg">
-              {BRAND}
-            </Link>
+            <Logo href="/brand/campaigns" size={24} />
             <nav className="flex gap-4 text-sm">
               <Link href="/brand/campaigns" className="text-[var(--color-ink-2)] hover:text-[var(--color-ink)]">
                 {t('campaigns')}

@@ -105,7 +105,7 @@ export default async function CampaignsPage({
                     <p className="text-sm text-[var(--color-ink-2)]">{campaign.name}</p>
                   </div>
                   {eligibility.eligible ? (
-                    <span className="amount font-bold text-[var(--color-amber-dk)] whitespace-nowrap">
+                    <span className="amount font-bold text-[var(--color-orange-dk)] whitespace-nowrap">
                       {t('youGet', { amount: formatKrDown(eligibility.estimateOre) })}
                     </span>
                   ) : (
@@ -127,7 +127,7 @@ export default async function CampaignsPage({
                 <div className="flex items-center gap-3 text-xs text-[var(--color-ink-2)]">
                   <div className="flex-1 h-1.5 rounded-full bg-[var(--color-line)] overflow-hidden">
                     <div
-                      className="h-full bg-[var(--color-amber)]"
+                      className="h-full bg-[var(--color-orange)]"
                       style={{ width: `${remainingPercent}%` }}
                       role="progressbar"
                       aria-valuenow={remainingPercent}

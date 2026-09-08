@@ -11,7 +11,7 @@ written as an honest assessment, including the parts that do not flatter the pro
 Probably yes. Under Article 35 a DPIA is required for processing likely to result in a
 high risk. Three of IMY's criteria plausibly apply:
 
-- **Systematic and extensive evaluation** — Booga scores participants for fraud, and that
+- **Systematic and extensive evaluation** — Boogaa scores participants for fraud, and that
   score decides whether they are paid. That is automated decision-making with a financial
   effect on a person.
 - **Processing at scale** — the pilot is 200–300 people, which is not "at scale". The
@@ -19,7 +19,7 @@ high risk. Three of IMY's criteria plausibly apply:
 - **Innovative use of technology** — placing brand imagery into a person's own photograph
   and publishing it under their name is not a settled processing pattern.
 
-The pilot arguably falls under the thresholds. The model Booga is testing does not. Doing
+The pilot arguably falls under the thresholds. The model Boogaa is testing does not. Doing
 the assessment now, at 300 people, is cheaper than doing it at 50,000.
 
 ## 2. What is processed, and why
@@ -40,12 +40,12 @@ the assessment now, at 300 people, is cheaper than doing it at 50,000.
 
 ## 3. Necessity and proportionality
 
-**What Booga deliberately does not do**, each of which was an available design:
+**What Boogaa deliberately does not do**, each of which was an available design:
 
 - It does not store a personnummer. The broker returns one; only the birth year is kept,
   and as a salted hash for the identifier.
 - It does not request any write scope on a social platform. It cannot post, edit, follow
-  or message, so the participant's account cannot be acted on by Booga at all.
+  or message, so the participant's account cannot be acted on by Boogaa at all.
 - It does not publish. The participant publishes, after seeing and approving the result.
 - It does not show brands who participants are. Brands get handles and public links.
 - It does not use images for training without separate, unbundled, default-off consent.
@@ -70,11 +70,11 @@ originals 90 days after a placement ends and screenshots 30 days after a decisio
 
 ## 5. The legitimate-interest balancing test for fraud
 
-**Interest:** Booga pays real money on self-reported and API-reported view counts. Without
+**Interest:** Boogaa pays real money on self-reported and API-reported view counts. Without
 fraud detection the marketplace is trivially drained, which harms brands (paying for
-nothing), honest participants (a devalued market), and Booga.
+nothing), honest participants (a devalued market), and Boogaa.
 
-**Necessity:** No less intrusive alternative achieves it. The data used is data Booga
+**Necessity:** No less intrusive alternative achieves it. The data used is data Boogaa
 already holds for payment — view counts, the account's own baseline, account age,
 engagement, and the participant's own history.
 
@@ -112,7 +112,7 @@ understood what they agreed to.
   become so?
 - **[LAWYER]** The `subjectHash` retention basis (see the retention schedule).
 - **[LAWYER]** Article 22 as above.
-- **[LAWYER]** Whether Booga and a brand are independent controllers or joint controllers
+- **[LAWYER]** Whether Boogaa and a brand are independent controllers or joint controllers
   for placement data. The agreement asserts independent; that should be checked.
 
 *Last updated: 2026-09-07.*

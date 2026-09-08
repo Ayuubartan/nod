@@ -86,7 +86,7 @@ export function FraudCard({
                 className="block h-full"
                 style={{
                   width: `${Math.round(factor.score * 100)}%`,
-                  background: factor.score > 0.5 ? 'var(--color-red)' : 'var(--color-amber)',
+                  background: factor.score > 0.5 ? 'var(--color-red)' : 'var(--color-orange)',
                 }}
               />
             </span>

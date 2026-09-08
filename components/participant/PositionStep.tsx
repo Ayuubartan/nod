@@ -148,7 +148,7 @@ export function PositionStep({
             top: `${region.y * 100}%`,
             width: `${region.w * 100}%`,
             height: `${region.h * 100}%`,
-            border: '2px solid var(--color-amber)',
+            border: '2px solid var(--color-orange)',
             background: 'rgba(245,165,36,0.12)',
             boxShadow: '0 0 0 1px rgba(0,0,0,0.35)',
           }}
@@ -183,7 +183,7 @@ export function PositionStep({
                 min={MIN * 100}
                 max={100}
                 value={Math.round(region[axis] * 100)}
-                className="w-full accent-[var(--color-amber)]"
+                className="w-full accent-[var(--color-orange)]"
                 onChange={(e) =>
                   setRegion(clamp({ ...region, [axis]: Number(e.target.value) / 100, label: 'custom' }))
                 }

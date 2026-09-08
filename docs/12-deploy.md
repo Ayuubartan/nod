@@ -76,7 +76,7 @@ is needed.
    and bounces. Add them at your DNS host and wait for "Verified" (minutes, occasionally
    an hour).
 2. API Keys → Create → **Sending access** only, restricted to that domain.
-3. Set `RESEND_API_KEY` and `EMAIL_FROM="Booga <hello@joinbooga.se>"` (the from-address
+3. Set `RESEND_API_KEY` and `EMAIL_FROM="Boogaa <hello@joinbooga.se>"` (the from-address
    must be on the verified domain, otherwise Resend rejects the send and the code is
    never delivered).
 

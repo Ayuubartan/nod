@@ -45,7 +45,7 @@ export function FlagEditor({
       {kind === 'boolean' ? (
         <input
           type="checkbox"
-          className="size-4 accent-[var(--color-amber)]"
+          className="size-4 accent-[var(--color-orange)]"
           checked={value === true}
           disabled={pending}
           onChange={(e) => void save(e.target.checked)}

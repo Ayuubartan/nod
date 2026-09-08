@@ -82,7 +82,7 @@ export default async function OpsGenerationPage() {
                     />
                     {region && (
                       <div
-                        className="absolute border-2 border-[var(--color-amber)] rounded"
+                        className="absolute border-2 border-[var(--color-orange)] rounded"
                         style={{
                           left: `${region.x * 100}%`,
                           top: `${region.y * 100}%`,

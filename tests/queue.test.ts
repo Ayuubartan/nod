@@ -126,7 +126,7 @@ describe('composeDigest', () => {
     expect(text).toContain('2 vänner gick med via dig')
     expect(text).toContain('hoppade 28 platser till #12')
     expect(text).toContain('En vän till → Social')
-    expect(text).toMatch(/– Booga$/)
+    expect(text).toMatch(/– Boogaa$/)
   })
 
   it('celebrates a level with priority', () => {

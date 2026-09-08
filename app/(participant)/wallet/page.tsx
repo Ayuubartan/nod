@@ -47,7 +47,7 @@ export default async function WalletPage() {
 
   const stats = [
     { label: t('pending'), value: pendingOre, tone: 'var(--color-ink-2)' },
-    { label: t('available'), value: balance.availableOre, tone: 'var(--color-amber-dk)' },
+    { label: t('available'), value: balance.availableOre, tone: 'var(--color-orange-dk)' },
     { label: t('paidOut'), value: balance.paidOutOre, tone: 'var(--color-green)' },
   ]
 
@@ -71,7 +71,7 @@ export default async function WalletPage() {
       </p>
 
       {needsSwish && (
-        <section className={`card p-4 mb-6 ${hasMoney ? 'border-[var(--color-amber)]' : ''}`}>
+        <section className={`card p-4 mb-6 ${hasMoney ? 'border-[var(--color-orange)]' : ''}`}>
           <h2 className="label">{t('addSwish')}</h2>
           <p className="text-sm text-[var(--color-ink-2)] mb-3">{t(hasMoney ? 'addSwishNow' : 'addSwishHint')}</p>
           <SwishForm maskedSwish={maskedSwish} primary={hasMoney} />

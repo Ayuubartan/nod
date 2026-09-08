@@ -1,29 +1,43 @@
 import Link from 'next/link'
-import { BRAND, HELLO_EMAIL } from '@/lib/brand'
+import { HELLO_EMAIL } from '@/lib/brand'
 import { getTranslations } from 'next-intl/server'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { AnalyticsProvider } from '@/components/AnalyticsProvider'
+import { Logo } from '@/components/Logo'
 
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
   const t = await getTranslations('marketing')
   const nav = await getTranslations('nav')
 
+  // docs/10 nav: Home · Features · Community · For brands · [Join BOOGAA]
+  const links = [
+    { href: '/', label: t('nav.home') },
+    { href: '/#how', label: t('nav.features') },
+    { href: '/#community', label: t('nav.community') },
+    { href: '/brands', label: t('nav.forBrands') },
+  ]
+
   return (
     <AnalyticsProvider>
       <div className="min-h-dvh flex flex-col">
-        <header className="border-b border-[var(--color-line)]">
-          <div className="wrap flex items-center justify-between h-14">
-            <Link href="/" className="font-[family-name:var(--font-display)] font-extrabold text-lg tracking-tight">
-              {BRAND}
-            </Link>
-            <div className="flex items-center gap-4 text-sm">
-              <Link href="/brands" className="text-[var(--color-ink-2)] hover:text-[var(--color-ink)]">
-                {nav('forBrands')}
-              </Link>
-              <Link href="/sign-in" className="text-[var(--color-ink-2)] hover:text-[var(--color-ink)]">
+        <header className="border-b border-[var(--color-line)] bg-[var(--color-bg)]/90 backdrop-blur sticky top-0 z-20">
+          <div className="wrap flex items-center justify-between h-14 gap-3">
+            <Logo size={24} />
+            <nav className="hidden md:flex items-center gap-5 text-sm font-medium">
+              {links.map((link) => (
+                <Link key={link.href} href={link.href} className="text-[var(--color-ink-2)] hover:text-[var(--color-ink)]">
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="flex items-center gap-2 sm:gap-3 text-sm">
+              <Link href="/sign-in" className="hidden sm:inline text-[var(--color-ink-2)] hover:text-[var(--color-ink)]">
                 {nav('signIn')}
               </Link>
               <LanguageToggle />
+              <Link href="/#waitlist" className="btn btn-teal min-h-9 px-3 sm:px-4 py-1.5 text-xs sm:text-sm whitespace-nowrap">
+                {t('nav.join')}
+              </Link>
             </div>
           </div>
         </header>
@@ -33,8 +47,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
         <footer className="border-t border-[var(--color-line)] mt-8">
           <div className="wrap py-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-sm text-[var(--color-ink-2)]">
             <div className="flex items-center gap-2">
-              <span className="nod-marker" aria-hidden="true" />
-              <span className="font-semibold text-[var(--color-ink)]">{BRAND}</span>
+              <Logo size={22} />
               <span>· {t('footer.city')}</span>
             </div>
             <nav className="flex flex-wrap items-center gap-x-5 gap-y-2">

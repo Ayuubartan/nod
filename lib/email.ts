@@ -7,7 +7,7 @@
  */
 
 import { Resend } from 'resend'
-import { BRAND, HELLO_EMAIL, OPS_EMAIL_DEFAULT } from './brand'
+import { BRAND, HELLO_EMAIL, OPS_EMAIL_DEFAULT, WORDMARK } from './brand'
 import { log } from './logger'
 import type { Locale } from './i18n/config'
 import { formatKrDown } from './money/calc'
@@ -55,19 +55,19 @@ async function send(args: { to: string; subject: string; html: string; tag: stri
 function shell(bodyHtml: string, locale: Locale): string {
   const footer =
     locale === 'sv'
-      ? `${BRAND} · Stockholm · <a href="${siteUrl}/privacy" style="color:#5C554D">Integritetspolicy</a>`
-      : `${BRAND} · Stockholm · <a href="${siteUrl}/privacy" style="color:#5C554D">Privacy</a>`
+      ? `${BRAND} · Stockholm · <a href="${siteUrl}/privacy" style="color:#4B5560">Integritetspolicy</a>`
+      : `${BRAND} · Stockholm · <a href="${siteUrl}/privacy" style="color:#4B5560">Privacy</a>`
 
-  return `<!doctype html><html><body style="margin:0;background:#FAF7F2;font-family:-apple-system,Segoe UI,sans-serif;color:#14110F">
+  return `<!doctype html><html><body style="margin:0;background:#F4F1EA;font-family:-apple-system,Segoe UI,sans-serif;color:#111820">
 <div style="max-width:520px;margin:0 auto;padding:32px 20px">
-  <div style="font-weight:800;font-size:20px;letter-spacing:-0.02em;margin-bottom:24px">${BRAND}</div>
-  <div style="background:#FFFFFF;border:1px solid #E8E2DA;border-radius:12px;padding:24px">${bodyHtml}</div>
-  <p style="color:#A39B91;font-size:12px;margin-top:24px">${footer}</p>
+  <div style="margin-bottom:24px;font-weight:800;font-size:20px;letter-spacing:-0.04em"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#20C5C7;vertical-align:-1px;margin-right:8px"></span>${WORDMARK}</div>
+  <div style="background:#FFFFFF;border:1px solid #E1DDD3;border-radius:12px;padding:24px">${bodyHtml}</div>
+  <p style="color:#8A929B;font-size:12px;margin-top:24px">${footer}</p>
 </div></body></html>`
 }
 
 const button = (href: string, label: string) =>
-  `<a href="${href}" style="display:inline-block;background:#F5A524;color:#14110F;font-weight:600;padding:12px 20px;border-radius:999px;text-decoration:none">${label}</a>`
+  `<a href="${href}" style="display:inline-block;background:#FF7417;color:#FFFFFF;font-weight:700;padding:12px 20px;border-radius:999px;text-decoration:none">${label}</a>`
 
 // ---------------------------------------------------------------- templates
 
@@ -78,16 +78,16 @@ export async function loginCodeEmail(email: string, code: string, locale: Locale
     locale === 'sv'
       ? shell(
           `<h1 style="font-size:22px;margin:0 0 12px">Din inloggningskod</h1>
-           <p style="margin:0;color:#5C554D">Skriv in koden i ${BRAND}. Den gäller i tio minuter.</p>
+           <p style="margin:0;color:#4B5560">Skriv in koden i ${BRAND}. Den gäller i tio minuter.</p>
            ${digits}
-           <p style="margin:0;color:#A39B91;font-size:13px">Har du inte försökt logga in kan du ignorera det här mejlet. Ingen kan logga in utan koden.</p>`,
+           <p style="margin:0;color:#8A929B;font-size:13px">Har du inte försökt logga in kan du ignorera det här mejlet. Ingen kan logga in utan koden.</p>`,
           locale,
         )
       : shell(
           `<h1 style="font-size:22px;margin:0 0 12px">Your sign-in code</h1>
-           <p style="margin:0;color:#5C554D">Enter this code in ${BRAND}. It is valid for ten minutes.</p>
+           <p style="margin:0;color:#4B5560">Enter this code in ${BRAND}. It is valid for ten minutes.</p>
            ${digits}
-           <p style="margin:0;color:#A39B91;font-size:13px">If you didn't try to sign in you can ignore this email. Nobody can sign in without the code.</p>`,
+           <p style="margin:0;color:#8A929B;font-size:13px">If you didn't try to sign in you can ignore this email. Nobody can sign in without the code.</p>`,
           locale,
         )
 
@@ -112,18 +112,18 @@ export async function sendWaitlistConfirmation(args: {
     locale === 'sv'
       ? shell(
           `<h1 style="font-size:22px;margin:0 0 12px">Du är med.</h1>
-           <p style="margin:0 0 16px;color:#5C554D">Du är nummer <strong style="color:#14110F">${args.position}</strong> i kön. Bekräfta din e-post så räknas du – och se din plats, dina poäng och din inbjudningslänk.</p>
+           <p style="margin:0 0 16px;color:#4B5560">Du är nummer <strong style="color:#111820">${args.position}</strong> i kön. Bekräfta din e-post så räknas du – och se din plats, dina poäng och din inbjudningslänk.</p>
            ${button(args.queueUrl, 'Bekräfta och se din plats')}
-           <p style="margin:24px 0 8px;color:#5C554D">Varje vän som går med via din länk och bekräftar sig flyttar dig framåt:</p>
-           <p style="margin:0"><code style="background:#FAF7F2;padding:8px 12px;border-radius:8px;display:inline-block">${args.shareUrl}</code></p>`,
+           <p style="margin:24px 0 8px;color:#4B5560">Varje vän som går med via din länk och bekräftar sig flyttar dig framåt:</p>
+           <p style="margin:0"><code style="background:#F4F1EA;padding:8px 12px;border-radius:8px;display:inline-block">${args.shareUrl}</code></p>`,
           locale,
         )
       : shell(
           `<h1 style="font-size:22px;margin:0 0 12px">You're in.</h1>
-           <p style="margin:0 0 16px;color:#5C554D">You're number <strong style="color:#14110F">${args.position}</strong> in the queue. Confirm your email to count – and see your place, your points and your invite link.</p>
+           <p style="margin:0 0 16px;color:#4B5560">You're number <strong style="color:#111820">${args.position}</strong> in the queue. Confirm your email to count – and see your place, your points and your invite link.</p>
            ${button(args.queueUrl, 'Confirm and see your place')}
-           <p style="margin:24px 0 8px;color:#5C554D">Every friend who joins through your link and confirms moves you up:</p>
-           <p style="margin:0"><code style="background:#FAF7F2;padding:8px 12px;border-radius:8px;display:inline-block">${args.shareUrl}</code></p>`,
+           <p style="margin:24px 0 8px;color:#4B5560">Every friend who joins through your link and confirms moves you up:</p>
+           <p style="margin:0"><code style="background:#F4F1EA;padding:8px 12px;border-radius:8px;display:inline-block">${args.shareUrl}</code></p>`,
           locale,
         )
 
@@ -142,13 +142,13 @@ export async function sendQueueLink(args: { email: string; queueUrl: string; loc
     locale === 'sv'
       ? shell(
           `<h1 style="font-size:22px;margin:0 0 12px">Din plats i kön</h1>
-           <p style="margin:0 0 16px;color:#5C554D">Här är din personliga länk. Den gäller i 30 dagar.</p>
+           <p style="margin:0 0 16px;color:#4B5560">Här är din personliga länk. Den gäller i 30 dagar.</p>
            ${button(args.queueUrl, 'Se din plats')}`,
           locale,
         )
       : shell(
           `<h1 style="font-size:22px;margin:0 0 12px">Your place in the queue</h1>
-           <p style="margin:0 0 16px;color:#5C554D">Here is your personal link. It works for 30 days.</p>
+           <p style="margin:0 0 16px;color:#4B5560">Here is your personal link. It works for 30 days.</p>
            ${button(args.queueUrl, 'See your place')}`,
           locale,
         )
@@ -170,13 +170,13 @@ export async function sendAccessGranted(args: { email: string; link: string; exp
     locale === 'sv'
       ? shell(
           `<h1 style="font-size:22px;margin:0 0 12px">Din tur.</h1>
-           <p style="margin:0 0 16px;color:#5C554D">${BRAND} öppnar för dig nu. Öppna ditt konto med samma e-postadress – inget lösenord, vi mejlar en kod.${until ? ` Din invite gäller till ${until}.` : ''}</p>
+           <p style="margin:0 0 16px;color:#4B5560">${BRAND} öppnar för dig nu. Öppna ditt konto med samma e-postadress – inget lösenord, vi mejlar en kod.${until ? ` Din invite gäller till ${until}.` : ''}</p>
            ${button(args.link, 'Öppna ditt konto')}`,
           locale,
         )
       : shell(
           `<h1 style="font-size:22px;margin:0 0 12px">Your turn.</h1>
-           <p style="margin:0 0 16px;color:#5C554D">${BRAND} is opening for you now. Open your account with this same address – no password, we email a code.${until ? ` Your invite is valid until ${until}.` : ''}</p>
+           <p style="margin:0 0 16px;color:#4B5560">${BRAND} is opening for you now. Open your account with this same address – no password, we email a code.${until ? ` Your invite is valid until ${until}.` : ''}</p>
            ${button(args.link, 'Open your account')}`,
           locale,
         )
@@ -202,13 +202,13 @@ export async function sendBrandEnquiryToOps(enquiry: {
     subject: `Brand enquiry: ${enquiry.company} (${enquiry.budgetBracket})`,
     html: shell(
       `<h1 style="font-size:18px;margin:0 0 12px">New brand enquiry</h1>
-       <p style="margin:0;color:#5C554D">
-         <strong style="color:#14110F">${enquiry.company}</strong><br/>
+       <p style="margin:0;color:#4B5560">
+         <strong style="color:#111820">${enquiry.company}</strong><br/>
          ${enquiry.name} — ${enquiry.email}<br/>
          Budget: ${enquiry.budgetBracket}<br/>
          Objective: ${enquiry.objective ?? '—'}
        </p>
-       <p style="margin:16px 0 0;color:#5C554D;white-space:pre-wrap">${enquiry.message ?? ''}</p>`,
+       <p style="margin:16px 0 0;color:#4B5560;white-space:pre-wrap">${enquiry.message ?? ''}</p>`,
       'en',
     ),
     tag: 'brand_enquiry',
@@ -221,7 +221,7 @@ export async function sendBrandUserInvite(args: { email: string; brandName: stri
     subject: `You've been invited to ${args.brandName} on ${BRAND}`,
     html: shell(
       `<h1 style="font-size:20px;margin:0 0 12px">${args.brandName} on ${BRAND}</h1>
-       <p style="margin:0 0 20px;color:#5C554D">You've been given access to the ${args.brandName} campaign dashboard. This link signs you in.</p>
+       <p style="margin:0 0 20px;color:#4B5560">You've been given access to the ${args.brandName} campaign dashboard. This link signs you in.</p>
        ${button(args.link, 'Open the dashboard')}`,
       'en',
     ),
@@ -239,7 +239,7 @@ export async function sendCampaignLiveToBrand(args: {
     subject: `${args.campaignName} is live`,
     html: shell(
       `<h1 style="font-size:20px;margin:0 0 12px">${args.campaignName} is live</h1>
-       <p style="margin:0 0 20px;color:#5C554D">Participants can claim it now. You'll get an email at 50%, 90% and 100% fill.</p>
+       <p style="margin:0 0 20px;color:#4B5560">Participants can claim it now. You'll get an email at 50%, 90% and 100% fill.</p>
        ${button(`${siteUrl}/campaigns/${args.campaignId}`, 'Open the dashboard')}`,
       'en',
     ),
@@ -261,7 +261,7 @@ export async function sendBrandReviewNeeded(args: {
       : `${args.count} placements need your review`,
     html: shell(
       `<h1 style="font-size:20px;margin:0 0 12px">${args.count} to review</h1>
-       <p style="margin:0 0 20px;color:#5C554D">Placements on ${args.campaignName} are waiting. Anything not reviewed within 24 hours is approved automatically.</p>
+       <p style="margin:0 0 20px;color:#4B5560">Placements on ${args.campaignName} are waiting. Anything not reviewed within 24 hours is approved automatically.</p>
        ${button(`${siteUrl}/campaigns/${args.campaignId}/review`, 'Review now')}`,
       'en',
     ),
@@ -280,7 +280,7 @@ export async function sendFillThreshold(args: {
     subject: `${args.campaignName} is ${args.percent}% filled`,
     html: shell(
       `<h1 style="font-size:20px;margin:0 0 12px">${args.percent}% filled</h1>
-       <p style="margin:0 0 20px;color:#5C554D">${args.campaignName} has reached ${args.percent}% of its budget.</p>
+       <p style="margin:0 0 20px;color:#4B5560">${args.campaignName} has reached ${args.percent}% of its budget.</p>
        ${button(`${siteUrl}/campaigns/${args.campaignId}`, 'Open the dashboard')}`,
       'en',
     ),
@@ -303,11 +303,11 @@ export async function sendFinalReport(args: {
     html: shell(
       `<h1 style="font-size:20px;margin:0 0 12px">${args.campaignName} — final report</h1>
        <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
-         <tr><td style="padding:6px 0;color:#5C554D">Qualified views</td><td style="text-align:right;font-weight:600">${args.qualifiedViews.toLocaleString('sv-SE')}</td></tr>
-         <tr><td style="padding:6px 0;color:#5C554D">Spent</td><td style="text-align:right;font-weight:600">${formatKrDown(args.spentOre)}</td></tr>
-         <tr><td style="padding:6px 0;color:#5C554D">Effective CPM</td><td style="text-align:right;font-weight:600">${formatKrDown(args.effectiveCpmOre)}</td></tr>
+         <tr><td style="padding:6px 0;color:#4B5560">Qualified views</td><td style="text-align:right;font-weight:600">${args.qualifiedViews.toLocaleString('sv-SE')}</td></tr>
+         <tr><td style="padding:6px 0;color:#4B5560">Spent</td><td style="text-align:right;font-weight:600">${formatKrDown(args.spentOre)}</td></tr>
+         <tr><td style="padding:6px 0;color:#4B5560">Effective CPM</td><td style="text-align:right;font-weight:600">${formatKrDown(args.effectiveCpmOre)}</td></tr>
        </table>
-       <p style="margin:0 0 20px;color:#5C554D">You can dispute individual placements until ${args.disputeWindowEndsAt.toISOString().slice(0, 10)}.</p>
+       <p style="margin:0 0 20px;color:#4B5560">You can dispute individual placements until ${args.disputeWindowEndsAt.toISOString().slice(0, 10)}.</p>
        ${button(`${siteUrl}/campaigns/${args.campaignId}/report`, 'Open the report')}`,
       'en',
     ),
@@ -323,10 +323,10 @@ export async function sendDataExport(args: { email: string; downloadUrl: string;
     html: shell(
       sv
         ? `<h1 style="font-size:20px;margin:0 0 12px">Dina uppgifter</h1>
-           <p style="margin:0 0 20px;color:#5C554D">Här är en kopia av allt vi sparar om dig. Länken gäller i 7 dagar.</p>
+           <p style="margin:0 0 20px;color:#4B5560">Här är en kopia av allt vi sparar om dig. Länken gäller i 7 dagar.</p>
            ${button(args.downloadUrl, 'Ladda ner')}`
         : `<h1 style="font-size:20px;margin:0 0 12px">Your data</h1>
-           <p style="margin:0 0 20px;color:#5C554D">Here's a copy of everything we hold about you. The link works for 7 days.</p>
+           <p style="margin:0 0 20px;color:#4B5560">Here's a copy of everything we hold about you. The link works for 7 days.</p>
            ${button(args.downloadUrl, 'Download')}`,
       args.locale,
     ),

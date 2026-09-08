@@ -68,7 +68,7 @@ export function ReviewStep({
           </div>
         )}
         <div
-          className="absolute inset-y-0 w-0.5 bg-[var(--color-amber)] pointer-events-none"
+          className="absolute inset-y-0 w-0.5 bg-[var(--color-orange)] pointer-events-none"
           style={{ left: `${slider}%` }}
           aria-hidden="true"
         />
@@ -84,7 +84,7 @@ export function ReviewStep({
         max={100}
         value={slider}
         onChange={(e) => setSlider(Number(e.target.value))}
-        className="w-full accent-[var(--color-amber)] mb-5"
+        className="w-full accent-[var(--color-orange)] mb-5"
       />
 
       <div className="grid gap-2">

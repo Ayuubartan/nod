@@ -42,7 +42,7 @@ export async function CampaignTabs({
           >
             {tab.label}
             {tab.badge ? (
-              <span className="ml-1.5 inline-flex items-center justify-center rounded-full px-1.5 min-w-5 h-5 text-[11px] font-semibold bg-[var(--color-amber)] text-[#14110F]">
+              <span className="ml-1.5 inline-flex items-center justify-center rounded-full px-1.5 min-w-5 h-5 text-[11px] font-semibold bg-[var(--color-orange)] text-[#111820]">
                 {tab.badge}
               </span>
             ) : null}

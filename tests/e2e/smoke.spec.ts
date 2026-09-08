@@ -27,7 +27,7 @@ test.describe('landing page', () => {
 
     // Language toggle switches the copy.
     await page.getByRole('button', { name: 'English' }).first().click()
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Post like you normally do/i)
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Who can Boogaa me/i)
   })
 
   test('joins the queue and lands on your place in it', async ({ page }) => {

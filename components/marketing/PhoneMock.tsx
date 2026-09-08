@@ -1,6 +1,6 @@
 /**
  * Hero visual — docs/01 section 1: "a phone mock showing a normal cafe photo, a small
- * amber nod marker on the cup, and a wallet card '+42 kr'. No stock photos of
+ * teal Boogaa marker on the cup, and a wallet card '+42 kr'. No stock photos of
  * influencers." Drawn as inline SVG so it costs no image request and stays crisp on the
  * cheap Android phones the pilot audience uses.
  */
@@ -19,9 +19,9 @@ export function PhoneMock({ caption }: { caption: string }) {
           </linearGradient>
         </defs>
 
-        <rect x="0" y="0" width="280" height="500" rx="38" fill="#14110F" />
+        <rect x="1" y="1" width="278" height="498" rx="38" fill="#1A222C" stroke="#3A4552" strokeWidth="2" />
         <g clipPath="url(#phone-screen)">
-          <rect x="12" y="12" width="256" height="476" fill="#FAF7F2" />
+          <rect x="12" y="12" width="256" height="476" fill="#F4F1EA" />
 
           {/* the cafe photo */}
           <rect x="12" y="60" width="256" height="300" fill="url(#table)" />
@@ -33,27 +33,27 @@ export function PhoneMock({ caption }: { caption: string }) {
           <ellipse cx="140" cy="200" rx="36" ry="10" fill="#C99A6B" />
           {/* notebook + phone on the table, so it reads as a real photo */}
           <rect x="30" y="238" width="54" height="40" rx="4" fill="#F0E7D8" />
-          <rect x="196" y="246" width="42" height="30" rx="4" fill="#2E2823" opacity="0.7" />
+          <rect x="196" y="246" width="42" height="30" rx="4" fill="#2A343F" opacity="0.7" />
 
-          {/* the nod marker on the cup */}
-          <circle cx="140" cy="236" r="20" fill="none" stroke="#F5A524" strokeWidth="2" opacity="0.4" />
-          <circle cx="140" cy="236" r="7" fill="#F5A524" />
+          {/* the Boogaa marker on the cup */}
+          <circle cx="140" cy="236" r="20" fill="none" stroke="#20C5C7" strokeWidth="2" opacity="0.4" />
+          <circle cx="140" cy="236" r="7" fill="#20C5C7" />
 
           {/* caption row */}
-          <text x="28" y="392" fontSize="13" fill="#5C554D" fontFamily="system-ui">
+          <text x="28" y="392" fontSize="13" fill="#4B5560" fontFamily="system-ui">
             Reklam – i samarbete med
           </text>
-          <text x="28" y="410" fontSize="13" fill="#5C554D" fontFamily="system-ui">
+          <text x="28" y="410" fontSize="13" fill="#4B5560" fontFamily="system-ui">
             ditt kaffe
           </text>
 
           {/* wallet card */}
-          <rect x="24" y="424" width="232" height="48" rx="12" fill="#FFFFFF" stroke="#E8E2DA" />
-          <circle cx="48" cy="448" r="8" fill="#F5A524" />
-          <text x="66" y="446" fontSize="11" fill="#A39B91" fontFamily="system-ui">
+          <rect x="24" y="424" width="232" height="48" rx="12" fill="#FFFFFF" stroke="#E1DDD3" />
+          <path d="M48 448 L55.5 445.3 A8 8 0 1 0 55.5 450.7 Z" fill="#20C5C7" /><path d="M49.3 443 L44.8 449 L47.5 449 L46.4 453.5 L51.2 446.7 L48.5 446.7 Z" fill="#FF7417" />
+          <text x="66" y="446" fontSize="11" fill="#8A929B" fontFamily="system-ui">
             {BRAND}
           </text>
-          <text x="66" y="460" fontSize="12" fill="#5C554D" fontFamily="system-ui">
+          <text x="66" y="460" fontSize="12" fill="#4B5560" fontFamily="system-ui">
             Utbetalt via Swish
           </text>
           <text
@@ -68,7 +68,7 @@ export function PhoneMock({ caption }: { caption: string }) {
             +42 kr
           </text>
         </g>
-        <rect x="106" y="20" width="68" height="6" rx="3" fill="#2E2823" />
+        <rect x="106" y="20" width="68" height="6" rx="3" fill="#2A343F" />
       </svg>
       <figcaption className="sr-only">{caption}</figcaption>
     </figure>

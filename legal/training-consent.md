@@ -10,12 +10,12 @@ never bundled with the terms, and accepting the terms does not grant it.
 
 **Swedish** (`onboarding.training.consent` in `lib/i18n/sv.json`):
 
-> Låt Booga använda anonymiserade versioner av mina placeringsval och bilder för att
+> Låt Boogaa använda anonymiserade versioner av mina placeringsval och bilder för att
 > förbättra placeringsmotorn.
 
 **English** (`onboarding.training.consent` in `lib/i18n/en.json`):
 
-> Let Booga use anonymised versions of my placement choices and images to improve the
+> Let Boogaa use anonymised versions of my placement choices and images to improve the
 > placement engine.
 
 Shown beneath it, in both languages:
@@ -56,6 +56,6 @@ name, no campaign name, no absolute timestamps, no post URLs.
 
 Already-anonymised exports are retained after revocation, because they cannot be traced
 back to a person and therefore cannot be deleted per-person. The participant-facing text
-says this plainly rather than implying a deletion Booga cannot perform.
+says this plainly rather than implying a deletion Boogaa cannot perform.
 
 *Last updated: 2026-09-07.*

@@ -53,8 +53,8 @@ const ORDER: FunnelStage[] = [
 const TONE: Record<FunnelStage, string> = {
   claimed: 'var(--color-ink-3)',
   making: 'var(--color-ink-3)',
-  participantReview: 'var(--color-amber)',
-  brandReview: 'var(--color-amber)',
+  participantReview: 'var(--color-orange)',
+  brandReview: 'var(--color-orange)',
   approved: 'var(--color-blue)',
   published: 'var(--color-blue)',
   verified: 'var(--color-green)',
@@ -83,7 +83,7 @@ export async function Funnel({ states, reviewHref }: { states: PlacementState[];
         const n = counts[stage]
         const label =
           stage === 'brandReview' && n > 0 ? (
-            <Link href={reviewHref} className="underline decoration-[var(--color-amber)] underline-offset-2">
+            <Link href={reviewHref} className="underline decoration-[var(--color-orange)] underline-offset-2">
               {t(stage)}
             </Link>
           ) : (

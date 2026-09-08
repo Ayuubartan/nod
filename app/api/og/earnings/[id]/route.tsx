@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { BRAND } from '@/lib/brand'
 import { prisma } from '@/lib/db'
+import { ogFonts } from '@/lib/og-font'
 import { getSession } from '@/lib/auth'
 import { formatKrDown } from '@/lib/money/calc'
 
@@ -50,8 +51,8 @@ export async function GET(
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#FAF7F2',
-          fontFamily: 'sans-serif',
+          background: '#F4F1EA',
+          fontFamily: 'Space Grotesk, sans-serif',
         }}
       >
         <div
@@ -60,7 +61,7 @@ export async function GET(
             flexDirection: 'column',
             alignItems: 'center',
             background: '#FFFFFF',
-            border: '2px solid #E8E2DA',
+            border: '2px solid #E1DDD3',
             borderRadius: 48,
             padding: '96px 72px',
             width: 820,
@@ -68,11 +69,11 @@ export async function GET(
         >
           <div style={{ display: 'flex', fontSize: 72, marginBottom: 32 }}>☕</div>
 
-          <div style={{ display: 'flex', fontSize: 160, fontWeight: 800, color: '#F5A524', letterSpacing: -6 }}>
+          <div style={{ display: 'flex', fontSize: 160, fontWeight: 800, color: '#FF7417', letterSpacing: -6 }}>
             +{amount}
           </div>
 
-          <div style={{ display: 'flex', fontSize: 40, color: '#5C554D', marginTop: 24 }}>
+          <div style={{ display: 'flex', fontSize: 40, color: '#4B5560', marginTop: 24 }}>
             {views.toLocaleString('sv-SE')} visningar
           </div>
 
@@ -83,17 +84,20 @@ export async function GET(
               gap: 16,
               marginTop: 72,
               paddingTop: 40,
-              borderTop: '2px solid #E8E2DA',
+              borderTop: '2px solid #E1DDD3',
               width: '100%',
               justifyContent: 'center',
             }}
           >
-            <div style={{ display: 'flex', width: 28, height: 28, borderRadius: 999, background: '#F5A524' }} />
-            <div style={{ display: 'flex', fontSize: 32, color: '#A39B91' }}>via {BRAND}</div>
+            <svg viewBox="0 0 100 100" width="28" height="28">
+              <path d="M50 50 L96.98 32.9 A50 50 0 1 0 96.98 67.1 Z" fill="#20C5C7" />
+              <path d="M58 18 L30 56 L47 56 L40 84 L70 42 L53 42 Z" fill="#FF7417" />
+            </svg>
+            <div style={{ display: 'flex', fontSize: 32, color: '#8A929B' }}>via {BRAND}</div>
           </div>
         </div>
       </div>
     ),
-    { width: 1080, height: 1920 },
+    { width: 1080, height: 1920, ...(await ogFonts()) },
   )
 }

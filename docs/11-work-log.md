@@ -251,9 +251,9 @@ Not changed: brand sign-in stays invite-only (ops creates brand users from an
 enquiry), and the email-code login itself. A magic link would save typing six
 digits; not worth a token flow yet.
 
-### 9. Booga
+### 9. Boogaa
 
-The public name is Booga, on joinbooga.se. `lib/brand.ts` holds the constants; i18n,
+The public name is Boogaa, on joinbooga.se. `lib/brand.ts` holds the constants; i18n,
 legal texts, emails, OG images, the PDF report, SMS sender, manifest and every layout
 wordmark use them. NOD remains the codename everywhere users cannot see (repo, docs,
 `NOD_*` env vars, `NOD_SESSION` cookie) — renaming those would log everyone out for

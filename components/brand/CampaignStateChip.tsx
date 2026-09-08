@@ -5,20 +5,20 @@ import type { CampaignState } from '@prisma/client'
 const TONE: Record<CampaignState, string> = {
   DRAFT: 'neutral',
   SUBMITTED: 'neutral',
-  RETURNED: 'amber',
-  AWAITING_FUNDS: 'amber',
+  RETURNED: 'orange',
+  AWAITING_FUNDS: 'orange',
   FUNDED: 'blue',
   LIVE: 'green',
   FILLING: 'green',
   EXHAUSTED: 'blue',
   EXPIRED: 'red',
-  PAUSED: 'amber',
+  PAUSED: 'orange',
   RECONCILING: 'blue',
   CLOSED: 'neutral',
 }
 
 const CLASSES: Record<string, string> = {
-  amber: 'bg-[var(--color-amber)] text-[#14110F]',
+  orange: 'bg-[var(--color-orange)] text-[#111820]',
   green: 'bg-[var(--color-green)] text-white',
   blue: 'bg-[var(--color-blue)] text-white',
   red: 'bg-[var(--color-red)] text-white',

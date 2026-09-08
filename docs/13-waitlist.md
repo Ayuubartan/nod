@@ -6,7 +6,7 @@ Every number a person sees is derived from rows in the database that a real acti
 wrote. No invented scarcity, no phantom referrals, no "3 people joined in the last
 minute" unless three people did.
 
-Public brand: Booga. Everything visible goes through i18n (`queue.*`,
+Public brand: Boogaa. Everything visible goes through i18n (`queue.*`,
 `marketing.waitlist.*`).
 
 ## Pages

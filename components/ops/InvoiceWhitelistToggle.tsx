@@ -18,7 +18,7 @@ export function InvoiceWhitelistToggle({ brandId, whitelisted }: { brandId: stri
         type="checkbox"
         checked={whitelisted}
         disabled={pending}
-        className="size-4 accent-[var(--color-amber)]"
+        className="size-4 accent-[var(--color-orange)]"
         onChange={async (e) => {
           setPending(true)
           await opsSetInvoiceWhitelist(brandId, e.target.checked)

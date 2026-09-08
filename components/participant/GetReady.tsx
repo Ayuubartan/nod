@@ -50,7 +50,7 @@ export async function GetReady({
         </h2>
         <Countdown
           to={nextDrop.toISOString()}
-          className="text-sm font-semibold text-[var(--color-amber-dk)]"
+          className="text-sm font-semibold text-[var(--color-orange-dk)]"
         />
       </div>
       <p className="text-sm text-[var(--color-ink-2)] mb-4">
@@ -69,7 +69,7 @@ export async function GetReady({
               className={`${rowClass} ${
                 row.done
                   ? 'border-[var(--color-line)] text-[var(--color-ink-2)]'
-                  : 'border-[var(--color-amber)]'
+                  : 'border-[var(--color-orange)]'
               }`}
               aria-current={row.done ? undefined : 'step'}
             >
@@ -77,7 +77,7 @@ export async function GetReady({
                 className={`mt-0.5 h-5 w-5 shrink-0 rounded-full border text-xs flex items-center justify-center ${
                   row.done
                     ? 'bg-[var(--color-ink)] border-[var(--color-ink)] text-white'
-                    : 'border-[var(--color-amber)]'
+                    : 'border-[var(--color-orange)]'
                 }`}
                 aria-hidden="true"
               >
@@ -111,7 +111,7 @@ export async function GetReady({
             <EnableNotifications
               label={t('notify')}
               hint={t('notifyHint')}
-              className={`${rowClass} border-[var(--color-amber)]`}
+              className={`${rowClass} border-[var(--color-orange)]`}
             />
           </li>
         )}

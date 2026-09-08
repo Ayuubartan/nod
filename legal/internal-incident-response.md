@@ -2,7 +2,7 @@
 
 **DRAFT — for the lawyer's review.**
 
-Booga holds three things worth attacking: participants' identity verification, their money,
+Boogaa holds three things worth attacking: participants' identity verification, their money,
 and brands' prepaid budgets. This page is what to do when something goes wrong, written
 to be usable at 03:00 by whoever is awake.
 
@@ -27,7 +27,7 @@ otherwise. Assume the worst and downgrade with evidence, never the reverse.
 3. **Scope it.** How many people, which data, over what window. `AuditLog` answers "what
    changed and who did it" for every state transition; `LedgerEntry` answers every money
    question and is append-only, so it cannot have been quietly rewritten.
-4. **Decide if it is S1.** If personal data may have left Booga's systems, the 72-hour
+4. **Decide if it is S1.** If personal data may have left Boogaa's systems, the 72-hour
    GDPR notification clock has already started — from the moment of awareness, not the
    moment of confirmation.
 

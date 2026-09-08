@@ -2,9 +2,9 @@
 
 **UTKAST — granskas av jurist före lansering.**
 
-Booga driver en marknadsplats där privatpersoner placerar varumärken i innehåll de ändå skulle publicera, märker det som reklam, publicerar det själva och får betalt per verifierad visning. Den här policyn beskriver exakt vilka uppgifter vi behandlar, varför, och hur länge.
+Boogaa driver en marknadsplats där privatpersoner placerar varumärken i innehåll de ändå skulle publicera, märker det som reklam, publicerar det själva och får betalt per verifierad visning. Den här policyn beskriver exakt vilka uppgifter vi behandlar, varför, och hur länge.
 
-Personuppgiftsansvarig: Booga, Stockholm. Kontakt: hello@joinbooga.se.
+Personuppgiftsansvarig: Boogaa, Stockholm. Kontakt: hello@joinbooga.se.
 
 ## Vad vi samlar in
 

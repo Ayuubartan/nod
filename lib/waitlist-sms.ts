@@ -15,7 +15,7 @@
  * `lastSmsAt`, so the cadence rule holds across restarts.
  *
  * Swedish only, on purpose: the pilot audience is Swedish and an SMS has no locale
- * cookie. The "– Booga" sign-off is the sender name where the carrier shows one.
+ * cookie. The "– Boogaa" sign-off is the sender name where the carrier shows one.
  */
 
 import { createHmac, randomInt, timingSafeEqual } from 'node:crypto'

@@ -2,9 +2,9 @@
 
 **DRAFT — under review by a lawyer before launch.**
 
-Booga runs a marketplace where private individuals place brands inside content they were going to publish anyway, disclose it as advertising, publish it themselves, and get paid per verified view. This policy sets out exactly what we process, why, and for how long.
+Boogaa runs a marketplace where private individuals place brands inside content they were going to publish anyway, disclose it as advertising, publish it themselves, and get paid per verified view. This policy sets out exactly what we process, why, and for how long.
 
-Controller: Booga, Stockholm. Contact: hello@joinbooga.se.
+Controller: Boogaa, Stockholm. Contact: hello@joinbooga.se.
 
 ## What we collect
 

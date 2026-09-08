@@ -6,14 +6,14 @@ export type Perspective = 'participant' | 'brand'
 
 /** Colour follows meaning: green paid, red terminal-bad, amber waiting on you. */
 const TONE: Record<PlacementState, string> = {
-  CLAIMED: 'amber',
-  UPLOADED: 'amber',
-  POSITIONED: 'amber',
+  CLAIMED: 'orange',
+  UPLOADED: 'orange',
+  POSITIONED: 'orange',
   GENERATING: 'neutral',
   GENERATION_FAILED: 'red',
-  PARTICIPANT_REVIEW: 'amber',
+  PARTICIPANT_REVIEW: 'orange',
   BRAND_REVIEW: 'neutral',
-  APPROVED: 'amber',
+  APPROVED: 'orange',
   PUBLISHED: 'neutral',
   VERIFYING: 'neutral',
   FLAGGED: 'neutral',
@@ -36,7 +36,7 @@ const BRAND_OVERRIDES: Partial<Record<PlacementState, { tone: string }>> = {
   UPLOADED: { tone: 'neutral' },
   POSITIONED: { tone: 'neutral' },
   PARTICIPANT_REVIEW: { tone: 'neutral' },
-  BRAND_REVIEW: { tone: 'amber' },
+  BRAND_REVIEW: { tone: 'orange' },
   APPROVED: { tone: 'neutral' },
 }
 
@@ -50,7 +50,7 @@ const BRAND_LABELS = new Set<PlacementState>([
 ])
 
 const CLASSES: Record<string, string> = {
-  amber: 'bg-[var(--color-amber)] text-[#14110F]',
+  orange: 'bg-[var(--color-orange)] text-[#111820]',
   green: 'bg-[var(--color-green)] text-white',
   red: 'bg-[var(--color-red)] text-white',
   neutral: 'bg-[var(--color-line)] text-[var(--color-ink-2)]',

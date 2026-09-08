@@ -90,7 +90,7 @@ export default async function BrandCampaignsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     {review > 0 && (
-                      <span className="chip text-xs bg-[var(--color-amber)] text-[#14110F]">
+                      <span className="chip text-xs bg-[var(--color-orange)] text-[#111820]">
                         {t('reviewQueue')} · {review}
                       </span>
                     )}

@@ -102,7 +102,7 @@ export function CreativeManager({ campaignId, assets }: { campaignId: string; as
                   <p className="text-xs text-[var(--color-ink-3)]">{asset.placementTypes.join(', ') || '—'}</p>
                   <p className="text-xs mt-2 tabular">
                     <span
-                      className={`chip text-xs ${asset.inFlight > 0 ? 'bg-[var(--color-amber)] text-[#14110F]' : ''}`}
+                      className={`chip text-xs ${asset.inFlight > 0 ? 'bg-[var(--color-orange)] text-[#111820]' : ''}`}
                     >
                       {t('inFlight', { count: asset.inFlight })}
                     </span>

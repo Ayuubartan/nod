@@ -13,20 +13,20 @@ import { campaignBalance } from './money/balances'
 import { effectiveCpmOre, formatOre } from './money/calc'
 
 const styles = StyleSheet.create({
-  page: { padding: 48, fontSize: 10, color: '#14110F', fontFamily: 'Helvetica' },
+  page: { padding: 48, fontSize: 10, color: '#111820', fontFamily: 'Helvetica' },
   brand: { fontSize: 18, fontWeight: 700, marginBottom: 4 },
   title: { fontSize: 22, marginBottom: 4 },
-  sub: { fontSize: 10, color: '#5C554D', marginBottom: 28 },
-  sectionTitle: { fontSize: 12, marginTop: 20, marginBottom: 8, color: '#5C554D' },
-  row: { flexDirection: 'row', borderBottom: '1 solid #E8E2DA', paddingVertical: 5 },
+  sub: { fontSize: 10, color: '#4B5560', marginBottom: 28 },
+  sectionTitle: { fontSize: 12, marginTop: 20, marginBottom: 8, color: '#4B5560' },
+  row: { flexDirection: 'row', borderBottom: '1 solid #E1DDD3', paddingVertical: 5 },
   cell: { flex: 1 },
   cellRight: { flex: 1, textAlign: 'right' },
-  headerRow: { flexDirection: 'row', borderBottom: '1 solid #14110F', paddingBottom: 5, fontWeight: 700 },
+  headerRow: { flexDirection: 'row', borderBottom: '1 solid #111820', paddingBottom: 5, fontWeight: 700 },
   kpiRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
-  kpi: { flex: 1, border: '1 solid #E8E2DA', borderRadius: 6, padding: 10 },
-  kpiLabel: { fontSize: 8, color: '#5C554D', marginBottom: 3 },
+  kpi: { flex: 1, border: '1 solid #E1DDD3', borderRadius: 6, padding: 10 },
+  kpiLabel: { fontSize: 8, color: '#4B5560', marginBottom: 3 },
   kpiValue: { fontSize: 14, fontWeight: 700 },
-  footer: { marginTop: 28, fontSize: 8, color: '#A39B91' },
+  footer: { marginTop: 28, fontSize: 8, color: '#8A929B' },
 })
 
 export type ReportData = {

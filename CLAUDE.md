@@ -7,7 +7,7 @@ Read `docs/` in numeric order before writing code. `docs/09-build-plan.md` is th
 ## Naming
 
 **NOD** is the internal codename and stays in the repo, docs, env vars (`NOD_*`) and
-cookies. The public brand is **Booga** (joinbooga.se): every visible string uses
+cookies. The public brand is **Boogaa** (joinbooga.se): every visible string uses
 `lib/brand.ts` or the i18n files. Never write "NOD" into user-facing copy.
 
 ## Non-negotiables

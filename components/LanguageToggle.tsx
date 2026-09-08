@@ -22,7 +22,7 @@ export function LanguageToggle() {
           onClick={() => startTransition(() => setLocale(code).then(() => window.location.reload()))}
           className={
             locale === code
-              ? 'px-2.5 py-1 bg-[var(--color-amber)] text-[#14110F] font-semibold'
+              ? 'px-2.5 py-1 bg-[var(--color-teal)] text-[#111820] font-semibold'
               : 'px-2.5 py-1 text-[var(--color-ink-2)]'
           }
         >

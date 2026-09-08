@@ -56,7 +56,7 @@ export function SettingsPanel({
           <input
             type="checkbox"
             checked={consent}
-            className="mt-1 size-4 accent-[var(--color-amber)]"
+            className="mt-1 size-4 accent-[var(--color-orange)]"
             onChange={async (e) => {
               const next = e.target.checked
               setConsent(next)

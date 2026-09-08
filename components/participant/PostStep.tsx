@@ -96,7 +96,7 @@ export function PostStep({
                   type="checkbox"
                   checked={checks[index]}
                   onChange={() => toggle(index)}
-                  className="mt-0.5 size-4 accent-[var(--color-amber)]"
+                  className="mt-0.5 size-4 accent-[var(--color-orange)]"
                 />
                 <span>{label}</span>
               </label>

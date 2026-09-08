@@ -1,56 +1,63 @@
 @import 'tailwindcss';
 
 /*
- * NOD design tokens — docs/10-brand.md.
+ * Boogaa design tokens — docs/10-brand.md.
  *
- * Lighter and warmer than a fintech dashboard on purpose: these pages render inside
- * an Instagram in-app browser next to people's own photos.
+ * Teal is the brand, orange is the action, ink is the text, paper is the ground.
+ * These pages render inside an Instagram in-app browser next to people's own photos,
+ * so the surfaces stay light and warm and the loud colours are used sparingly.
  */
 
 @theme {
   /* surfaces */
-  --color-bg: #faf7f2;
+  --color-bg: #f4f1ea; /* PAPER */
   --color-surface: #ffffff;
-  --color-ink: #14110f;
-  --color-ink-2: #5c554d;
-  --color-ink-3: #a39b91;
-  --color-line: #e8e2da;
+  --color-ink: #111820; /* INK BLACK */
+  --color-ink-2: #4b5560;
+  --color-ink-3: #8a929b;
+  --color-line: #e1ddd3;
 
-  /* accent */
-  --color-amber: #f5a524;
-  --color-amber-dk: #c77e0a;
+  /* brand */
+  --color-teal: #20c5c7; /* BOOGAA TEAL — the mark, highlights, "join" */
+  --color-teal-dk: #17a6a8;
+  --color-teal-soft: #d9f5f5;
+  --color-orange: #ff7417; /* BOOGAA ORANGE — the primary action, "waiting on you" */
+  --color-orange-dk: #e05f05;
   --color-green: #1f9d6b;
   --color-red: #d6453d;
   --color-blue: #2f6fe4;
 
   --radius-card: 12px;
 
-  --font-display: 'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-display: var(--font-space), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-marker: var(--font-marker-face), 'Comic Sans MS', cursive;
+  --font-mono: var(--font-jetbrains), ui-monospace, 'SF Mono', Menlo, monospace;
 
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
-/* Dark mode: invert the surfaces, keep the amber (docs/10). */
+/* Dark mode: paper becomes ink, the teal and orange stay (docs/10 dark lockup). */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --color-bg: #14110f;
-    --color-surface: #1c1815;
-    --color-ink: #faf7f2;
-    --color-ink-2: #b8afa4;
-    --color-ink-3: #7a736a;
-    --color-line: #2e2823;
+    --color-bg: #111820;
+    --color-surface: #1a222c;
+    --color-ink: #f4f1ea;
+    --color-ink-2: #b5bcc4;
+    --color-ink-3: #737b85;
+    --color-line: #2a343f;
+    --color-teal-soft: #123a3b;
   }
 }
 
 :root[data-theme='dark'] {
-  --color-bg: #14110f;
-  --color-surface: #1c1815;
-  --color-ink: #faf7f2;
-  --color-ink-2: #b8afa4;
-  --color-ink-3: #7a736a;
-  --color-line: #2e2823;
+  --color-bg: #111820;
+  --color-surface: #1a222c;
+  --color-ink: #f4f1ea;
+  --color-ink-2: #b5bcc4;
+  --color-ink-3: #737b85;
+  --color-line: #2a343f;
+  --color-teal-soft: #123a3b;
 }
 
 @layer base {
@@ -83,14 +90,14 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-amber);
+    outline: 2px solid var(--color-teal);
     outline-offset: 2px;
     border-radius: 4px;
   }
 
   ::selection {
-    background: var(--color-amber);
-    color: #14110f;
+    background: var(--color-teal);
+    color: #111820;
   }
 }
 
@@ -102,14 +109,14 @@
     box-shadow: var(--shadow-card);
   }
 
-  /* The amber "nod" marker: a filled circle with a soft ring (docs/10). */
+  /* The placement marker: a teal circle with a soft ring (docs/10). */
   .nod-marker {
     position: relative;
     display: inline-block;
     width: 14px;
     height: 14px;
     border-radius: 9999px;
-    background: var(--color-amber);
+    background: var(--color-teal);
   }
 
   .nod-marker::after {
@@ -117,7 +124,7 @@
     position: absolute;
     inset: -6px;
     border-radius: 9999px;
-    border: 2px solid var(--color-amber);
+    border: 2px solid var(--color-teal);
     opacity: 0.35;
   }
 
@@ -127,33 +134,57 @@
     justify-content: center;
     gap: 0.5rem;
     border-radius: 9999px;
-    font-weight: 600;
+    font-weight: 700;
+    font-family: var(--font-display);
     padding: 0.75rem 1.5rem;
-    transition: background-color 0.15s ease, opacity 0.15s ease;
+    transition: background-color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
     min-height: 44px; /* touch target */
   }
 
+  /* Orange pill: the one action on a page (docs/10 "Join BOOGAA →"). */
   .btn-primary {
-    background: var(--color-amber);
-    color: #14110f;
+    background: var(--color-orange);
+    color: #ffffff;
   }
 
   .btn-primary:hover {
-    background: var(--color-amber-dk);
+    background: var(--color-orange-dk);
   }
 
   .btn-primary:disabled {
     opacity: 0.5;
   }
 
+  /* Outlined pill: "Learn more". */
   .btn-secondary {
     background: transparent;
     color: var(--color-ink);
-    border: 1px solid var(--color-line);
+    border: 1.5px solid var(--color-ink);
   }
 
   .btn-secondary:hover {
-    background: var(--color-line);
+    background: var(--color-ink);
+    color: var(--color-bg);
+  }
+
+  /* Teal pill: the nav "Join BOOGAA". */
+  .btn-teal {
+    background: var(--color-teal);
+    color: #111820;
+  }
+
+  .btn-teal:hover {
+    background: var(--color-teal-dk);
+  }
+
+  /* Ink pill: "Get started →". */
+  .btn-ink {
+    background: var(--color-ink);
+    color: var(--color-bg);
+  }
+
+  .btn-ink:hover {
+    opacity: 0.85;
   }
 
   .field {
@@ -191,10 +222,18 @@
   }
 
   .chip[aria-pressed='true'] {
-    background: var(--color-amber);
-    border-color: var(--color-amber);
-    color: #14110f;
+    background: var(--color-teal);
+    border-color: var(--color-teal);
+    color: #111820;
     font-weight: 600;
+  }
+
+  /* Outlined ink chip: the "Creators · Brands · Community" row. */
+  .chip-ink {
+    border-color: var(--color-ink);
+    background: transparent;
+    font-weight: 600;
+    font-family: var(--font-display);
   }
 
   .section {
@@ -212,6 +251,98 @@
     color: var(--color-red);
     font-size: 0.8125rem;
     margin-top: 0.25rem;
+  }
+
+  /* ---- Campaign accents (docs/10 "Stickers. Posters. Social. Real life.") ---- */
+
+  /* Headline style: heavy, tight, all caps. */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+  }
+
+  /* The word BOOGAA in a hero line: teal brush block, orange underline. */
+  .brush {
+    position: relative;
+    display: inline-block;
+    padding: 0 0.12em;
+    margin: 0 -0.04em;
+    color: #111820;
+    background: var(--color-teal);
+    border-radius: 0.12em 0.2em 0.1em 0.22em;
+    transform: rotate(-1.2deg);
+    isolation: isolate;
+  }
+
+  .brush::after {
+    content: '';
+    position: absolute;
+    left: 0.06em;
+    right: 0.02em;
+    bottom: -0.1em;
+    height: 0.13em;
+    background: var(--color-orange);
+    border-radius: 999px;
+    transform: rotate(-0.8deg);
+    z-index: -1;
+  }
+
+  /* Handwritten note. */
+  .marker {
+    font-family: var(--font-marker);
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* Tape strip: a short translucent rectangle laid over the corner of a card or photo. */
+  .tape {
+    position: absolute;
+    width: 6rem;
+    height: 1.5rem;
+    background: var(--color-ink);
+    opacity: 0.85;
+    transform: rotate(-6deg);
+    pointer-events: none;
+  }
+
+  .tape-teal {
+    background: var(--color-teal);
+  }
+
+  .tape-grey {
+    background: var(--color-ink-3);
+    opacity: 0.6;
+  }
+
+  /* Torn paper edge on the bottom of a photo. */
+  .torn {
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 96%,
+      94% 98%,
+      88% 95%,
+      80% 99%,
+      72% 96%,
+      63% 100%,
+      55% 96%,
+      46% 99%,
+      38% 95%,
+      29% 99%,
+      21% 96%,
+      12% 100%,
+      5% 96%,
+      0 99%
+    );
+  }
+
+  /* Teal rule under a sentence: the footer bar (docs/10). */
+  .rule-teal {
+    box-shadow: inset 0 -0.35em 0 0 var(--color-teal);
   }
 }
 

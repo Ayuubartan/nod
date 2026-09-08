@@ -52,7 +52,7 @@ export default async function OpsHomePage() {
               <p className="text-xs text-[var(--color-ink-2)] mb-1">{queue.label}</p>
               <p
                 className="amount text-3xl font-bold"
-                style={{ color: queue.value > 0 ? 'var(--color-amber-dk)' : 'var(--color-ink-3)' }}
+                style={{ color: queue.value > 0 ? 'var(--color-orange-dk)' : 'var(--color-ink-3)' }}
               >
                 {queue.value}
               </p>

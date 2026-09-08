@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { BRAND } from '@/lib/brand'
 import { prisma } from '@/lib/db'
+import { ogFonts } from '@/lib/og-font'
 
 /**
  * Per-referral share image — docs/01: "OG image generated per referral link
@@ -36,26 +37,22 @@ export async function GET(
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          background: '#FAF7F2',
+          background: '#F4F1EA',
           padding: isOg ? 64 : 96,
-          fontFamily: 'sans-serif',
+          fontFamily: 'Space Grotesk, sans-serif',
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            width: 96,
-            height: 96,
-            borderRadius: 999,
-            background: '#F5A524',
-            marginBottom: 48,
-          }}
-        />
+        <div style={{ display: 'flex', marginBottom: 48 }}>
+          <svg viewBox="0 0 100 100" width="96" height="96">
+              <path d="M50 50 L96.98 32.9 A50 50 0 1 0 96.98 67.1 Z" fill="#20C5C7" />
+              <path d="M58 18 L30 56 L47 56 L40 84 L70 42 L53 42 Z" fill="#FF7417" />
+            </svg>
+        </div>
         <div
           style={{
             display: 'flex',
             fontSize: isOg ? 34 : 44,
-            color: '#5C554D',
+            color: '#4B5560',
             marginBottom: 16,
             textAlign: 'center',
           }}
@@ -67,7 +64,7 @@ export async function GET(
             display: 'flex',
             fontSize: isOg ? 128 : 180,
             fontWeight: 800,
-            color: '#14110F',
+            color: '#111820',
             letterSpacing: -6,
           }}
         >
@@ -77,13 +74,13 @@ export async function GET(
           style={{
             display: 'flex',
             fontSize: isOg ? 32 : 44,
-            color: '#5C554D',
+            color: '#4B5560',
             marginTop: 24,
             textAlign: 'center',
             maxWidth: isOg ? 900 : 820,
           }}
         >
-          Posta som vanligt. Få betalt för visningarna.
+          Få betalt för innehållet du redan postar.
         </div>
         <div
           style={{
@@ -92,9 +89,9 @@ export async function GET(
             padding: '20px 40px',
             borderRadius: 999,
             background: '#FFFFFF',
-            border: '2px solid #E8E2DA',
+            border: '2px solid #E1DDD3',
             fontSize: isOg ? 30 : 42,
-            color: '#14110F',
+            color: '#111820',
             letterSpacing: 4,
           }}
         >
@@ -102,6 +99,6 @@ export async function GET(
         </div>
       </div>
     ),
-    { width, height },
+    { width, height, ...(await ogFonts()) },
   )
 }
