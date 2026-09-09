@@ -56,7 +56,9 @@
         "community": "Community",
         "stockholm": "Stockholm",
         "reach": "Real reach"
-      }
+      },
+      "already": "Already a member?",
+      "alreadyLink": "Sign in"
     },
     "how": {
       "title": "How it works",
@@ -176,7 +178,9 @@
       "contact": "Contact",
       "rights": "Boogaa",
       "cookies": "Cookies",
-      "brandAgreement": "Brand agreement"
+      "brandAgreement": "Brand agreement",
+      "signIn": "Sign in",
+      "brandSignIn": "Brand sign-in"
     },
     "nav": {
       "home": "Home",

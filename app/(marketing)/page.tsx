@@ -75,6 +75,12 @@ export default async function LandingPage() {
                 {t('hero.ctaLearn')}
               </a>
             </div>
+            <p className="mt-4 text-sm text-[var(--color-ink-2)]">
+              {t('hero.already')}{' '}
+              <Link href="/sign-in" className="underline font-medium">
+                {t('hero.alreadyLink')}
+              </Link>
+            </p>
             {statItems.length > 0 && (
               <p className="mt-8 text-sm font-semibold text-[var(--color-ink-2)] flex flex-wrap gap-x-3 gap-y-1">
                 {statItems.map((item, index) => (

@@ -31,11 +31,15 @@ export default async function MarketingLayout({ children }: { children: React.Re
               ))}
             </nav>
             <div className="flex items-center gap-2 sm:gap-3 text-sm">
-              <Link href="/sign-in" className="hidden sm:inline text-[var(--color-ink-2)] hover:text-[var(--color-ink)]">
+              <Link
+                href="/sign-in"
+                className="text-[var(--color-ink-2)] hover:text-[var(--color-ink)] font-medium whitespace-nowrap"
+              >
                 {nav('signIn')}
               </Link>
               <LanguageToggle />
-              <Link href="/#waitlist" className="btn btn-teal min-h-9 px-3 sm:px-4 py-1.5 text-xs sm:text-sm whitespace-nowrap">
+              {/* Phones: the hero CTA is one thumb away, so the header keeps Sign in instead. */}
+              <Link href="/#waitlist" className="btn btn-teal min-h-9 px-4 py-1.5 text-sm whitespace-nowrap hidden sm:inline-flex">
                 {t('nav.join')}
               </Link>
             </div>
@@ -57,6 +61,8 @@ export default async function MarketingLayout({ children }: { children: React.Re
               <Link href="/cookies">{t('footer.cookies')}</Link>
               <Link href="/brand-agreement">{t('footer.brandAgreement')}</Link>
               <Link href="/brands">{t('hero.ctaSecondary')}</Link>
+              <Link href="/sign-in">{t('footer.signIn')}</Link>
+              <Link href="/brand/sign-in">{t('footer.brandSignIn')}</Link>
               <LanguageToggle />
             </nav>
           </div>

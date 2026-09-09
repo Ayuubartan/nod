@@ -56,7 +56,9 @@
         "community": "Community",
         "stockholm": "Stockholm",
         "reach": "Riktig räckvidd"
-      }
+      },
+      "already": "Redan medlem?",
+      "alreadyLink": "Logga in"
     },
     "how": {
       "title": "Så funkar det",
@@ -176,7 +178,9 @@
       "contact": "Kontakt",
       "rights": "Boogaa",
       "cookies": "Cookies",
-      "brandAgreement": "Varumärkesvillkor"
+      "brandAgreement": "Varumärkesvillkor",
+      "signIn": "Logga in",
+      "brandSignIn": "Logga in som varumärke"
     },
     "nav": {
       "home": "Hem",
