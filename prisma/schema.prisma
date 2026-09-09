@@ -60,6 +60,40 @@ enum CampaignState {
   CLOSED
 }
 
+enum CampaignKind {
+  PLACEMENT // AI product placement (docs/02-03)
+  CLIP // creators' own posts, CPM on validated views (docs/14)
+}
+
+enum MembershipState {
+  JOINED
+  LEFT
+  SUSPENDED
+  BLOCKED
+}
+
+enum SubmissionState {
+  RECEIVED
+  FIX_DISCLOSURE
+  TRACKING
+  VALIDATING
+  HELD
+  QUALIFIED
+  PAID
+  REJECTED
+}
+
+enum SubmissionRejectReason {
+  NOT_OWNER
+  NOT_FOUND
+  OUTSIDE_WINDOW
+  NO_DISCLOSURE
+  DELETED_EARLY
+  FRAUD
+  OPS_REJECTED
+  DUPLICATE
+}
+
 enum ReviewTier {
   A
   B
@@ -157,11 +191,13 @@ model User {
   onboardingStep      Int              @default(1)
   deletionRequestedAt DateTime?
 
-  identity   Identity?
-  accounts   SocialAccount[]
-  wallet     Wallet?
-  placements Placement[]
-  strikes    Strike[]
+  identity    Identity?
+  accounts    SocialAccount[]
+  wallet      Wallet?
+  placements  Placement[]
+  memberships CampaignMembership[]
+  submissions Submission[]
+  strikes     Strike[]
 
   referredBy       User?      @relation("UserReferrals", fields: [referredById], references: [id])
   referredUsers    User[]     @relation("UserReferrals")
@@ -210,9 +246,10 @@ model SocialAccount {
   lastSyncedAt   DateTime?
   disconnectedAt DateTime?
 
-  user       User                    @relation(fields: [userId], references: [id])
-  placements Placement[]
-  snapshots  SocialAccountSnapshot[]
+  user        User                    @relation(fields: [userId], references: [id])
+  placements  Placement[]
+  submissions Submission[]
+  snapshots   SocialAccountSnapshot[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -315,6 +352,7 @@ model Campaign {
   id        String        @id @default(cuid())
   brandId   String
   name      String
+  kind      CampaignKind  @default(PLACEMENT)
   state     CampaignState @default(DRAFT)
   objective String        @default("awareness")
   startsAt  DateTime?
@@ -335,7 +373,16 @@ model Campaign {
   brandSafety    String[]   @default([])
   reviewTier     ReviewTier @default(B)
   disclosureText String     @default("Reklam – i samarbete med {brand}")
-  perPersonCap   Int        @default(2)
+  perPersonCap   Int        @default(2) // placements, or submissions for CLIP, per participant
+
+  // clip rules (docs/14) — ignored for PLACEMENT campaigns
+  platforms           AccountPlatform[] @default([INSTAGRAM, TIKTOK])
+  joinCap             Int?
+  validationHours     Int               @default(168)
+  requiredHashtags    String[]          @default([])
+  requiredMentions    String[]          @default([])
+  joinsPausedAt       DateTime?
+  submissionsPausedAt DateTime?
 
   // money (öre)
   budget            Int     @default(0)
@@ -357,10 +404,12 @@ model Campaign {
   stripeSessionId     String?
   reportPath          String?
 
-  brand          Brand           @relation(fields: [brandId], references: [id])
+  brand          Brand                @relation(fields: [brandId], references: [id])
   payoutTemplate PayoutTemplate?
   assets         CampaignAsset[]
   placements     Placement[]
+  memberships    CampaignMembership[]
+  submissions    Submission[]
   ledger         LedgerEntry[]
 
   createdAt DateTime  @default(now())
@@ -369,6 +418,7 @@ model Campaign {
 
   @@index([brandId, state])
   @@index([state, goLiveAt])
+  @@index([kind, state])
 }
 
 // Brand-facing (all-in) numbers. Participant share is derived via take rate.
@@ -553,6 +603,120 @@ model Dispute {
 
 // ---------------------------------------------------------------- money
 
+/// A creator's seat in a CLIP campaign (docs/14 §2). Join is a DB-only write.
+model CampaignMembership {
+  id         String          @id @default(cuid())
+  campaignId String
+  userId     String
+  state      MembershipState @default(JOINED)
+  joinedAt   DateTime        @default(now())
+  leftAt     DateTime?
+  note       String?
+
+  campaign    Campaign     @relation(fields: [campaignId], references: [id])
+  user        User         @relation(fields: [userId], references: [id])
+  submissions Submission[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([campaignId, userId])
+  @@index([userId, state])
+  @@index([campaignId, state])
+}
+
+/// One submitted post in a CLIP campaign (docs/14 §2-5). Money columns are the reservation
+/// only; what was actually paid lives in the ledger.
+model Submission {
+  id              String                  @id @default(cuid())
+  campaignId      String
+  membershipId    String
+  userId          String
+  socialAccountId String
+  platform        AccountPlatform
+  state           SubmissionState         @default(RECEIVED)
+  rejectReason    SubmissionRejectReason?
+  rejectNote      String?
+
+  // the post
+  postId          String // platform id parsed from the URL (TikTok video id, Instagram shortcode)
+  providerMediaId String? // id the provider API uses when it differs (Instagram numeric media id)
+  canonicalUrl    String
+  caption         String?
+  publishedAt     DateTime?
+
+  // metrics — mirrors of the latest snapshot for cheap dashboards; snapshots are the truth
+  initialViews   Int       @default(0)
+  latestViews    Int       @default(0)
+  eligibleViews  Int       @default(0)
+  latestLikes    Int       @default(0)
+  latestComments Int       @default(0)
+  latestShares   Int       @default(0)
+  lastCheckedAt  DateTime?
+
+  // money (öre) — see docs/14 D2
+  reservationOre  Int     @default(0)
+  budgetExhausted Boolean @default(false)
+
+  // tracking schedule
+  nextCheckAt         DateTime?
+  queuedAt            DateTime?
+  priority            Int       @default(0)
+  consecutiveFailures Int       @default(0)
+  consecutiveMissing  Int       @default(0)
+  trackingPausedAt    DateTime?
+
+  // risk
+  riskScore   Int?
+  riskFactors String[] @default([])
+
+  // lifecycle
+  submittedAt      DateTime  @default(now())
+  fixWindowEndsAt  DateTime?
+  validationEndsAt DateTime?
+  settledAt        DateTime?
+  paidAt           DateTime?
+
+  campaign   Campaign             @relation(fields: [campaignId], references: [id])
+  membership CampaignMembership   @relation(fields: [membershipId], references: [id])
+  user       User                 @relation(fields: [userId], references: [id])
+  account    SocialAccount        @relation(fields: [socialAccountId], references: [id])
+  snapshots  SubmissionSnapshot[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([campaignId, platform, postId])
+  @@index([campaignId, state])
+  @@index([userId, state])
+  @@index([state, nextCheckAt])
+  @@index([state, validationEndsAt])
+  @@index([state, fixWindowEndsAt])
+  @@index([socialAccountId])
+}
+
+/// One metrics observation. `bucket` is floor(observedAt / 5 min): a replayed job writes
+/// the same bucket and hits the unique constraint instead of duplicating.
+model SubmissionSnapshot {
+  id           String   @id @default(cuid())
+  submissionId String
+  observedAt   DateTime @default(now())
+  bucket       Int
+  views        Int
+  likes        Int      @default(0)
+  comments     Int      @default(0)
+  shares       Int      @default(0)
+
+  submission Submission @relation(fields: [submissionId], references: [id])
+
+  deletedAt DateTime?
+
+  @@unique([submissionId, bucket])
+  @@index([submissionId, observedAt])
+}
+
 model Wallet {
   id     String @id @default(cuid())
   userId String @unique
@@ -567,15 +731,16 @@ model Wallet {
 
 // Append-only. Never updated, never deleted. Balances are sums (docs/04 Derived numbers).
 model LedgerEntry {
-  id          String     @id @default(cuid())
-  type        LedgerType
-  amountOre   Int
-  campaignId  String?
-  walletId    String?
-  placementId String?
-  batchId     String?
-  memo        String?
-  externalRef String?    @unique
+  id           String     @id @default(cuid())
+  type         LedgerType
+  amountOre    Int
+  campaignId   String?
+  walletId     String?
+  placementId  String?
+  submissionId String?
+  batchId      String?
+  memo         String?
+  externalRef  String?    @unique
 
   campaign Campaign?    @relation(fields: [campaignId], references: [id])
   wallet   Wallet?      @relation(fields: [walletId], references: [id])
@@ -586,6 +751,7 @@ model LedgerEntry {
   @@index([campaignId, type])
   @@index([walletId, type])
   @@index([placementId])
+  @@index([submissionId])
 }
 
 model PayoutBatch {

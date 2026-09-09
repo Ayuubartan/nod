@@ -261,6 +261,28 @@ model AuditLog { id String @id @default(cuid()); entity String; entityId String;
 model Flag { key String @id; value Json; updatedAt DateTime @updatedAt }
 ```
 
+## Clip campaigns (docs/14)
+
+Added 2026-09-09 alongside the placement flow; the migration is `20260909120000_clip_campaigns`.
+
+- `Campaign.kind` (`PLACEMENT` | `CLIP`), `platforms`, `joinCap`, `validationHours`,
+  `requiredHashtags`, `requiredMentions`, `joinsPausedAt`, `submissionsPausedAt`. For CLIP,
+  `perPersonCap` is the max submissions per creator and `perPlacementMax` the per-post cap (D9).
+- `CampaignMembership` — (campaignId, userId) unique, `state`, `joinedAt`, `leftAt`, `note`.
+- `Submission` — (campaignId, platform, postId) unique; provider ids, canonical URL, caption,
+  `publishedAt`, the counters (`initialViews`, `latestViews`, `eligibleViews`, likes/comments/
+  shares), scheduler fields (`nextCheckAt`, `queuedAt`, `priority`, `consecutiveFailures`,
+  `consecutiveMissing`, `trackingPausedAt`), money (`reservationOre`, `budgetExhausted`), risk
+  (`riskScore`, `riskFactors`), and the deadlines (`fixWindowEndsAt`, `validationEndsAt`).
+  The counters are a cache of the snapshots and the ledger; money is never read from them.
+- `SubmissionSnapshot` — one row per (submissionId, 5-minute bucket); the series risk scoring
+  and the creator's chart read this.
+- `LedgerEntry.submissionId` — the submission-side twin of `placementId`; the SETTLE row carries
+  `externalRef = settle:submission:<id>` for idempotent replays.
+
+All three tables have RLS: ops read all; a participant reads their own memberships/submissions/
+snapshots; a brand reads the rows of its own campaigns.
+
 ## Derived numbers (never stored)
 
 ```ts
@@ -278,4 +300,9 @@ Implement these as SQL views or Prisma raw queries with tests; UI reads views on
 - `Verification.screenshotPath`: 30 days after decision
 - `AuditLog`, `LedgerEntry`: 7 years (bookkeeping)
 - `Identity.subjectHash`: retained after `REMOVED` to block re-registration; everything else erased on GDPR job
+- `SubmissionSnapshot`: kept 180 days after the submission is terminal (the dispute window plus
+  a margin for fraud pattern review), then soft-deleted; the aggregate counters stay on the
+  `Submission`
+- `Submission.caption` and `canonicalUrl`: blanked by the GDPR erasure job with the rest of
+  the participant's content
 - `SocialAccountSnapshot`: kept while the account is connected (it is the participant's own history); soft-deleted with the account by the erasure job

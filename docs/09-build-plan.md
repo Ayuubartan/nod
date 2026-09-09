@@ -217,3 +217,4 @@ what has moved since the table above:
 | Distribution layer | Brands swap creative on a live campaign (`lib/creative.ts`); in-flight placements re-render, approved ones are locked. |
 | Brand dashboard | Fill bars, placement funnel, creative tab, shared header/tabs, richer placement table. |
 | Seed | Generates real artwork and four placements through the state machine; runs in ~3 s. |
+| Clip campaigns | Second campaign kind (`docs/14`): join → post natively → submit URL → ownership check → tracked views → CPM settlement. Commit A (2026-09-09): schema, membership + submission machines, reservations and settlement, tests. B: verification job + server actions. C: tracking scheduler, validation, fraud bands. D: creator/brand/ops UI. |

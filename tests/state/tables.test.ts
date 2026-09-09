@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import type { CampaignState, ParticipantState, PlacementState } from '@prisma/client'
+import type { CampaignState, MembershipState, ParticipantState, PlacementState, SubmissionState } from '@prisma/client'
 import {
   allowedEvents,
   canTransition,
@@ -23,6 +23,13 @@ import {
   type PlacementEvent,
 } from '@/lib/state/placement'
 import { HOLD_MS } from '@/lib/money/rates'
+import { MEMBERSHIP_TABLE, type MembershipEvent } from '@/lib/state/membership'
+import {
+  HOLDS_RESERVATION,
+  SUBMISSION_TABLE,
+  TERMINAL_STATES as TERMINAL_SUBMISSION_STATES,
+  type SubmissionEvent,
+} from '@/lib/state/submission'
 
 const ALL_PARTICIPANT_STATES: ParticipantState[] = [
   'SIGNED_UP', 'ONBOARDED', 'VERIFIED', 'ACTIVE', 'FLAGGED', 'SUSPENDED', 'REMOVED',
@@ -317,5 +324,69 @@ describe('actorString', () => {
     expect(actorString({ kind: 'SYSTEM' })).toBe('system')
     expect(actorString({ kind: 'OPS', id: 'u1' })).toBe('ops:u1')
     expect(actorString({ kind: 'PARTICIPANT', id: 'p1' })).toBe('participant:p1')
+  })
+})
+
+// ---------------------------------------------------------------- docs/14 clip campaigns
+
+describe('membership and submission state machines — docs/14 section 2', () => {
+  const MEMBERSHIP_STATES: MembershipState[] = ['JOINED', 'LEFT', 'SUSPENDED', 'BLOCKED']
+  const MEMBERSHIP_EVENTS: MembershipEvent[] = ['LEAVE', 'REJOIN', 'SUSPEND', 'BLOCK', 'REINSTATE']
+  const SUBMISSION_STATES: SubmissionState[] = [
+    'RECEIVED', 'FIX_DISCLOSURE', 'TRACKING', 'VALIDATING', 'HELD', 'QUALIFIED', 'PAID', 'REJECTED',
+  ]
+  const SUBMISSION_EVENTS: SubmissionEvent[] = [
+    'VERIFIED', 'NEEDS_DISCLOSURE', 'WINDOW_END', 'QUALIFY', 'HOLD', 'PAY', 'REJECT',
+  ]
+
+  it('membership: leave and rejoin, suspend and reinstate, block is terminal', () => {
+    expect(nextState(MEMBERSHIP_TABLE, 'JOINED', 'LEAVE')).toBe('LEFT')
+    expect(nextState(MEMBERSHIP_TABLE, 'LEFT', 'REJOIN')).toBe('JOINED')
+    expect(nextState(MEMBERSHIP_TABLE, 'JOINED', 'SUSPEND')).toBe('SUSPENDED')
+    expect(nextState(MEMBERSHIP_TABLE, 'SUSPENDED', 'REINSTATE')).toBe('JOINED')
+    expect(allowedEvents(MEMBERSHIP_TABLE, 'BLOCKED')).toEqual([])
+    expect(canTransition(MEMBERSHIP_TABLE, 'SUSPENDED', 'LEAVE')).toBe(false)
+    expect(canTransition(MEMBERSHIP_TABLE, 'JOINED', 'REJOIN')).toBe(false)
+    expect(canTransition(MEMBERSHIP_TABLE, 'LEFT', 'REINSTATE')).toBe(false)
+  })
+
+  it('submission: the happy path and the disclosure fix loop', () => {
+    expect(nextState(SUBMISSION_TABLE, 'RECEIVED', 'VERIFIED')).toBe('TRACKING')
+    expect(nextState(SUBMISSION_TABLE, 'RECEIVED', 'NEEDS_DISCLOSURE')).toBe('FIX_DISCLOSURE')
+    expect(nextState(SUBMISSION_TABLE, 'FIX_DISCLOSURE', 'VERIFIED')).toBe('TRACKING')
+    expect(nextState(SUBMISSION_TABLE, 'TRACKING', 'WINDOW_END')).toBe('VALIDATING')
+    expect(nextState(SUBMISSION_TABLE, 'VALIDATING', 'QUALIFY')).toBe('QUALIFIED')
+    expect(nextState(SUBMISSION_TABLE, 'VALIDATING', 'HOLD')).toBe('HELD')
+    expect(nextState(SUBMISSION_TABLE, 'HELD', 'QUALIFY')).toBe('QUALIFIED')
+    expect(nextState(SUBMISSION_TABLE, 'QUALIFIED', 'PAY')).toBe('PAID')
+  })
+
+  it('submission: no shortcuts to money — QUALIFY only from VALIDATING or HELD', () => {
+    for (const from of ['RECEIVED', 'FIX_DISCLOSURE', 'TRACKING', 'QUALIFIED', 'PAID', 'REJECTED'] as const) {
+      expect(canTransition(SUBMISSION_TABLE, from, 'QUALIFY')).toBe(false)
+    }
+    expect(canTransition(SUBMISSION_TABLE, 'TRACKING', 'PAY')).toBe(false)
+    expect(canTransition(SUBMISSION_TABLE, 'FIX_DISCLOSURE', 'WINDOW_END')).toBe(false)
+    // A disclosure fix cannot be waived after tracking started: NEEDS_DISCLOSURE is RECEIVED-only.
+    expect(canTransition(SUBMISSION_TABLE, 'TRACKING', 'NEEDS_DISCLOSURE')).toBe(false)
+  })
+
+  it('submission: PAID and REJECTED are terminal, and every other state can be rejected', () => {
+    for (const state of TERMINAL_SUBMISSION_STATES) expect(allowedEvents(SUBMISSION_TABLE, state)).toEqual([])
+    for (const state of SUBMISSION_STATES) {
+      if (TERMINAL_SUBMISSION_STATES.includes(state) || state === 'QUALIFIED') continue
+      expect(canTransition(SUBMISSION_TABLE, state, 'REJECT')).toBe(true)
+    }
+    expect(HOLDS_RESERVATION).not.toContain('QUALIFIED')
+    expect(HOLDS_RESERVATION).not.toContain('REJECTED')
+  })
+
+  it('most (state, event) pairs are illegal in both tables', () => {
+    let legal = 0
+    for (const state of MEMBERSHIP_STATES) for (const event of MEMBERSHIP_EVENTS) if (canTransition(MEMBERSHIP_TABLE, state, event)) legal += 1
+    expect(legal).toBe(7)
+    legal = 0
+    for (const state of SUBMISSION_STATES) for (const event of SUBMISSION_EVENTS) if (canTransition(SUBMISSION_TABLE, state, event)) legal += 1
+    expect(legal).toBe(13)
   })
 })

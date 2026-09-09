@@ -411,6 +411,7 @@ export const restoreSuspended = inngest.createFunction(
  * Original images: 90 days after terminal, unless the participant gave training
  * consent, in which case an anonymised copy moves to the training bucket instead.
  * Screenshots: 30 days after the verification decision.
+ * Clip snapshots: 180 days after the submission is terminal (docs/04, docs/14).
  */
 export const retentionSweep = inngest.createFunction(
   { id: 'retention-sweep', name: 'Retention sweep' },
@@ -419,6 +420,7 @@ export const retentionSweep = inngest.createFunction(
     const now = Date.now()
     const originalsCutoff = new Date(now - 90 * 24 * 60 * 60 * 1000)
     const screenshotCutoff = new Date(now - 30 * 24 * 60 * 60 * 1000)
+    const snapshotCutoff = new Date(now - 180 * 24 * 60 * 60 * 1000)
 
     const originals = await step.run('purge-originals', async () => {
       const stale = await prisma.placement.findMany({
@@ -452,7 +454,18 @@ export const retentionSweep = inngest.createFunction(
       return stale.length
     })
 
-    return { originals, screenshots }
+    const snapshots = await step.run('purge-clip-snapshots', async () => {
+      const result = await prisma.submissionSnapshot.updateMany({
+        where: {
+          deletedAt: null,
+          submission: { state: { in: ['PAID', 'REJECTED'] }, updatedAt: { lte: snapshotCutoff } },
+        },
+        data: { deletedAt: new Date() },
+      })
+      return result.count
+    })
+
+    return { originals, screenshots, snapshots }
   },
 )
 
@@ -489,6 +502,13 @@ export const gdprErasure = inngest.createFunction(
             where: { userId: user.id },
             data: { originalPath: null, postUrl: null },
           })
+          // Clip submissions: the post link and caption are the personal data; the
+          // metrics and the ledger rows stay (bookkeeping), the rows are soft-deleted.
+          await tx.submission.updateMany({
+            where: { userId: user.id },
+            data: { canonicalUrl: '', caption: null, deletedAt: new Date() },
+          })
+          await tx.campaignMembership.updateMany({ where: { userId: user.id }, data: { deletedAt: new Date() } })
           await tx.user.update({
             where: { id: user.id },
             data: {

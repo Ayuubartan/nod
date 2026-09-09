@@ -19,7 +19,7 @@ export const db = prisma
 
 /** Tables truncated between tests, children first. */
 const TABLES = [
-  'LedgerEntry', 'ViewSnapshot', 'SocialAccountSnapshot', 'Verification', 'Dispute', 'PlacementEvent',
+  'LedgerEntry', 'SubmissionSnapshot', 'Submission', 'CampaignMembership', 'ViewSnapshot', 'SocialAccountSnapshot', 'Verification', 'Dispute', 'PlacementEvent',
   'PlacementVersion', 'Placement', 'CampaignAsset', 'PayoutTemplate', 'Campaign',
   'BrandUser', 'Brand', 'PayoutBatch', 'Wallet', 'Strike', 'Referral', 'Identity',
   'SocialAccount', 'User', 'AuditLog', 'Flag', 'WaitlistEntry', 'BrandEnquiry',
@@ -67,6 +67,14 @@ export type MakeCampaignArgs = {
   cpmOre?: number
   viewFloor?: number
   endsAt?: Date
+  /** Clip campaigns (docs/14). */
+  kind?: 'PLACEMENT' | 'CLIP'
+  platforms?: Array<'INSTAGRAM' | 'TIKTOK'>
+  joinCap?: number
+  validationHours?: number
+  requiredHashtags?: string[]
+  requiredMentions?: string[]
+  templateKind?: 'FIXED' | 'CPM' | 'HYBRID' | 'HYBRID_BONUS'
 }
 
 export async function makeCampaign(args: MakeCampaignArgs) {
@@ -76,6 +84,13 @@ export async function makeCampaign(args: MakeCampaignArgs) {
     data: {
       brandId: args.brandId,
       name: 'Test campaign',
+      kind: args.kind ?? 'PLACEMENT',
+      platforms: args.platforms ?? ['INSTAGRAM', 'TIKTOK'],
+      joinCap: args.joinCap ?? null,
+      validationHours: args.validationHours ?? 168,
+      requiredHashtags: args.requiredHashtags ?? [],
+      requiredMentions: args.requiredMentions ?? [],
+      liveAt: args.kind === 'CLIP' ? new Date(Date.now() - 1000) : undefined,
       state: args.state ?? 'LIVE',
       budget,
       perPlacementMax: args.perPlacementMaxOre ?? DEFAULTS.perPlacementMaxOre,
@@ -96,7 +111,7 @@ export async function makeCampaign(args: MakeCampaignArgs) {
   await db.payoutTemplate.create({
     data: {
       campaignId: campaign.id,
-      kind: 'HYBRID',
+      kind: args.templateKind ?? 'HYBRID',
       fixedOre: args.fixedOre ?? DEFAULTS.fixedOre,
       cpmOre: args.cpmOre ?? DEFAULTS.cpmOre,
       viewFloor: args.viewFloor ?? DEFAULTS.viewFloor,
@@ -132,6 +147,7 @@ export type MakeParticipantArgs = {
   categories?: string[]
   withIdentity?: boolean
   swishNumber?: string | null
+  platform?: 'INSTAGRAM' | 'TIKTOK'
 }
 
 export async function makeParticipant(args: MakeParticipantArgs = {}) {
@@ -170,9 +186,9 @@ export async function makeParticipant(args: MakeParticipantArgs = {}) {
   const account = await db.socialAccount.create({
     data: {
       userId: user.id,
-      platform: 'INSTAGRAM',
+      platform: args.platform ?? 'INSTAGRAM',
       handle: `user_${counter}`,
-      platformUserId: `ig_${uid()}`,
+      platformUserId: `${args.platform === 'TIKTOK' ? 'tt' : 'ig'}_${uid()}`,
       tier: args.tier ?? 'CONNECTED_API',
       accountType: 'creator',
       followers,

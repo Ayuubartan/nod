@@ -15,6 +15,7 @@ import { normaliseSwishNumber, toSwishCsv } from '@/lib/integrations/swish'
 import type { PayoutRow } from '@/lib/integrations/types'
 import { auditAction, SYSTEM, type ActorRef, type Tx } from './transition'
 import { markPaid } from './placement'
+import { markSubmissionPaid } from './submission'
 import { emit } from '@/lib/events'
 
 /**
@@ -131,9 +132,12 @@ export async function payReferralBonusIfDue(
   })
   if (!referral || referral.bonusPaidAt) return false
 
-  const qualifiedCount = await prisma.placement.count({
-    where: { userId: referredUserId, state: { in: ['QUALIFIED', 'PAID'] } },
-  })
+  // A first qualified placement or a first paid clip both count (docs/05 referral rule).
+  const qualifiedCount =
+    (await prisma.placement.count({ where: { userId: referredUserId, state: { in: ['QUALIFIED', 'PAID'] } } })) +
+    (await prisma.submission.count({
+      where: { userId: referredUserId, state: { in: ['QUALIFIED', 'PAID'] }, deletedAt: null },
+    }))
   if (qualifiedCount === 0) return false
 
   await prisma.$transaction(async (tx) => {
@@ -166,7 +170,17 @@ export async function markQualifiedAsPaid(): Promise<number> {
     await markPaid(placement.id)
     await payReferralBonusIfDue(placement.userId)
   }
-  return qualified.length
+
+  // Clip submissions settle into the same wallets (docs/14 §5).
+  const submissions = await prisma.submission.findMany({
+    where: { state: 'QUALIFIED', deletedAt: null },
+    select: { id: true, userId: true },
+  })
+  for (const submission of submissions) {
+    await markSubmissionPaid(submission.id)
+    await payReferralBonusIfDue(submission.userId)
+  }
+  return qualified.length + submissions.length
 }
 
 /**

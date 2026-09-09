@@ -20,6 +20,7 @@ export type LedgerWrite = {
   campaignId?: string | null
   walletId?: string | null
   placementId?: string | null
+  submissionId?: string | null
   batchId?: string | null
   memo?: string | null
   /** Stripe payment intent, Swish reference, etc. Unique — makes replays idempotent. */
@@ -55,6 +56,7 @@ export async function post(tx: Tx, entry: LedgerWrite): Promise<void> {
       campaignId: entry.campaignId ?? null,
       walletId: entry.walletId ?? null,
       placementId: entry.placementId ?? null,
+      submissionId: entry.submissionId ?? null,
       batchId: entry.batchId ?? null,
       memo: entry.memo ?? null,
       externalRef: entry.externalRef ?? null,
@@ -74,6 +76,7 @@ export async function postMany(tx: Tx, entries: LedgerWrite[]): Promise<void> {
       campaignId: e.campaignId ?? null,
       walletId: e.walletId ?? null,
       placementId: e.placementId ?? null,
+      submissionId: e.submissionId ?? null,
       batchId: e.batchId ?? null,
       memo: e.memo ?? null,
       externalRef: e.externalRef ?? null,
@@ -178,6 +181,53 @@ export async function settlePlacement(
     },
   ])
 }
+
+// ---------------------------------------------------------------- clip submissions
+// Same entry types as placements (docs/14 §5); the row carries `submissionId` instead.
+
+export const reserveForSubmission = (tx: Tx, campaignId: string, submissionId: string, amountOre: number, memo = 'Submission reservation') =>
+  post(tx, { type: 'RESERVE', amountOre, campaignId, submissionId, memo })
+
+export const releaseSubmissionReservation = (
+  tx: Tx,
+  campaignId: string,
+  submissionId: string,
+  amountOre: number,
+  memo = 'Submission reservation released',
+) => post(tx, { type: 'RELEASE_RESERVATION', amountOre, campaignId, submissionId, memo })
+
+/**
+ * The four entries a qualified submission produces. `externalRef` on the SETTLE row makes
+ * a replayed validation job a no-op: the caller checks `alreadyPosted()` first and the
+ * unique index catches anything that slips past it.
+ */
+export async function settleSubmission(
+  tx: Tx,
+  args: {
+    campaignId: string
+    submissionId: string
+    walletId: string
+    allInOre: number
+    toUserOre: number
+    toNodOre: number
+    releaseOre: number
+  },
+): Promise<void> {
+  if (args.toUserOre + args.toNodOre !== args.allInOre) {
+    throw new LedgerError(
+      `settlement does not reconcile: ${args.toUserOre} + ${args.toNodOre} !== ${args.allInOre}`,
+    )
+  }
+  const base = { campaignId: args.campaignId, submissionId: args.submissionId }
+  await postMany(tx, [
+    { ...base, type: 'SETTLE', amountOre: args.allInOre, memo: 'Submission qualified', externalRef: settleRef(args.submissionId) },
+    { ...base, type: 'PAYOUT_ACCRUE', amountOre: args.toUserOre, walletId: args.walletId, memo: 'Creator share' },
+    { ...base, type: 'TAKE', amountOre: args.toNodOre, memo: 'NOD take' },
+    { ...base, type: 'RELEASE_RESERVATION', amountOre: args.releaseOre, memo: 'Unused reservation returned to budget' },
+  ])
+}
+
+export const settleRef = (submissionId: string) => `settle:submission:${submissionId}`
 
 /** Referral bonus. Funded from NOD margin, never from a campaign budget (docs/05). */
 export const referralBonus = (tx: Tx, walletId: string, amountOre: number, memo: string) =>

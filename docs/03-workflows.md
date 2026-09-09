@@ -104,6 +104,58 @@ Rules:
 
 ---
 
+## 5. Clip campaigns — Membership and Submission (docs/14)
+
+`Campaign.kind = CLIP` reuses the Campaign, Participant and Money machines above and adds two
+of its own. Full spec and decisions in `docs/14-clip-campaigns.md`; the tables are copied
+here because this file is the source of truth for every machine.
+
+### CampaignMembership (a creator's seat)
+
+| From | Event | To |
+|---|---|---|
+| JOINED | LEAVE | LEFT |
+| JOINED | SUSPEND | SUSPENDED |
+| JOINED | BLOCK | BLOCKED |
+| LEFT | REJOIN | JOINED |
+| LEFT | BLOCK | BLOCKED |
+| SUSPENDED | REINSTATE | JOINED |
+| SUSPENDED | BLOCK | BLOCKED |
+
+Join guards (all database, no provider call): campaign is CLIP and LIVE/FILLING/EXHAUSTED, not
+ended, joins not paused; participant VERIFIED/ACTIVE with ≥1 `CONNECTED_API` account on a
+campaign platform inside the follower band; `joinCap` counts JOINED+SUSPENDED and applies to a
+rejoin too. Leaving never touches existing submissions.
+
+### Submission (one post URL)
+
+| ID | From | Event | To |
+|---|---|---|---|
+| S-01 | — | SUBMIT | RECEIVED (reservation = min(per-post cap, available); 0 ⇒ `budgetExhausted`) |
+| S-02 | RECEIVED | VERIFIED | TRACKING |
+| S-02 | RECEIVED | NEEDS_DISCLOSURE | FIX_DISCLOSURE (12 h window, timeout ⇒ REJECT NO_DISCLOSURE) |
+| S-03 | FIX_DISCLOSURE | VERIFIED | TRACKING |
+| S-04 | TRACKING | WINDOW_END | VALIDATING (`validationEndsAt` = submittedAt + `validationHours`) |
+| S-05 | VALIDATING | QUALIFY / HOLD | QUALIFIED / HELD |
+| S-05 | HELD | QUALIFY | QUALIFIED (ops) |
+| S-06 | QUALIFIED | PAY | PAID (payout batch) |
+| — | any non-terminal except QUALIFIED | REJECT | REJECTED (reason: NOT_OWNER, NOT_FOUND, OUTSIDE_WINDOW, NO_DISCLOSURE, DELETED_EARLY, FRAUD, OPS_REJECTED, DUPLICATE) |
+
+Rules that hold on every path:
+
+- Reservation is held in RECEIVED, FIX_DISCLOSURE, TRACKING, VALIDATING and HELD; released on
+  REJECT; settled (capped) on QUALIFY. Every release/remainder tops up the oldest under-reserved
+  submissions in `submittedAt` order (D2 — first-validated wins, nobody is silently dropped).
+- Observations are not transitions: idempotent per 5-minute bucket, `latestViews` monotonic,
+  a decrease is recorded as risk factor `views_decreased` instead of applied.
+- Verification order is ownership → publish window → disclosure/required tags → baseline
+  snapshot. Disclosure remains a payable condition (rule 5); the fix window only exists because
+  the creator can still edit the caption before tracking starts.
+- Timed states: FIX_DISCLOSURE (12 h), TRACKING (`validationHours`), RECEIVED (24 h ops
+  alert), HELD (7 d ops reminder). Each has a job in `inngest/`.
+
+---
+
 ## Notifications
 
 | Event | Participant | Brand | Ops |
