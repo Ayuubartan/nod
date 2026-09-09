@@ -27,6 +27,9 @@ import {
   upload,
 } from '@/lib/state/placement'
 import { emit } from '@/lib/events'
+import { JoinError, joinCampaign, leaveCampaign } from '@/lib/state/membership'
+import { SubmitError, submitPost } from '@/lib/state/submission'
+import { verifySubmission } from '@/lib/clips/verify'
 
 /**
  * Participant Server Actions — docs/02 section A.
@@ -476,6 +479,92 @@ async function ownsPlacement(userId: string, placementId: string): Promise<boole
     select: { userId: true },
   })
   return placement?.userId === userId
+}
+
+// ---------------------------------------------------------------- clip campaigns (docs/14)
+
+/** M-01 join. No provider call, no money; the seat is what the creator gets. */
+export async function joinClipCampaign(campaignId: string): Promise<ActionResult<{ membershipId: string }>> {
+  const user = await requireParticipant()
+  if (!z.string().min(1).safeParse(campaignId).success) return fail('invalid')
+  if (!(await rateLimit(`join:${user.id}`, 20, 60_000))) return fail('rateLimited')
+
+  try {
+    const membership = await joinCampaign({ campaignId, userId: user.id })
+    revalidatePath(`/campaigns/${campaignId}`)
+    revalidatePath('/campaigns')
+    return { ok: true, data: { membershipId: membership.id } }
+  } catch (error) {
+    if (error instanceof JoinError) return fail(error.code)
+    return fail('joinFailed')
+  }
+}
+
+/** M-02 leave. Submissions already in flight keep tracking and paying. */
+export async function leaveClipCampaign(campaignId: string): Promise<ActionResult> {
+  const user = await requireParticipant()
+  const membership = await prisma.campaignMembership.findUnique({
+    where: { campaignId_userId: { campaignId, userId: user.id } },
+    select: { id: true, state: true },
+  })
+  if (!membership || membership.state !== 'JOINED') return fail('notJoined')
+
+  try {
+    await leaveCampaign(membership.id, actorFor({ kind: 'participant', user }))
+    revalidatePath(`/campaigns/${campaignId}`)
+    return { ok: true }
+  } catch {
+    return fail('leaveFailed')
+  }
+}
+
+const submitClipSchema = z.object({
+  campaignId: z.string().min(1),
+  url: z.string().trim().min(10).max(500),
+})
+
+/**
+ * S-01 submit a post URL. Reserves budget and inserts the row synchronously; the
+ * `submission/received` event the state function emits starts ownership verification.
+ */
+export async function submitClipPost(
+  input: unknown,
+): Promise<ActionResult<{ submissionId: string; reservationOre: number; budgetExhausted: boolean }>> {
+  const user = await requireParticipant()
+  const parsed = submitClipSchema.safeParse(input)
+  if (!parsed.success) return fail('invalid')
+  if (!(await rateLimit(`submit:${user.id}`, 10, 60_000))) return fail('rateLimited')
+
+  try {
+    const result = await submitPost({ campaignId: parsed.data.campaignId, userId: user.id, url: parsed.data.url })
+    revalidatePath(`/campaigns/${parsed.data.campaignId}`)
+    revalidatePath('/submissions')
+    return {
+      ok: true,
+      data: { submissionId: result.id, reservationOre: result.reservationOre, budgetExhausted: result.budgetExhausted },
+    }
+  } catch (error) {
+    if (error instanceof SubmitError) return fail(error.code)
+    return fail('submitFailed')
+  }
+}
+
+/** "I added the disclosure" — re-run the caption check inside the fix window. */
+export async function recheckClipSubmission(submissionId: string): Promise<ActionResult<{ outcome: string }>> {
+  const user = await requireParticipant()
+  if (!(await rateLimit(`recheck:${user.id}`, 5, 10 * 60_000))) return fail('rateLimited')
+
+  const submission = await prisma.submission.findFirst({
+    where: { id: submissionId, userId: user.id, deletedAt: null },
+    select: { state: true, campaignId: true },
+  })
+  if (!submission) return fail('notFound')
+  if (submission.state !== 'FIX_DISCLOSURE') return fail('notFixable')
+
+  const result = await verifySubmission(submissionId)
+  revalidatePath(`/campaigns/${submission.campaignId}`)
+  revalidatePath('/submissions')
+  return { ok: true, data: { outcome: result.outcome } }
 }
 
 // ---------------------------------------------------------------- settings

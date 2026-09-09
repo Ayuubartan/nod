@@ -624,7 +624,8 @@ export async function rejectSubmission(
 
       const updated = await tx.submission.update({
         where: { id: input.submissionId },
-        data: { state: 'REJECTED', rejectReason: input.reason, rejectNote: input.note ?? null, nextCheckAt: null, fixWindowEndsAt: null },
+        // The column mirrors what the ledger currently holds for this row: nothing, after a release.
+        data: { state: 'REJECTED', rejectReason: input.reason, rejectNote: input.note ?? null, reservationOre: 0, nextCheckAt: null, fixWindowEndsAt: null },
       })
 
       if (input.suspendMembershipIfRepeat && input.reason === 'FRAUD') {

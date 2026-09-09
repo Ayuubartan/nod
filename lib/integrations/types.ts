@@ -40,6 +40,44 @@ export type ConnectedAccount = {
   expiresAt: Date | null
 }
 
+/** A public post as the platform reports it to its owner — docs/14 §3-4. */
+export type PostMetrics = {
+  /** The id in the public URL: TikTok video id or Instagram shortcode. */
+  postId: string
+  /** The id the API addresses it by. Same as postId on TikTok; the numeric media id on Instagram. */
+  providerMediaId: string
+  caption: string | null
+  publishedAt: Date
+  permalink: string | null
+  views: number
+  likes: number | null
+  comments: number | null
+  shares: number | null
+  isPaidPartnership: boolean
+}
+
+export type PostLookup =
+  | { status: 'found'; post: PostMetrics }
+  /** Not among the token owner's media: someone else's post, deleted, or private. */
+  | { status: 'not_found' }
+
+export type ProviderErrorKind = 'rate_limited' | 'unauthorized' | 'transient'
+
+/**
+ * A provider call that did not produce an answer. The tracking jobs react per kind:
+ * back off on rate limits, park the account on a dead token, retry on anything else.
+ */
+export class ProviderError extends Error {
+  constructor(
+    readonly kind: ProviderErrorKind,
+    message: string,
+    readonly retryAfterMs?: number,
+  ) {
+    super(message)
+    this.name = 'ProviderError'
+  }
+}
+
 export interface SocialProvider {
   readonly name: string
   authUrl(state: string): string
@@ -53,6 +91,17 @@ export interface SocialProvider {
    * needs.
    */
   refresh(token: string, refreshToken?: string | null): Promise<SocialToken>
+  /**
+   * Ownership check (docs/14 §3): look the post up among the *token owner's* own media.
+   * Found means the connected account published it; anything else is not ours to track.
+   */
+  resolveOwnPost(token: string, postId: string): Promise<PostLookup>
+  /**
+   * Current metrics for posts by provider media id. Ids the platform no longer returns
+   * are absent from the map (deleted or private) — the caller counts misses.
+   * Batch size: TikTok ≤ 20 per call, Instagram one call per id.
+   */
+  postMetrics(token: string, providerMediaIds: string[]): Promise<Map<string, PostMetrics>>
 }
 
 // ---------------------------------------------------------------- identity

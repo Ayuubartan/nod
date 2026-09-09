@@ -31,7 +31,7 @@
  * floor; an account whose videos are all private is flagged `isPrivate`.
  */
 
-import type { ConnectedAccount, Media, SocialProfile, SocialProvider, SocialToken } from './types'
+import { ProviderError, type ConnectedAccount, type Media, type PostLookup, type PostMetrics, type SocialProfile, type SocialProvider, type SocialToken } from './types'
 
 /** Read-only scopes only — verified 2026-09-09 (see the file header). */
 const SCOPES = ['user.info.basic', 'user.info.profile', 'user.info.stats', 'video.list'] as const
@@ -55,7 +55,7 @@ const AUTH = 'https://www.tiktok.com/v2/auth/authorize/'
 const API = 'https://open.tiktokapis.com/v2'
 
 const USER_FIELDS = 'open_id,union_id,display_name,username,is_verified,follower_count,likes_count,video_count'
-const VIDEO_FIELDS = 'id,create_time,title,video_description,share_url,view_count,like_count,duration'
+const VIDEO_FIELDS = 'id,create_time,title,video_description,share_url,view_count,like_count,comment_count,share_count,duration'
 
 type TokenResponse = {
   access_token: string
@@ -86,6 +86,8 @@ type Video = {
   share_url?: string
   view_count?: number
   like_count?: number
+  comment_count?: number
+  share_count?: number
   duration?: number
 }
 
@@ -175,6 +177,33 @@ export class TikTokProvider implements SocialProvider {
     return { views: video.view_count, reach: null }
   }
 
+  /**
+   * `video/query` only ever returns the authorised user's own videos, so "present in the
+   * response" is the ownership proof (docs/14 §3). No public lookup exists.
+   */
+  async resolveOwnPost(token: string, postId: string): Promise<PostLookup> {
+    const found = await this.postMetrics(token, [postId])
+    const post = found.get(postId)
+    return post ? { status: 'found', post } : { status: 'not_found' }
+  }
+
+  async postMetrics(token: string, providerMediaIds: string[]): Promise<Map<string, PostMetrics>> {
+    const out = new Map<string, PostMetrics>()
+    for (let i = 0; i < providerMediaIds.length; i += 20) {
+      const chunk = providerMediaIds.slice(i, i + 20)
+      const response = await this.post<Envelope<{ videos?: Video[] }>>(
+        `${API}/video/query/?fields=${VIDEO_FIELDS}`,
+        token,
+        { filters: { video_ids: chunk } },
+      )
+      for (const video of response.data.videos ?? []) {
+        if (typeof video.view_count !== 'number') continue
+        out.set(String(video.id), toPostMetrics(video))
+      }
+    }
+    return out
+  }
+
   async refresh(_token: string, refreshToken?: string | null): Promise<SocialToken> {
     if (!refreshToken) throw new Error('TikTok refresh needs the refresh token')
     const next = await this.token({
@@ -221,7 +250,7 @@ export class TikTokProvider implements SocialProvider {
 
   private async get<T>(url: string, token: string): Promise<T> {
     const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' })
-    if (!response.ok) throw new Error(`TikTok GET failed: ${response.status}`)
+    if (!response.ok) throw httpError('TikTok GET', response)
     return this.unwrap<T>(await response.json())
   }
 
@@ -232,17 +261,48 @@ export class TikTokProvider implements SocialProvider {
       body: JSON.stringify(body),
       cache: 'no-store',
     })
-    if (!response.ok) throw new Error(`TikTok POST failed: ${response.status}`)
+    if (!response.ok) throw httpError('TikTok POST', response)
     return this.unwrap<T>(await response.json())
   }
 
   /** TikTok answers 200 with `error.code = "ok"` on success and a real code otherwise. */
   private unwrap<T>(json: unknown): T {
     const envelope = json as { error?: { code?: string; message?: string } }
-    if (envelope.error?.code && envelope.error.code !== 'ok') {
-      throw new Error(`TikTok API error ${envelope.error.code}: ${envelope.error.message ?? ''}`)
+    const code = envelope.error?.code
+    if (code && code !== 'ok') {
+      const message = `TikTok API error ${code}: ${envelope.error?.message ?? ''}`
+      if (code === 'rate_limit_exceeded') throw new ProviderError('rate_limited', message)
+      if (code === 'access_token_invalid' || code === 'scope_not_authorized') throw new ProviderError('unauthorized', message)
+      throw new ProviderError('transient', message)
     }
     return json as T
+  }
+}
+
+/** HTTP-level failures, classified so the tracking jobs know whether to wait or park. */
+function httpError(what: string, response: Response): ProviderError {
+  const message = `${what} failed: ${response.status}`
+  if (response.status === 429) {
+    const retryAfter = Number(response.headers.get('retry-after'))
+    return new ProviderError('rate_limited', message, Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : undefined)
+  }
+  if (response.status === 401 || response.status === 403) return new ProviderError('unauthorized', message)
+  return new ProviderError('transient', message)
+}
+
+function toPostMetrics(video: Video): PostMetrics {
+  return {
+    postId: String(video.id),
+    providerMediaId: String(video.id),
+    caption: video.video_description ?? video.title ?? null,
+    publishedAt: new Date(video.create_time * 1000),
+    permalink: video.share_url ?? null,
+    views: video.view_count ?? 0,
+    likes: video.like_count ?? null,
+    comments: video.comment_count ?? null,
+    shares: video.share_count ?? null,
+    // TikTok's "paid partnership" toggle is not exposed by the Display API.
+    isPaidPartnership: false,
   }
 }
 

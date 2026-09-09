@@ -29,7 +29,16 @@
  */
 
 import { hashSubject } from '@/lib/crypto'
-import type { ConnectedAccount, Media, SocialProfile, SocialProvider, SocialToken } from './types'
+import {
+  ProviderError,
+  type ConnectedAccount,
+  type Media,
+  type PostLookup,
+  type PostMetrics,
+  type SocialProfile,
+  type SocialProvider,
+  type SocialToken,
+} from './types'
 
 /**
  * Read-only scopes only — verified 2026-09-07 (see the file header).
@@ -54,6 +63,69 @@ assertNoWriteScopes(SCOPES)
 
 const GRAPH = 'https://graph.instagram.com'
 const AUTH = 'https://www.instagram.com/oauth/authorize'
+
+/** Fields NOD reads off a media node for clip tracking (docs/14). */
+const POST_FIELDS = 'id,shortcode,caption,media_type,media_product_type,permalink,timestamp,like_count,comments_count'
+
+/**
+ * How far back the ownership lookup pages through /me/media. 4 × 50 = the creator's
+ * last 200 posts; a submission older than that is not a fresh clip anyway.
+ */
+const OWN_MEDIA_PAGES = 4
+
+type GraphMedia = {
+  id: string
+  shortcode?: string
+  caption?: string
+  media_type?: string
+  media_product_type?: string
+  permalink?: string
+  timestamp?: string
+  like_count?: number
+  comments_count?: number
+}
+
+type GraphPage = { data: GraphMedia[]; paging?: { next?: string } }
+
+function toPostMetrics(media: GraphMedia, views: number): PostMetrics {
+  return {
+    postId: media.shortcode ?? media.id,
+    providerMediaId: String(media.id),
+    caption: media.caption ?? null,
+    publishedAt: media.timestamp ? new Date(media.timestamp) : new Date(),
+    permalink: media.permalink ?? null,
+    views,
+    likes: media.like_count ?? null,
+    comments: media.comments_count ?? null,
+    // The Graph API does not expose share counts on media nodes.
+    shares: null,
+    // Branded-content tags are not readable on the Instagram-Login flow; the caption
+    // check carries disclosure on its own (docs/14 §3).
+    isPaidPartnership: false,
+  }
+}
+
+/**
+ * Meta's error envelope. Codes 4/17/32/613 are the documented throttling codes; 190 is
+ * an invalid or expired token. Anything else is treated as transient so the caller retries
+ * rather than rejecting a creator's post on a Meta hiccup.
+ */
+async function graphError(what: string, response: Response): Promise<ProviderError> {
+  let code: number | undefined
+  try {
+    const body = (await response.json()) as { error?: { code?: number } }
+    code = body.error?.code
+  } catch {
+    // Non-JSON body; classify on status alone.
+  }
+  const message = `Instagram ${what} failed: ${response.status}${code != null ? ` (code ${code})` : ''}`
+  if (response.status === 429 || (code != null && [4, 17, 32, 613].includes(code))) {
+    const retryAfter = Number(response.headers.get('retry-after'))
+    return new ProviderError('rate_limited', message, Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : undefined)
+  }
+  if (code === 190 || response.status === 401) return new ProviderError('unauthorized', message)
+  return new ProviderError('transient', message)
+}
 
 export class InstagramProvider implements SocialProvider {
   readonly name = 'instagram'
@@ -187,6 +259,44 @@ export class InstagramProvider implements SocialProvider {
     return { views, reach: byName.get('reach') ?? null }
   }
 
+  /**
+   * Ownership check (docs/14 §3): the post is the creator's only if it appears in
+   * their own /me/media list. The Graph API has no shortcode lookup, so this pages the
+   * list and matches the shortcode from the submitted URL.
+   */
+  async resolveOwnPost(token: string, postId: string): Promise<PostLookup> {
+    let url: string | undefined = `${GRAPH}/me/media?fields=${POST_FIELDS}&limit=50&access_token=${token}`
+    for (let page = 0; page < OWN_MEDIA_PAGES && url; page += 1) {
+      const response: GraphPage = await this.get<GraphPage>(url)
+      const match = response.data.find((m) => m.shortcode === postId)
+      if (match) return { status: 'found', post: toPostMetrics(match, await this.mediaViews(token, match.id)) }
+      url = response.paging?.next
+    }
+    return { status: 'not_found' }
+  }
+
+  async postMetrics(token: string, providerMediaIds: string[]): Promise<Map<string, PostMetrics>> {
+    const out = new Map<string, PostMetrics>()
+    for (const id of providerMediaIds) {
+      let media: GraphMedia
+      try {
+        media = await this.get<GraphMedia>(`${GRAPH}/${id}?fields=${POST_FIELDS}&access_token=${token}`)
+      } catch (error) {
+        // Code 100 is Meta's "object does not exist" — the post was deleted or made
+        // private. Report it as a miss; the tracker decides what a miss means.
+        if (error instanceof ProviderError && error.kind === 'transient' && error.message.includes('code 100')) continue
+        throw error
+      }
+      out.set(id, toPostMetrics(media, await this.mediaViews(token, id)))
+    }
+    return out
+  }
+
+  private async mediaViews(token: string, mediaId: string): Promise<number> {
+    const { views } = await this.insights(token, mediaId)
+    return views
+  }
+
   async refresh(token: string): Promise<SocialToken> {
     const response = await this.get<{ access_token: string; expires_in: number }>(
       `${GRAPH}/refresh_access_token?grant_type=ig_refresh_token&access_token=${token}`,
@@ -196,13 +306,13 @@ export class InstagramProvider implements SocialProvider {
 
   private async get<T>(url: string): Promise<T> {
     const response = await fetch(url, { cache: 'no-store' })
-    if (!response.ok) throw new Error(`Instagram GET failed: ${response.status}`)
+    if (!response.ok) throw await graphError('GET', response)
     return (await response.json()) as T
   }
 
   private async post<T>(url: string, body: URLSearchParams): Promise<T> {
     const response = await fetch(url, { method: 'POST', body, cache: 'no-store' })
-    if (!response.ok) throw new Error(`Instagram POST failed: ${response.status}`)
+    if (!response.ok) throw await graphError('POST', response)
     return (await response.json()) as T
   }
 }
@@ -246,6 +356,15 @@ export class ManualSocialProvider implements SocialProvider {
     return { views: 0, reach: null }
   }
 
+  /** Manual accounts have no API behind them, so clip ownership cannot be verified. */
+  async resolveOwnPost(): Promise<PostLookup> {
+    return { status: 'not_found' }
+  }
+
+  async postMetrics(): Promise<Map<string, PostMetrics>> {
+    return new Map()
+  }
+
   async refresh(token: string): Promise<SocialToken> {
     return { token, expiresAt: null }
   }
@@ -260,6 +379,11 @@ export class FakeSocialProvider implements SocialProvider {
 
   private mediaStore = new Map<string, Media[]>()
   private viewStore = new Map<string, number>()
+  /** token → posts the token owner published (docs/14 ownership check). */
+  private postStore = new Map<string, PostMetrics[]>()
+  private nextFailure: ProviderError | null = null
+  /** Every postMetrics call's id list, for tests asserting batch shapes. */
+  readonly metricCalls: string[][] = []
 
   /** The platform decides the callback URL and, for TikTok, the account type. */
   constructor(private readonly platform: 'instagram' | 'tiktok' = 'instagram') {}
@@ -299,6 +423,24 @@ export class FakeSocialProvider implements SocialProvider {
     return { views, reach: Math.round(views * 0.9) }
   }
 
+  async resolveOwnPost(token: string, postId: string): Promise<PostLookup> {
+    this.throwIfScripted()
+    const post = (this.postStore.get(token) ?? []).find((p) => p.postId === postId)
+    return post ? { status: 'found', post: this.withViews(post) } : { status: 'not_found' }
+  }
+
+  async postMetrics(token: string, providerMediaIds: string[]): Promise<Map<string, PostMetrics>> {
+    this.metricCalls.push([...providerMediaIds])
+    this.throwIfScripted()
+    const out = new Map<string, PostMetrics>()
+    const mine = this.postStore.get(token) ?? []
+    for (const id of providerMediaIds) {
+      const post = mine.find((p) => p.providerMediaId === id)
+      if (post) out.set(id, this.withViews(post))
+    }
+    return out
+  }
+
   async refresh(token: string, refreshToken?: string | null): Promise<SocialToken> {
     return {
       token,
@@ -314,6 +456,47 @@ export class FakeSocialProvider implements SocialProvider {
 
   setViews(mediaId: string, views: number): void {
     this.viewStore.set(mediaId, views)
+  }
+
+  /** Register a post as published by the owner of `token`. `setViews(providerMediaId)` overrides its views. */
+  setPost(token: string, post: Partial<PostMetrics> & { postId: string }): void {
+    const full: PostMetrics = {
+      providerMediaId: post.postId,
+      caption: null,
+      publishedAt: new Date(),
+      permalink: null,
+      views: 0,
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      isPaidPartnership: false,
+      ...post,
+    }
+    const list = (this.postStore.get(token) ?? []).filter((p) => p.postId !== post.postId)
+    list.push(full)
+    this.postStore.set(token, list)
+  }
+
+  /** Remove a post, as if the creator deleted it or made it private. */
+  removePost(token: string, postId: string): void {
+    this.postStore.set(token, (this.postStore.get(token) ?? []).filter((p) => p.postId !== postId))
+  }
+
+  /** The next resolveOwnPost/postMetrics call throws this, then the fake recovers. */
+  failNext(kind: ProviderError['kind'], retryAfterMs?: number): void {
+    this.nextFailure = new ProviderError(kind, `fake ${kind}`, retryAfterMs)
+  }
+
+  private throwIfScripted(): void {
+    if (!this.nextFailure) return
+    const error = this.nextFailure
+    this.nextFailure = null
+    throw error
+  }
+
+  private withViews(post: PostMetrics): PostMetrics {
+    const views = this.viewStore.get(post.providerMediaId)
+    return views == null ? post : { ...post, views }
   }
 }
 
