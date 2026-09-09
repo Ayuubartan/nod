@@ -58,6 +58,11 @@ export default async function EditCampaignPage({ params }: { params: Promise<{ i
         draft={{
           id: campaign.id,
           name: campaign.name,
+          kind: campaign.kind,
+          platforms: campaign.platforms,
+          requiredHashtags: campaign.requiredHashtags,
+          requiredMentions: campaign.requiredMentions,
+          validationHours: campaign.validationHours,
           startsAt: campaign.startsAt?.toISOString() ?? null,
           endsAt: campaign.endsAt?.toISOString() ?? null,
           goLiveAt: campaign.goLiveAt?.toISOString() ?? null,

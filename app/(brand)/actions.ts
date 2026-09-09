@@ -89,6 +89,41 @@ export async function saveBasics(campaignId: string, input: unknown): Promise<Ac
   return { ok: true }
 }
 
+const tagList = (prefix: '#' | '@') =>
+  z
+    .array(z.string().trim().min(2).max(60))
+    .max(10)
+    .transform((items) => [...new Set(items.map((s) => (s.startsWith(prefix) ? s : prefix + s).toLowerCase()))])
+
+/**
+ * Step 1b — campaign kind and clip rules (docs/14). The kind is locked once the campaign
+ * leaves the draft states: everything downstream (claims vs. joins, assets, tracking)
+ * branches on it, so flipping it on a live campaign would strand rows.
+ */
+export async function saveClipSetup(campaignId: string, input: unknown): Promise<ActionResult> {
+  await requireBrandUser(await brandIdOf(campaignId))
+
+  const parsed = z
+    .object({
+      kind: z.enum(['PLACEMENT', 'CLIP']),
+      platforms: z.array(z.enum(['INSTAGRAM', 'TIKTOK'])).min(1).max(2),
+      requiredHashtags: tagList('#'),
+      requiredMentions: tagList('@'),
+      validationHours: z.number().int().min(24).max(30 * 24),
+    })
+    .safeParse(input)
+  if (!parsed.success) return fail('invalid')
+
+  const campaign = await prisma.campaign.findUniqueOrThrow({ where: { id: campaignId }, select: { state: true, kind: true } })
+  if (campaign.kind !== parsed.data.kind && campaign.state !== 'DRAFT' && campaign.state !== 'RETURNED') {
+    return fail('kindLocked')
+  }
+
+  await prisma.campaign.update({ where: { id: campaignId }, data: parsed.data })
+  revalidatePath(`/campaigns/${campaignId}/edit`)
+  return { ok: true }
+}
+
 /** Step 2 — audience. */
 export async function saveAudience(campaignId: string, input: unknown): Promise<ActionResult> {
   await requireBrandUser(await brandIdOf(campaignId))

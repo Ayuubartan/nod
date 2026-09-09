@@ -13,6 +13,7 @@ import { CampaignTabs } from '@/components/brand/CampaignTabs'
 import { DailyViewsChart } from '@/components/brand/DailyViewsChart'
 import { FillBar, fillPercent } from '@/components/brand/FillBar'
 import { Funnel } from '@/components/brand/Funnel'
+import { ClipOverview } from '@/components/brand/ClipOverview'
 
 /**
  * Campaign dashboard — docs/02 B2.
@@ -21,6 +22,9 @@ import { Funnel } from '@/components/brand/Funnel'
  * (docs/10). All three are derived from the ledger, never stored. Under it: the fill bar,
  * the placement funnel, the creative that is currently being distributed, and the
  * placements themselves with the actual images.
+ *
+ * Clip campaigns (docs/14) keep the money trio and swap the placement sections for
+ * members, clips by state and counted views.
  */
 export const dynamic = 'force-dynamic'
 
@@ -90,6 +94,7 @@ export default async function BrandCampaignPage({ params }: { params: Promise<{ 
   ]
 
   const pct = (ore: number) => (balance.budgetOre > 0 ? Math.round((ore / balance.budgetOre) * 100) : 0)
+  const isClip = campaign.kind === 'CLIP'
 
   return (
     <div>
@@ -97,7 +102,7 @@ export default async function BrandCampaignPage({ params }: { params: Promise<{ 
         campaign={campaign}
         brandName={campaign.brand.name}
         actions={
-          pendingReview > 0 ? (
+          !isClip && pendingReview > 0 ? (
             <Link
               href={`/brand/campaigns/${campaign.id}/review`}
               className="btn text-white text-sm"
@@ -135,6 +140,10 @@ export default async function BrandCampaignPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
+      {isClip && <ClipOverview campaign={campaign} balance={balance} />}
+
+      {!isClip && (
+      <>
       <ul className="grid gap-3 grid-cols-2 lg:grid-cols-4 mb-6">
         {kpis.map((kpi) => (
           <li key={kpi.label} className="card p-4">
@@ -268,6 +277,9 @@ export default async function BrandCampaignPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
+      </>
+      )}
+
       {showReport && (
         <p className="mt-6">
           <Link href={`/brand/campaigns/${campaign.id}/report`} className="btn btn-secondary">
@@ -277,7 +289,8 @@ export default async function BrandCampaignPage({ params }: { params: Promise<{ 
       )}
 
       <p className="mt-6 text-xs text-[var(--color-ink-3)] tabular">
-        {totalViews.toLocaleString('sv-SE')} {t('totalViews')} · {formatOre(balance.depositedOre)} {t('deposited')}
+        {!isClip && <>{totalViews.toLocaleString('sv-SE')} {t('totalViews')} · </>}
+        {formatOre(balance.depositedOre)} {t('deposited')}
       </p>
     </div>
   )

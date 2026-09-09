@@ -11,6 +11,7 @@ export default async function ParticipantLayout({ children }: { children: React.
   const tabs = [
     { href: '/campaigns', label: nav('campaigns') },
     { href: '/placements', label: nav('placements') },
+    { href: '/submissions', label: nav('submissions') },
     { href: '/wallet', label: nav('wallet') },
     { href: '/settings', label: nav('settings') },
   ]

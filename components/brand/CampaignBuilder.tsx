@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import {
   saveAudience,
   saveBasics,
   saveBudget,
+  saveClipSetup,
   savePayoutTemplate,
   saveRules,
   submitCampaign,
@@ -16,6 +18,11 @@ import { DEFAULTS, FLOORS, sek } from '@/lib/money/rates'
 type Draft = {
   id: string
   name: string
+  kind: 'PLACEMENT' | 'CLIP'
+  platforms: Array<'INSTAGRAM' | 'TIKTOK'>
+  requiredHashtags: string[]
+  requiredMentions: string[]
+  validationHours: number
   startsAt: string | null
   endsAt: string | null
   goLiveAt: string | null
@@ -67,12 +74,21 @@ const STEPS = ['Basics', 'Audience', 'Assets', 'Rules', 'Payout', 'Budget'] as c
  */
 export function CampaignBuilder({ draft }: { draft: Draft }) {
   const router = useRouter()
+  // DECISION: the builder predates i18n and is English-only; the clip additions go
+  // through translations so they do not add to the debt.
+  const tc = useTranslations('brandApp.clipBuilder')
+  const kindLocked = draft.state !== 'DRAFT' && draft.state !== 'RETURNED'
   const [step, setStep] = useState(0)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [form, setForm] = useState({
     name: draft.name,
+    campaignKind: draft.kind,
+    platforms: draft.platforms,
+    requiredHashtags: draft.requiredHashtags.join(', '),
+    requiredMentions: draft.requiredMentions.join(', '),
+    validationDays: Math.max(1, Math.round(draft.validationHours / 24)),
     endsAt: draft.endsAt?.slice(0, 10) ?? '',
     goLiveAt: draft.goLiveAt?.slice(0, 16) ?? '',
     cities: draft.cities.length > 0 ? draft.cities : ['stockholm'],
@@ -85,7 +101,7 @@ export function CampaignBuilder({ draft }: { draft: Draft }) {
     brandSafety: draft.brandSafety,
     reviewTier: draft.forceTierB ? ('B' as const) : draft.reviewTier,
     disclosureText: draft.disclosureText,
-    kind: draft.template?.kind ?? ('HYBRID' as const),
+    kind: draft.template?.kind ?? (draft.kind === 'CLIP' ? ('CPM' as const) : ('HYBRID' as const)),
     fixedOre: draft.template?.fixedOre ?? DEFAULTS.fixedOre,
     cpmOre: draft.template?.cpmOre ?? DEFAULTS.cpmOre,
     bonusAtViews: draft.template?.bonusAtViews ?? DEFAULTS.bonusAtViews,
@@ -99,6 +115,15 @@ export function CampaignBuilder({ draft }: { draft: Draft }) {
 
   const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
     setForm((current) => ({ ...current, [key]: value }))
+
+  const isClip = form.campaignKind === 'CLIP'
+  const splitTags = (raw: string) => raw.split(/[,\s]+/).map((s) => s.trim()).filter(Boolean)
+
+  const togglePlatform = (value: 'INSTAGRAM' | 'TIKTOK') =>
+    setForm((current) => ({
+      ...current,
+      platforms: current.platforms.includes(value) ? current.platforms.filter((p) => p !== value) : [...current.platforms, value],
+    }))
 
   const toggle = (key: 'cities' | 'ageBrackets' | 'categories', value: string) =>
     setForm((current) => ({
@@ -219,20 +244,108 @@ export function CampaignBuilder({ draft }: { draft: Draft }) {
               />
             </div>
           </div>
+          <div>
+            <label className="label" htmlFor="cb-campaign-kind">
+              {tc('kind')}
+            </label>
+            <select
+              id="cb-campaign-kind"
+              className="field"
+              value={form.campaignKind}
+              disabled={kindLocked}
+              onChange={(e) => {
+                const next = e.target.value as 'PLACEMENT' | 'CLIP'
+                set('campaignKind', next)
+                if (next === 'CLIP') set('kind', 'CPM')
+              }}
+            >
+              <option value="PLACEMENT">{tc('kindPlacement')}</option>
+              <option value="CLIP">{tc('kindClip')}</option>
+            </select>
+            {kindLocked && <p className="text-xs text-[var(--color-ink-3)] mt-1">{tc('kindLocked')}</p>}
+          </div>
+
+          {isClip && (
+            <>
+              <fieldset>
+                <legend className="label">{tc('platforms')}</legend>
+                <div className="flex flex-wrap gap-2">
+                  {(['TIKTOK', 'INSTAGRAM'] as const).map((platform) => (
+                    <button
+                      key={platform}
+                      type="button"
+                      className="chip"
+                      aria-pressed={form.platforms.includes(platform)}
+                      onClick={() => togglePlatform(platform)}
+                    >
+                      {platform === 'TIKTOK' ? 'TikTok' : 'Instagram'}
+                    </button>
+                  ))}
+                </div>
+                {form.platforms.length === 0 && <p className="error-text text-xs mt-1">{tc('needPlatform')}</p>}
+              </fieldset>
+              <div>
+                <label className="label" htmlFor="cb-hashtags">
+                  {tc('hashtags')}
+                </label>
+                <input
+                  id="cb-hashtags"
+                  className="field"
+                  value={form.requiredHashtags}
+                  onChange={(e) => set('requiredHashtags', e.target.value)}
+                />
+                <p className="text-xs text-[var(--color-ink-3)] mt-1">{tc('hashtagsHint')}</p>
+              </div>
+              <div>
+                <label className="label" htmlFor="cb-mentions">
+                  {tc('mentions')}
+                </label>
+                <input
+                  id="cb-mentions"
+                  className="field"
+                  value={form.requiredMentions}
+                  onChange={(e) => set('requiredMentions', e.target.value)}
+                />
+                <p className="text-xs text-[var(--color-ink-3)] mt-1">{tc('mentionsHint')}</p>
+              </div>
+              <div>
+                <label className="label" htmlFor="cb-validation">
+                  {tc('validationDays')}
+                </label>
+                <input
+                  id="cb-validation"
+                  type="number"
+                  min={1}
+                  max={30}
+                  className="field"
+                  value={form.validationDays}
+                  onChange={(e) => set('validationDays', Number(e.target.value))}
+                />
+                <p className="text-xs text-[var(--color-ink-3)] mt-1">{tc('validationHint')}</p>
+              </div>
+            </>
+          )}
+
           <button
             type="button"
             className="btn btn-primary"
-            disabled={pending}
+            disabled={pending || (isClip && form.platforms.length === 0)}
             onClick={() =>
-              run(
-                () =>
-                  saveBasics(draft.id, {
-                    name: form.name,
-                    endsAt: form.endsAt ? new Date(form.endsAt).toISOString() : null,
-                    goLiveAt: form.goLiveAt ? new Date(form.goLiveAt).toISOString() : null,
-                  }),
-                1,
-              )
+              run(async () => {
+                const basics = await saveBasics(draft.id, {
+                  name: form.name,
+                  endsAt: form.endsAt ? new Date(form.endsAt).toISOString() : null,
+                  goLiveAt: form.goLiveAt ? new Date(form.goLiveAt).toISOString() : null,
+                })
+                if (!basics.ok) return basics
+                return saveClipSetup(draft.id, {
+                  kind: form.campaignKind,
+                  platforms: form.platforms,
+                  requiredHashtags: isClip ? splitTags(form.requiredHashtags) : [],
+                  requiredMentions: isClip ? splitTags(form.requiredMentions) : [],
+                  validationHours: Math.max(1, form.validationDays) * 24,
+                })
+              }, 1)
             }
           >
             Next
@@ -346,7 +459,16 @@ export function CampaignBuilder({ draft }: { draft: Draft }) {
         </section>
       )}
 
-      {step === 2 && (
+      {step === 2 && isClip && (
+        <section className="card p-5 grid gap-4">
+          <p className="text-sm text-[var(--color-ink-2)]">{tc('noAssets')}</p>
+          <button type="button" className="btn btn-primary" onClick={() => setStep(3)}>
+            Next
+          </button>
+        </section>
+      )}
+
+      {step === 2 && !isClip && (
         <section className="card p-5 grid gap-4">
           <p className="text-sm text-[var(--color-ink-2)]">
             Upload product images (PNG with alpha preferred). Assets are managed on the campaign page.
@@ -443,6 +565,7 @@ export function CampaignBuilder({ draft }: { draft: Draft }) {
               id="cb-kind"
               className="field"
               value={form.kind}
+              disabled={isClip}
               onChange={(e) => set('kind', e.target.value as typeof form.kind)}
             >
               <option value="HYBRID">Hybrid — fixed + CPM</option>
@@ -450,6 +573,7 @@ export function CampaignBuilder({ draft }: { draft: Draft }) {
               <option value="CPM">CPM only</option>
               <option value="HYBRID_BONUS">Hybrid + bonus</option>
             </select>
+            {isClip && <p className="text-xs text-[var(--color-ink-3)] mt-1">{tc('cpmOnly')}</p>}
           </div>
 
           {form.kind !== 'CPM' && (
@@ -513,6 +637,7 @@ export function CampaignBuilder({ draft }: { draft: Draft }) {
             </div>
           )}
 
+          {!isClip && (
           <div className="card p-4 bg-[var(--color-bg)]">
             <p className="text-sm mb-1">
               Participants see:{' '}
@@ -538,6 +663,7 @@ export function CampaignBuilder({ draft }: { draft: Draft }) {
                   )} eligible accounts claims. Replaced by measured rates after the first campaign closes.`}
             </p>
           </div>
+          )}
 
           <button
             type="button"
@@ -582,7 +708,7 @@ export function CampaignBuilder({ draft }: { draft: Draft }) {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="label" htmlFor="cb-max">
-                Max per placement (kr)
+                {isClip ? tc('maxPerClip') : 'Max per placement (kr)'}
               </label>
               <input
                 id="cb-max"
@@ -594,7 +720,7 @@ export function CampaignBuilder({ draft }: { draft: Draft }) {
             </div>
             <div>
               <label className="label" htmlFor="cb-cap">
-                Placements per person
+                {isClip ? tc('capPerPerson') : 'Placements per person'}
               </label>
               <input
                 id="cb-cap"

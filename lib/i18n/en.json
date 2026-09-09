@@ -38,7 +38,8 @@
     "settings": "Settings",
     "forBrands": "Are you a brand?",
     "signOut": "Sign out",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "submissions": "My clips"
   },
   "marketing": {
     "eyebrow": "Stockholm beta",
@@ -393,7 +394,9 @@
       "inviteHint": "You get {amount} when your friend’s first placement is approved.",
       "estimate": "About {amount} per post with your account.",
       "allSet": "All set. We’ll let you know when the drop opens."
-    }
+    },
+    "clipChip": "Clip",
+    "clipCard": "{cpm} per 1,000 views"
   },
   "placement": {
     "states": {
@@ -767,6 +770,50 @@
       "PAUSED": "Paused",
       "RECONCILING": "Reconciling",
       "CLOSED": "Closed"
+    },
+    "clip": {
+      "members": "Members",
+      "submissions": "Clips",
+      "eligibleViews": "Counted views",
+      "tracking": "Tracking now",
+      "awaitingReview": "With us for review",
+      "table": {
+        "handle": "Account",
+        "platform": "Platform",
+        "submitted": "Submitted",
+        "views": "Views",
+        "eligible": "Counted",
+        "reserved": "Reserved",
+        "state": "Status",
+        "post": "Post",
+        "empty": "No clips submitted yet."
+      },
+      "byState": "Clips by status",
+      "rules": "Rules",
+      "platforms": "Platforms",
+      "hashtags": "Tags",
+      "mentions": "Mentions",
+      "validationDays": "{days} days of tracking",
+      "capPerPerson": "{count} clips per person",
+      "kindChip": "Clip campaign"
+    },
+    "clipBuilder": {
+      "kind": "Campaign type",
+      "kindPlacement": "Placement – we put the product into participants’ content",
+      "kindClip": "Clip – participants post their own clips and are paid per view",
+      "kindLocked": "The campaign type cannot change once the campaign is submitted.",
+      "platforms": "Platforms",
+      "hashtags": "Required tags",
+      "hashtagsHint": "Comma-separated, e.g. #kaffeklubben, #ad. Clips missing a tag get 24 hours to fix it.",
+      "mentions": "Required mentions",
+      "mentionsHint": "Comma-separated, e.g. @kaffeklubben. Leave empty if none.",
+      "validationDays": "Days views are counted",
+      "validationHint": "Views count for this many days after posting. Then the payout is calculated and paid.",
+      "noAssets": "Clip campaigns need no product images – participants film themselves.",
+      "cpmOnly": "Clip campaigns pay per 1,000 views.",
+      "maxPerClip": "Max per clip (kr)",
+      "capPerPerson": "Clips per person",
+      "needPlatform": "Pick at least one platform."
     }
   },
   "ops": {
@@ -780,7 +827,8 @@
     "brands": "Brands",
     "flags": "Flags",
     "audit": "Audit",
-    "waitlist": "Queue"
+    "waitlist": "Queue",
+    "submissions": "Clips"
   },
   "auth": {
     "participantPageTitle": "Sign in",
@@ -944,6 +992,124 @@
       "FRAUD": "Suspicious activity",
       "OPS_REJECTED": "Rejected on review",
       "DUPLICATE": "The post was already submitted"
+    }
+  },
+  "clips": {
+    "detail": {
+      "how": "How it works",
+      "step1": "Join the campaign.",
+      "step2": "Post your own clip on {platforms} with the ad disclosure and the tags below.",
+      "step3": "Submit the link here. We check that the post is yours and follow its views for {days} days.",
+      "step4": "Your payout is calculated on views when the period ends and lands in your wallet.",
+      "rate": "Payout",
+      "perThousand": "{amount} per 1,000 views",
+      "viewFloor": "At least {views} views to get paid",
+      "maxPerClip": "Max {amount} per clip",
+      "capPerPerson": "Max {count} clips per person",
+      "platforms": "Platforms",
+      "hashtags": "Required tags",
+      "mentions": "Required mentions",
+      "window": "Post your clip",
+      "windowUntil": "by {date}",
+      "tracking": "Views count for {days} days after posting",
+      "budgetLeft": "{amount} of the budget left",
+      "budgetGone": "The budget is spent. New clips are tracked but not paid.",
+      "members": "{count} joined",
+      "joined": "You're in",
+      "join": "Join",
+      "leave": "Leave campaign",
+      "leaveHint": "Clips you already submitted keep tracking and paying.",
+      "submit": "Submit a clip",
+      "submitHint": "Paste the link to your post on TikTok or Instagram. We only read – we never post for you.",
+      "urlPlaceholder": "https://www.tiktok.com/@you/video/…",
+      "submitButton": "Submit",
+      "reserved": "Received. {amount} is reserved for this clip until its views are counted.",
+      "reservedNone": "Received. The budget is spent, so this clip is tracked but not paid.",
+      "yourClips": "Your clips in this campaign",
+      "noClips": "No clips submitted yet.",
+      "paused": "New clips are not being accepted right now.",
+      "joinsPaused": "The campaign is not taking new members right now.",
+      "ended": "The campaign has ended.",
+      "connectFirst": "Connect your {platforms} account to join.",
+      "connect": "Connect account"
+    },
+    "joinErrors": {
+      "NOT_CLIP": "This is not a clip campaign.",
+      "CAMPAIGN_NOT_OPEN": "The campaign is not open.",
+      "CAMPAIGN_ENDED": "The campaign has ended.",
+      "JOINS_PAUSED": "The campaign is not taking new members right now.",
+      "NOT_ELIGIBLE": "Verify with BankID to join.",
+      "NO_CONNECTED_ACCOUNT": "Connect an account on one of the campaign platforms first.",
+      "FOLLOWERS": "None of your accounts is inside the follower range.",
+      "MEMBERSHIP_SUSPENDED": "Your seat in this campaign is paused.",
+      "MEMBERSHIP_BLOCKED": "You cannot join this campaign.",
+      "FULL": "The campaign is full.",
+      "rateLimited": "Too many attempts. Wait a moment.",
+      "notJoined": "You're not in this campaign.",
+      "joinFailed": "Could not join. Try again.",
+      "leaveFailed": "Could not leave. Try again.",
+      "invalid": "Something went wrong. Try again."
+    },
+    "submitErrors": {
+      "URL_INVALID_URL": "That's not a valid link.",
+      "URL_UNSUPPORTED_HOST": "Only TikTok and Instagram links work.",
+      "URL_SHORT_LINK": "Open the link in the app and copy the full address of the post.",
+      "URL_STORY": "Stories cannot be tracked. Submit a post or a reel.",
+      "URL_NO_POST_ID": "We couldn't find the post id in that link.",
+      "NOT_CLIP": "This is not a clip campaign.",
+      "CAMPAIGN_NOT_OPEN": "The campaign is not open.",
+      "NO_TEMPLATE": "The campaign has no payout model.",
+      "CAMPAIGN_ENDED": "The campaign has ended.",
+      "SUBMISSIONS_PAUSED": "New clips are not being accepted right now.",
+      "PLATFORM": "The campaign does not run on that platform.",
+      "NOT_JOINED": "Join the campaign first.",
+      "NO_CONNECTED_ACCOUNT": "Connect the account the post was published from.",
+      "DUPLICATE": "This post has already been submitted.",
+      "CAP": "You've reached the maximum number of clips in this campaign.",
+      "rateLimited": "Too many attempts. Wait a moment.",
+      "invalid": "Paste the full link to the post.",
+      "submitFailed": "Could not submit. Try again."
+    },
+    "states": {
+      "RECEIVED": "Checking",
+      "FIX_DISCLOSURE": "Fix disclosure",
+      "TRACKING": "Tracking",
+      "VALIDATING": "Counting",
+      "HELD": "In review",
+      "QUALIFIED": "Approved",
+      "PAID": "Paid",
+      "REJECTED": "Rejected"
+    },
+    "row": {
+      "views": "{views} views",
+      "eligible": "{views} count",
+      "reserved": "{amount} reserved",
+      "notPayable": "Budget was spent – not paid",
+      "fixBy": "Add the disclosure by {time}",
+      "missing": "Missing: {items}",
+      "recheck": "I've fixed it",
+      "rechecking": "Checking…",
+      "recheckStillMissing": "We still can't find everything. Check the caption and try again.",
+      "recheckOk": "Done! The clip is now tracking.",
+      "recheckErrors": {
+        "notFound": "Clip not found.",
+        "notFixable": "This clip cannot be rechecked right now.",
+        "rateLimited": "Too many attempts. Wait a few minutes."
+      },
+      "validationEnds": "Counting ends {date}",
+      "paidOut": "{amount} paid",
+      "earned": "{amount}",
+      "open": "Open post"
+    },
+    "list": {
+      "title": "My clips",
+      "filters": {
+        "active": "Active",
+        "paid": "Approved",
+        "rejected": "Rejected"
+      },
+      "empty": "No clips yet. Join a clip campaign and submit the link to your post.",
+      "browse": "Browse campaigns"
     }
   }
 }

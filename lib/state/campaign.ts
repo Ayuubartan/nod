@@ -106,6 +106,8 @@ export async function submit(campaignId: string, actor: ActorRef): Promise<Campa
       const c = await tx.campaign.findUniqueOrThrow({
         where: { id: campaignId },
         select: {
+          kind: true,
+          platforms: true,
           budget: true,
           perPlacementMax: true,
           disclosureText: true,
@@ -116,7 +118,14 @@ export async function submit(campaignId: string, actor: ActorRef): Promise<Campa
       })
       if (c.budget <= 0) throw new GuardError('NO_BUDGET', 'Set a budget before submitting')
       if (!c.payoutTemplate) throw new GuardError('NO_TEMPLATE', 'Pick a payout template')
-      if (c.assets.length === 0) throw new GuardError('NO_ASSETS', 'Upload at least one asset')
+      if (c.kind === 'CLIP') {
+        // Clip campaigns need no creative — creators film themselves (docs/14) — but they
+        // do need a CPM to settle on and at least one platform to accept posts from.
+        if (c.payoutTemplate.cpmOre <= 0) throw new GuardError('NO_CPM', 'Clip campaigns pay per view; set a CPM')
+        if (c.platforms.length === 0) throw new GuardError('NO_PLATFORM', 'Pick at least one platform')
+      } else if (c.assets.length === 0) {
+        throw new GuardError('NO_ASSETS', 'Upload at least one asset')
+      }
       if (!c.endsAt) throw new GuardError('NO_PERIOD', 'Set a campaign period')
       if (c.perPlacementMax <= 0) throw new GuardError('NO_MAX', 'Set a per-placement maximum')
       assertDisclosureGuard(c.disclosureText)

@@ -80,6 +80,22 @@ describe('builder to funded', () => {
     await expect(submit(bare.id, BRAND)).rejects.toThrow(GuardError)
   })
 
+  it('submits a clip campaign without assets but needs a CPM and a platform (docs/14)', async () => {
+    const brand = await makeBrand()
+    const clip = await makeCampaign({ brandId: brand.id, kind: 'CLIP', state: 'DRAFT', fundOre: 0, templateKind: 'CPM' })
+    await db.campaignAsset.deleteMany({ where: { campaignId: clip.id } })
+
+    await db.campaign.update({ where: { id: clip.id }, data: { platforms: [] } })
+    await expect(submit(clip.id, BRAND)).rejects.toThrow(/NO_PLATFORM|platform/)
+
+    await db.campaign.update({ where: { id: clip.id }, data: { platforms: ['TIKTOK'] } })
+    await db.payoutTemplate.update({ where: { campaignId: clip.id }, data: { cpmOre: 0 } })
+    await expect(submit(clip.id, BRAND)).rejects.toThrow(/NO_CPM|CPM/)
+
+    await db.payoutTemplate.update({ where: { campaignId: clip.id }, data: { cpmOre: DEFAULTS.cpmOre } })
+    expect(await submit(clip.id, BRAND)).toBe('SUBMITTED')
+  })
+
   it('returns a campaign to the brand with notes and accepts a resubmission', async () => {
     const { campaign } = await makeSubmittableDraft()
     await submit(campaign.id, BRAND)

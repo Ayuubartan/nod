@@ -610,7 +610,7 @@ export async function exportMyData(): Promise<ActionResult<Record<string, unknow
 
   const userId = session.user.id
 
-  const [user, accounts, placements, ledger, strikes, identity] = await Promise.all([
+  const [user, accounts, placements, memberships, submissions, ledger, strikes, identity] = await Promise.all([
     prisma.user.findUniqueOrThrow({
       where: { id: userId },
       select: {
@@ -631,6 +631,18 @@ export async function exportMyData(): Promise<ActionResult<Record<string, unknow
         verification: { select: { views: true, qualifiedViews: true, decidedAt: true } },
       },
     }),
+    prisma.campaignMembership.findMany({
+      where: { userId },
+      select: { state: true, joinedAt: true, leftAt: true, campaign: { select: { name: true, brand: { select: { name: true } } } } },
+    }),
+    prisma.submission.findMany({
+      where: { userId },
+      select: {
+        id: true, state: true, platform: true, canonicalUrl: true, submittedAt: true, publishedAt: true,
+        latestViews: true, eligibleViews: true, reservationOre: true, rejectReason: true, settledAt: true,
+        campaign: { select: { name: true, brand: { select: { name: true } } } },
+      },
+    }),
     prisma.ledgerEntry.findMany({
       where: { wallet: { userId } },
       select: { type: true, amountOre: true, memo: true, createdAt: true },
@@ -643,7 +655,7 @@ export async function exportMyData(): Promise<ActionResult<Record<string, unknow
 
   return {
     ok: true,
-    data: { exportedAt: new Date().toISOString(), user, accounts, placements, ledger, strikes, identity },
+    data: { exportedAt: new Date().toISOString(), user, accounts, placements, memberships, submissions, ledger, strikes, identity },
   }
 }
 

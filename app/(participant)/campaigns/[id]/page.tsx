@@ -7,8 +7,12 @@ import { campaignBalance } from '@/lib/money/balances'
 import { evaluateEligibility } from '@/lib/marketplace'
 import { formatKrDown, participantRateCard } from '@/lib/money/calc'
 import { ClaimButton } from '@/components/participant/ClaimButton'
+import { ClipCampaignDetail } from '@/components/participant/ClipCampaignDetail'
 
-/** Campaign detail — docs/02 A2. Shows the exact disclosure the participant will use. */
+/**
+ * Campaign detail — docs/02 A2. Shows the exact disclosure the participant will use.
+ * Clip campaigns (docs/14) render their own loop: join → post → submit URL.
+ */
 export const dynamic = 'force-dynamic'
 
 export default async function CampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -19,13 +23,20 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
   const common = await getTranslations('common')
 
   const campaign = await prisma.campaign.findFirst({
-    where: { id, deletedAt: null, state: { in: ['LIVE', 'FILLING'] } },
+    // EXHAUSTED is only open for clip campaigns: their posts are still tracked, marked not payable (docs/14 D2).
+    where: { id, deletedAt: null, state: { in: ['LIVE', 'FILLING', 'EXHAUSTED'] } },
     include: { payoutTemplate: true, assets: { where: { deletedAt: null }, orderBy: { createdAt: 'asc' } }, brand: { select: { name: true } } },
   })
   if (!campaign) notFound()
+  if (campaign.kind !== 'CLIP' && campaign.state === 'EXHAUSTED') notFound()
 
-  const [accounts, balance, existingPlacements] = await Promise.all([
-    prisma.socialAccount.findMany({ where: { userId: user.id, deletedAt: null } }),
+  const accounts = await prisma.socialAccount.findMany({ where: { userId: user.id, deletedAt: null } })
+
+  if (campaign.kind === 'CLIP') {
+    return <ClipCampaignDetail campaign={campaign} user={user} accounts={accounts} />
+  }
+
+  const [balance, existingPlacements] = await Promise.all([
     campaignBalance(prisma, campaign.id),
     prisma.placement.count({
       where: {

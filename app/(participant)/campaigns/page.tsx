@@ -101,7 +101,14 @@ export default async function CampaignsPage({
               <Link href={`/campaigns/${campaign.id}`} className="card p-4 block">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div>
-                    <h2 className="font-semibold">{campaign.brand.name}</h2>
+                    <h2 className="font-semibold">
+                      {campaign.brand.name}
+                      {campaign.kind === 'CLIP' && (
+                        <span className="ml-2 align-middle inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold bg-[var(--color-line)] text-[var(--color-ink-2)]">
+                          {t('clipChip')}
+                        </span>
+                      )}
+                    </h2>
                     <p className="text-sm text-[var(--color-ink-2)]">{campaign.name}</p>
                   </div>
                   {eligibility.eligible ? (

@@ -17,6 +17,9 @@ import { clearFlagAndQualify, confirmFraud, verify } from '@/lib/state/verificat
 import { closePayoutBatch, markPayoutSent, openPayoutBatch } from '@/lib/state/money'
 import { auditAction, type ActorRef } from '@/lib/state/transition'
 import { emit } from '@/lib/events'
+import { approveHeldSubmission } from '@/lib/clips/tracking'
+import { verifySubmission } from '@/lib/clips/verify'
+import { rejectSubmission } from '@/lib/state/submission'
 
 /**
  * Ops Server Actions — docs/02 section C.
@@ -535,4 +538,90 @@ export async function opsGrantWaitlistAccess(rawCount: unknown): Promise<ActionR
 
   revalidatePath('/ops/waitlist')
   return { ok: true, data: { granted: granted.length } }
+}
+
+// ---------------------------------------------------------------- clip submissions (docs/14)
+
+/** HELD → QUALIFIED on the recorded numbers. Disclosure was checked at S-02 and cannot be waived here. */
+export async function opsApproveSubmission(submissionId: string): Promise<ActionResult<{ outcome: string }>> {
+  const ops = await requireOps()
+  try {
+    const result = await approveHeldSubmission(submissionId, { kind: 'OPS', id: ops.id })
+    if (result.outcome === 'skipped') return fail('notHeld')
+    revalidatePath('/ops/submissions')
+    return { ok: true, data: { outcome: result.outcome } }
+  } catch (err) {
+    return fail(err instanceof Error ? err.message : 'error')
+  }
+}
+
+const REJECT_REASONS = ['OPS_REJECTED', 'FRAUD', 'NOT_OWNER', 'NO_DISCLOSURE', 'DELETED_EARLY', 'DUPLICATE', 'OUTSIDE_WINDOW'] as const
+
+/** Any non-terminal submission → REJECTED with a mandatory note. FRAUD adds a strike and may suspend the membership. */
+export async function opsRejectSubmission(input: unknown): Promise<ActionResult> {
+  const actor = await opsActor()
+  const parsed = z
+    .object({ submissionId: z.string().min(1), reason: z.enum(REJECT_REASONS), note: z.string().trim().min(3).max(500) })
+    .safeParse(input)
+  if (!parsed.success) return fail('invalid')
+  try {
+    await rejectSubmission(
+      {
+        submissionId: parsed.data.submissionId,
+        reason: parsed.data.reason,
+        note: parsed.data.note,
+        strike: parsed.data.reason === 'FRAUD' ? 'SERIOUS' : undefined,
+        suspendMembershipIfRepeat: parsed.data.reason === 'FRAUD',
+      },
+      actor,
+    )
+    revalidatePath('/ops/submissions')
+    return { ok: true }
+  } catch (err) {
+    return fail(err instanceof Error ? err.message : 'error')
+  }
+}
+
+/** Re-run ownership + disclosure verification (S-02) for a RECEIVED / FIX_DISCLOSURE row. */
+export async function opsReplaySubmissionVerification(submissionId: string): Promise<ActionResult<{ outcome: string }>> {
+  const actor = await opsActor()
+  const result = await verifySubmission(submissionId)
+  await auditAction(prisma, 'Submission', submissionId, 'OPS_REPLAY_VERIFICATION', actor, { outcome: result.outcome })
+  revalidatePath('/ops/submissions')
+  const detail = 'why' in result ? `${result.outcome}:${result.why}` : 'reason' in result ? `${result.outcome}:${result.reason}` : result.outcome
+  return { ok: true, data: { outcome: detail } }
+}
+
+/**
+ * Pause or resume joins / submissions on a clip campaign without touching its state.
+ * The campaign keeps tracking and paying what is already in; only the doors close.
+ */
+export async function opsSetCampaignPause(input: unknown): Promise<ActionResult> {
+  const actor = await opsActor()
+  const parsed = z
+    .object({
+      campaignId: z.string().min(1),
+      joins: z.boolean().optional(),
+      submissions: z.boolean().optional(),
+      reason: z.string().trim().min(3).max(500),
+    })
+    .safeParse(input)
+  if (!parsed.success) return fail('invalid')
+  const { campaignId, joins, submissions, reason } = parsed.data
+  if (joins === undefined && submissions === undefined) return fail('invalid')
+
+  await prisma.$transaction(async (tx) => {
+    const now = new Date()
+    await tx.campaign.update({
+      where: { id: campaignId },
+      data: {
+        ...(joins !== undefined ? { joinsPausedAt: joins ? now : null } : {}),
+        ...(submissions !== undefined ? { submissionsPausedAt: submissions ? now : null } : {}),
+      },
+    })
+    await auditAction(tx, 'Campaign', campaignId, 'OPS_SET_PAUSE', actor, { joins: joins ?? null, submissions: submissions ?? null }, reason)
+  })
+  revalidatePath('/ops/submissions')
+  revalidatePath(`/campaigns/${campaignId}`)
+  return { ok: true }
 }

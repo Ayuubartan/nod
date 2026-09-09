@@ -38,7 +38,8 @@
     "settings": "Inställningar",
     "forBrands": "Är du ett varumärke?",
     "signOut": "Logga ut",
-    "signIn": "Logga in"
+    "signIn": "Logga in",
+    "submissions": "Mina klipp"
   },
   "marketing": {
     "eyebrow": "Stockholm beta",
@@ -393,7 +394,9 @@
       "inviteHint": "Du får {amount} när kompisens första placering godkänns.",
       "estimate": "Ungefär {amount} per inlägg med ditt konto.",
       "allSet": "Allt klart. Vi hör av oss när droppet öppnar."
-    }
+    },
+    "clipChip": "Klipp",
+    "clipCard": "{cpm} per 1 000 visningar"
   },
   "placement": {
     "states": {
@@ -767,6 +770,50 @@
       "PAUSED": "Pausad",
       "RECONCILING": "Avstäms",
       "CLOSED": "Stängd"
+    },
+    "clip": {
+      "members": "Deltagare",
+      "submissions": "Klipp",
+      "eligibleViews": "Räknade visningar",
+      "tracking": "Spåras nu",
+      "awaitingReview": "Hos oss för granskning",
+      "table": {
+        "handle": "Konto",
+        "platform": "Plattform",
+        "submitted": "Inskickat",
+        "views": "Visningar",
+        "eligible": "Räknas",
+        "reserved": "Reserverat",
+        "state": "Status",
+        "post": "Inlägg",
+        "empty": "Inga klipp inskickade än."
+      },
+      "byState": "Klipp per status",
+      "rules": "Regler",
+      "platforms": "Plattformar",
+      "hashtags": "Taggar",
+      "mentions": "Omnämnanden",
+      "validationDays": "{days} dagars spårning",
+      "capPerPerson": "{count} klipp per person",
+      "kindChip": "Klippkampanj"
+    },
+    "clipBuilder": {
+      "kind": "Kampanjtyp",
+      "kindPlacement": "Placering – vi lägger in produkten i deltagarnas innehåll",
+      "kindClip": "Klipp – deltagarna postar egna klipp och får betalt per visning",
+      "kindLocked": "Kampanjtypen kan inte ändras efter att kampanjen skickats in.",
+      "platforms": "Plattformar",
+      "hashtags": "Obligatoriska taggar",
+      "hashtagsHint": "Kommaseparerat, t.ex. #kaffeklubben, #ad. Klipp utan alla taggar får 24 timmar på sig att fixa det.",
+      "mentions": "Obligatoriska omnämnanden",
+      "mentionsHint": "Kommaseparerat, t.ex. @kaffeklubben. Lämna tomt om inget krävs.",
+      "validationDays": "Dagar visningar räknas",
+      "validationHint": "Visningar räknas så här många dagar efter publicering. Sedan räknas ersättningen och betalas ut.",
+      "noAssets": "Klippkampanjer behöver inga produktbilder – deltagarna filmar själva.",
+      "cpmOnly": "Klippkampanjer betalar per 1 000 visningar.",
+      "maxPerClip": "Max per klipp (kr)",
+      "capPerPerson": "Klipp per person",
+      "needPlatform": "Välj minst en plattform."
     }
   },
   "ops": {
@@ -780,7 +827,8 @@
     "brands": "Varumärken",
     "flags": "Flaggor",
     "audit": "Logg",
-    "waitlist": "Kön"
+    "waitlist": "Kön",
+    "submissions": "Klipp"
   },
   "auth": {
     "participantPageTitle": "Logga in",
@@ -944,6 +992,124 @@
       "FRAUD": "Misstänkt aktivitet",
       "OPS_REJECTED": "Nekad vid granskning",
       "DUPLICATE": "Inlägget var redan inskickat"
+    }
+  },
+  "clips": {
+    "detail": {
+      "how": "Så funkar det",
+      "step1": "Gå med i kampanjen.",
+      "step2": "Posta ett eget klipp på {platforms} med reklammärkningen och taggarna nedan.",
+      "step3": "Skicka in länken här. Vi kollar att inlägget är ditt och följer visningarna i {days} dagar.",
+      "step4": "Ersättningen räknas på visningar när perioden är slut och landar i plånboken.",
+      "rate": "Ersättning",
+      "perThousand": "{amount} per 1 000 visningar",
+      "viewFloor": "Minst {views} visningar för att få betalt",
+      "maxPerClip": "Max {amount} per klipp",
+      "capPerPerson": "Max {count} klipp per person",
+      "platforms": "Plattformar",
+      "hashtags": "Taggar som måste vara med",
+      "mentions": "Konton som måste nämnas",
+      "window": "Klippet ska publiceras",
+      "windowUntil": "senast {date}",
+      "tracking": "Visningar räknas i {days} dagar efter publicering",
+      "budgetLeft": "{amount} kvar av budgeten",
+      "budgetGone": "Budgeten är slut. Nya klipp spåras men betalas inte.",
+      "members": "{count} har gått med",
+      "joined": "Du är med",
+      "join": "Gå med",
+      "leave": "Lämna kampanjen",
+      "leaveHint": "Klipp du redan skickat in fortsätter att spåras och betalas.",
+      "submit": "Skicka in ett klipp",
+      "submitHint": "Klistra in länken till ditt inlägg på TikTok eller Instagram. Vi läser bara – vi postar aldrig åt dig.",
+      "urlPlaceholder": "https://www.tiktok.com/@dig/video/…",
+      "submitButton": "Skicka in",
+      "reserved": "Mottaget. {amount} är reserverat för det här klippet tills visningarna är räknade.",
+      "reservedNone": "Mottaget. Budgeten är slut, så klippet spåras men betalas inte.",
+      "yourClips": "Dina klipp i kampanjen",
+      "noClips": "Inga klipp inskickade än.",
+      "paused": "Nya klipp tas inte emot just nu.",
+      "joinsPaused": "Kampanjen tar inte emot nya deltagare just nu.",
+      "ended": "Kampanjen har avslutats.",
+      "connectFirst": "Koppla ditt {platforms}-konto för att gå med.",
+      "connect": "Koppla konto"
+    },
+    "joinErrors": {
+      "NOT_CLIP": "Det här är ingen klippkampanj.",
+      "CAMPAIGN_NOT_OPEN": "Kampanjen är inte öppen.",
+      "CAMPAIGN_ENDED": "Kampanjen har avslutats.",
+      "JOINS_PAUSED": "Kampanjen tar inte emot nya deltagare just nu.",
+      "NOT_ELIGIBLE": "Verifiera med BankID för att gå med.",
+      "NO_CONNECTED_ACCOUNT": "Koppla ett konto på en av kampanjens plattformar först.",
+      "FOLLOWERS": "Inget av dina konton är inom kampanjens följarspann.",
+      "MEMBERSHIP_SUSPENDED": "Din plats i kampanjen är pausad.",
+      "MEMBERSHIP_BLOCKED": "Du kan inte gå med i den här kampanjen.",
+      "FULL": "Kampanjen är full.",
+      "rateLimited": "För många försök. Vänta en stund.",
+      "notJoined": "Du är inte med i kampanjen.",
+      "joinFailed": "Kunde inte gå med. Försök igen.",
+      "leaveFailed": "Kunde inte lämna. Försök igen.",
+      "invalid": "Något gick fel. Försök igen."
+    },
+    "submitErrors": {
+      "URL_INVALID_URL": "Det där är ingen giltig länk.",
+      "URL_UNSUPPORTED_HOST": "Bara länkar till TikTok och Instagram fungerar.",
+      "URL_SHORT_LINK": "Öppna länken i appen och kopiera den fullständiga adressen till inlägget.",
+      "URL_STORY": "Stories kan inte spåras. Skicka in ett inlägg eller en reel.",
+      "URL_NO_POST_ID": "Vi kunde inte hitta inläggets id i länken.",
+      "NOT_CLIP": "Det här är ingen klippkampanj.",
+      "CAMPAIGN_NOT_OPEN": "Kampanjen är inte öppen.",
+      "NO_TEMPLATE": "Kampanjen saknar ersättningsmodell.",
+      "CAMPAIGN_ENDED": "Kampanjen har avslutats.",
+      "SUBMISSIONS_PAUSED": "Nya klipp tas inte emot just nu.",
+      "PLATFORM": "Kampanjen gäller inte den plattformen.",
+      "NOT_JOINED": "Gå med i kampanjen först.",
+      "NO_CONNECTED_ACCOUNT": "Koppla kontot som inlägget postades från.",
+      "DUPLICATE": "Det här inlägget är redan inskickat.",
+      "CAP": "Du har nått max antal klipp i den här kampanjen.",
+      "rateLimited": "För många försök. Vänta en stund.",
+      "invalid": "Klistra in en fullständig länk till inlägget.",
+      "submitFailed": "Kunde inte skicka in. Försök igen."
+    },
+    "states": {
+      "RECEIVED": "Kontrolleras",
+      "FIX_DISCLOSURE": "Fixa märkningen",
+      "TRACKING": "Spåras",
+      "VALIDATING": "Räknas",
+      "HELD": "Granskas",
+      "QUALIFIED": "Godkänt",
+      "PAID": "Utbetalt",
+      "REJECTED": "Nekat"
+    },
+    "row": {
+      "views": "{views} visningar",
+      "eligible": "{views} räknas",
+      "reserved": "{amount} reserverat",
+      "notPayable": "Budgeten var slut – betalas inte",
+      "fixBy": "Lägg till märkningen senast {time}",
+      "missing": "Saknas: {items}",
+      "recheck": "Jag har fixat det",
+      "rechecking": "Kontrollerar…",
+      "recheckStillMissing": "Vi hittar fortfarande inte allt. Kolla bildtexten och försök igen.",
+      "recheckOk": "Klart! Klippet spåras nu.",
+      "recheckErrors": {
+        "notFound": "Klippet hittades inte.",
+        "notFixable": "Klippet kan inte kontrolleras om just nu.",
+        "rateLimited": "För många försök. Vänta några minuter."
+      },
+      "validationEnds": "Räknas klart {date}",
+      "paidOut": "{amount} utbetalt",
+      "earned": "{amount}",
+      "open": "Öppna inlägget"
+    },
+    "list": {
+      "title": "Mina klipp",
+      "filters": {
+        "active": "Pågående",
+        "paid": "Godkända",
+        "rejected": "Nekade"
+      },
+      "empty": "Inga klipp än. Gå med i en klippkampanj och skicka in länken till ditt inlägg.",
+      "browse": "Se kampanjer"
     }
   }
 }

@@ -13,6 +13,7 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
     { href: '/ops/campaigns', label: t('campaignReview') },
     { href: '/ops/generation', label: t('generation') },
     { href: '/ops/verification', label: t('verification') },
+    { href: '/ops/submissions', label: t('submissions') },
     { href: '/ops/payouts', label: t('payouts') },
     { href: '/ops/participants', label: t('participants') },
     { href: '/ops/signups', label: t('signups') },
