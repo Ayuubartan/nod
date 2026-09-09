@@ -6,7 +6,9 @@ import { prisma } from '@/lib/db'
 import { actorFor, getSession, requireParticipant, requireRole } from '@/lib/auth'
 import { encrypt, referralCode } from '@/lib/crypto'
 import { normaliseSwishNumber } from '@/lib/integrations/swish'
-import { socialProvider } from '@/lib/integrations/instagram'
+import { isPlatform, providerFor } from '@/lib/integrations/social'
+import { MANUAL_SYNC_COOLDOWN_MS, recordSnapshot, syncAccount } from '@/lib/social-sync'
+import { auditAction } from '@/lib/state/transition'
 import { generate, type RenderOutcome } from '@/lib/render'
 import { flag as readFlag } from '@/lib/flags'
 import { rateLimit } from '@/lib/rate-limit'
@@ -65,13 +67,26 @@ export async function createParticipant(input: unknown): Promise<ActionResult<{ 
   return { ok: true, data: { userId: user.id } }
 }
 
-/** Onboarding step 2/3 — connect an account and set its tier from the account type. */
-export async function connectAccount(code: string): Promise<ActionResult<{ tier: string }>> {
+/**
+ * Onboarding step 2/3 and the accounts page — connect an Instagram or TikTok account
+ * and set its tier from the account type. `code` is the OAuth code from the callback
+ * route (or the handle, with the fake provider). Tokens are stored encrypted and are
+ * read-only on the platform (CLAUDE.md rule 6).
+ */
+export async function connectAccount(code: string, platformInput: string = 'INSTAGRAM'): Promise<ActionResult<{ tier: string }>> {
   const user = await requireParticipant()
+  if (!isPlatform(platformInput)) return fail('invalidPlatform')
+  const platform = platformInput
 
-  const provider = socialProvider()
-  const connected = await provider.exchangeCode(code)
-  const profile = await provider.profile(connected.token)
+  const provider = providerFor(platform)
+  let connected
+  let profile
+  try {
+    connected = await provider.exchangeCode(code)
+    profile = await provider.profile(connected.token)
+  } catch {
+    return fail('connectFailed')
+  }
 
   const minFollowers = await readFlag('eligibility.minFollowers')
   const minAvgViews = await readFlag('eligibility.minAvgViews')
@@ -84,11 +99,19 @@ export async function connectAccount(code: string): Promise<ActionResult<{ tier:
       ? 'CONNECTED_SCREENSHOT'
       : 'CONNECTED_API'
 
-  await prisma.socialAccount.upsert({
-    where: { platform_platformUserId: { platform: 'INSTAGRAM', platformUserId: connected.platformUserId } },
+  // The same platform account cannot sit under two users: whoever connected it first
+  // keeps it until they disconnect (soft) — otherwise a stolen login could hijack payouts.
+  const existing = await prisma.socialAccount.findUnique({
+    where: { platform_platformUserId: { platform, platformUserId: connected.platformUserId } },
+    select: { userId: true, deletedAt: true },
+  })
+  if (existing && existing.userId !== user.id && !existing.deletedAt) return fail('accountTaken')
+
+  const account = await prisma.socialAccount.upsert({
+    where: { platform_platformUserId: { platform, platformUserId: connected.platformUserId } },
     create: {
       userId: user.id,
-      platform: 'INSTAGRAM',
+      platform,
       handle: connected.handle,
       platformUserId: connected.platformUserId,
       tier,
@@ -98,25 +121,87 @@ export async function connectAccount(code: string): Promise<ActionResult<{ tier:
       avgViews30d: profile.avgViews30d,
       categories: profile.categories ?? [],
       accessToken: connected.token ? encrypt(connected.token) : null,
+      refreshToken: connected.refreshToken ? encrypt(connected.refreshToken) : null,
       tokenExpiresAt: connected.expiresAt,
       lastSyncedAt: new Date(),
     },
     update: {
+      userId: user.id,
       handle: connected.handle,
       tier,
       accountType: connected.accountType,
+      isPrivate: connected.isPrivate,
       followers: profile.followers,
       avgViews30d: profile.avgViews30d,
       accessToken: connected.token ? encrypt(connected.token) : null,
+      refreshToken: connected.refreshToken ? encrypt(connected.refreshToken) : null,
       tokenExpiresAt: connected.expiresAt,
       lastSyncedAt: new Date(),
       disconnectedAt: null,
+      deletedAt: null,
     },
   })
 
-  await emit({ name: 'account/connected', data: { userId: user.id, tier } })
+  // First point on the history chart. Manual (screenshot) accounts have nothing to plot.
+  if (connected.token) await recordSnapshot(account.id, profile)
+
+  await emit({ name: 'account/connected', data: { userId: user.id, accountId: account.id, platform, tier } })
   revalidatePath('/accounts')
   return { ok: true, data: { tier } }
+}
+
+/**
+ * Disconnect an account (docs/02 A6). The tokens go immediately; the row stays as
+ * DISCONNECTED so open placements can still be verified by ops (edge case 7) and the
+ * history is kept until the retention job clears it (docs/07). Never a hard delete.
+ */
+export async function disconnectAccount(accountId: string): Promise<ActionResult> {
+  const user = await requireParticipant()
+  const account = await prisma.socialAccount.findFirst({
+    where: { id: accountId, userId: user.id, deletedAt: null },
+    select: { id: true, platform: true, tier: true },
+  })
+  if (!account) return fail('notFound')
+
+  await prisma.$transaction(async (tx) => {
+    await tx.socialAccount.update({
+      where: { id: account.id },
+      data: {
+        tier: 'DISCONNECTED',
+        disconnectedAt: new Date(),
+        accessToken: null,
+        refreshToken: null,
+        tokenExpiresAt: null,
+      },
+    })
+    await auditAction(tx, 'SocialAccount', account.id, 'account.disconnected', actorFor({ kind: 'participant', user }), {
+      platform: account.platform,
+      fromTier: account.tier,
+    })
+  })
+
+  await emit({ name: 'account/disconnected', data: { userId: user.id, accountId: account.id, platform: account.platform } })
+  revalidatePath('/accounts')
+  return { ok: true }
+}
+
+/** "Update now" on the accounts page — at most once an hour per account. */
+export async function syncAccountNow(accountId: string): Promise<ActionResult<{ followers: number; avgViews30d: number }>> {
+  const user = await requireParticipant()
+  const account = await prisma.socialAccount.findFirst({
+    where: { id: accountId, userId: user.id, deletedAt: null },
+    select: { id: true, lastSyncedAt: true, tier: true },
+  })
+  if (!account) return fail('notFound')
+  if (account.tier === 'DISCONNECTED') return fail('disconnected')
+  if (account.lastSyncedAt && Date.now() - account.lastSyncedAt.getTime() < MANUAL_SYNC_COOLDOWN_MS) {
+    return fail('tooSoon')
+  }
+
+  const result = await syncAccount(account.id)
+  revalidatePath('/accounts')
+  if (!result.ok) return fail(result.reason === 'no-token' ? 'disconnected' : 'syncFailed')
+  return { ok: true, data: { followers: result.followers, avgViews30d: result.avgViews30d } }
 }
 
 const onboardingSchema = z.object({

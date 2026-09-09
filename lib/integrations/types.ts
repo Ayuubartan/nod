@@ -47,7 +47,12 @@ export interface SocialProvider {
   profile(token: string): Promise<SocialProfile>
   recentMedia(token: string, since: Date): Promise<Media[]>
   insights(token: string, mediaId: string): Promise<{ views: number; reach: number | null }>
-  refresh(token: string): Promise<SocialToken>
+  /**
+   * Mint a fresh access token. Instagram refreshes the long-lived token itself; TikTok
+   * needs the separate refresh token, so both are passed and each provider uses what it
+   * needs.
+   */
+  refresh(token: string, refreshToken?: string | null): Promise<SocialToken>
 }
 
 // ---------------------------------------------------------------- identity

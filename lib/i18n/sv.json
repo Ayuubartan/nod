@@ -254,15 +254,22 @@
       "under18": "Boogaa är endast för dig som fyllt 18."
     },
     "connect": {
-      "title": "Koppla ditt Instagram",
-      "sub": "Vi läser bara offentlig profil, dina inlägg och statistik.",
+      "title": "Koppla dina konton",
+      "sub": "Instagram eller TikTok — båda funkar. Vi läser bara offentlig profil, dina inlägg och statistik.",
       "weRead": "Vad vi läser",
       "weReadItems": "Profil och följarantal · Dina inlägg · Visningsstatistik",
       "weNever": "Vad vi aldrig gör",
       "weNeverItems": "Postar åt dig · Ändrar dina inlägg · Skickar meddelanden · Följer eller gillar",
       "connect": "Koppla Instagram",
       "connectTikTok": "Koppla TikTok",
-      "skip": "Hoppa över just nu"
+      "skip": "Hoppa över just nu",
+      "or": "eller",
+      "error": {
+        "denied": "Du avbröt innan vi fick åtkomst. Inget kopplades.",
+        "state": "Länken hade gått ut. Prova att koppla igen.",
+        "connectFailed": "Vi kunde inte läsa kontot. Prova igen om en stund.",
+        "accountTaken": "Det kontot är redan kopplat till en annan profil."
+      }
     },
     "creator": {
       "title": "Byt till Creator-konto",
@@ -517,16 +524,51 @@
   },
   "accounts": {
     "title": "Konton",
+    "sub": "Koppla Instagram och TikTok. Vi läser dina siffror — <brand></brand> postar aldrig åt dig.",
     "add": "Lägg till konto",
+    "connectInstagram": "Koppla Instagram",
+    "connectTiktok": "Koppla TikTok",
     "reconnect": "Koppla om",
+    "disconnect": "Koppla från",
+    "disconnecting": "Kopplar från…",
+    "sync": "Uppdatera nu",
+    "syncing": "Uppdaterar…",
+    "handlePlaceholder": "@användarnamn",
+    "platform": {
+      "INSTAGRAM": "Instagram",
+      "TIKTOK": "TikTok"
+    },
     "tier": {
       "CONNECTED_API": "Automatisk statistik",
       "CONNECTED_SCREENSHOT": "Skärmbilder",
       "BELOW_FLOOR": "Under gränsen",
       "DISCONNECTED": "Frånkopplad"
     },
+    "stats": {
+      "followers": "Följare",
+      "avgViews": "Snittvisningar, 30 dagar",
+      "posts30d": "Inlägg, 30 dagar",
+      "change30d": "Senaste 30 dagarna",
+      "noHistory": "Historiken byggs upp från nästa uppdatering."
+    },
+    "lastSynced": "Uppdaterad {when}",
+    "neverSynced": "Inte uppdaterad än",
     "belowFloorHint": "Vi kollar igen varje månad.",
-    "disconnectedHint": "Koppla om för att fortsätta få kampanjer."
+    "disconnectedHint": "Koppla om för att fortsätta få kampanjer.",
+    "privateHint": "Dina videor är privata, så vi kan inte läsa visningar — du skickar skärmbilder i stället.",
+    "readOnly": "Endast läsbehörighet. Du kan koppla från när som helst; vi raderar nycklarna direkt.",
+    "connected": "Kopplat — dina siffror är inne.",
+    "error": {
+      "denied": "Du avbröt innan vi fick åtkomst. Inget kopplades.",
+      "state": "Länken hade gått ut. Prova att koppla igen.",
+      "invalidPlatform": "Okänd plattform.",
+      "connectFailed": "Vi kunde inte läsa kontot. Prova igen om en stund.",
+      "accountTaken": "Det kontot är redan kopplat till en annan profil.",
+      "tooSoon": "Redan uppdaterat den senaste timmen.",
+      "syncFailed": "Vi kunde inte läsa dina siffror just nu. Prova igen senare.",
+      "disconnected": "Kontot är frånkopplat. Koppla om det först.",
+      "notFound": "Vi hittade inte det kontot."
+    }
   },
   "invite": {
     "title": "Bjud in",

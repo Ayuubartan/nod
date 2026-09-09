@@ -14,7 +14,9 @@ Every integration lives behind an interface in `lib/integrations/` with (a) a re
 - **Never request any publish/write scope.** CLAUDE.md rule 6.
 - App review: needed for insights scopes before public launch; in pilot, accounts can be added as testers on the Meta app. Start the app-review submission in Milestone 1 — it takes weeks.
 - Personal accounts: the API will not return insights. Onboarding step 3 prompts the Creator switch; refusal → `CONNECTED_SCREENSHOT` tier.
-- Token refresh job (Inngest, daily): refresh long-lived tokens; on failure → `DISCONNECTED` + reconnect prompt.
+- Token refresh job (Inngest, daily `token-refresh`): refresh long-lived tokens; on failure → `DISCONNECTED` + reconnect prompt.
+- Analytics sync (Inngest, daily `social-sync`, plus "Update now" on `/accounts` with a 1h cooldown): pull followers + 30-day view average + post count into `SocialAccountSnapshot`. Participants see deltas and a sparkline; only aggregates are stored (docs/07).
+- OAuth flow: `GET /api/auth/<platform>/start?returnTo=/accounts|/onboarding` sets a 10-minute `NOD_OAUTH_STATE` cookie and redirects to the provider; `GET /api/auth/<platform>/callback` checks the state (constant-time), exchanges the code and redirects back with `?connected=<platform>` or `?error=<key>`. An account already connected to another user is refused (`accountTaken`).
 - Post detection (API tier): after `APPROVED`, poll the account's recent media every 2h for a media whose caption contains the issued disclosure token or whose perceptual hash matches the approved version ≥ threshold. On match → `PUBLISHED`, store `postPlatformId`.
 - View pull: at `holdEndsAt`, read insights for that media (Story: impressions/reach while still within 24h retention — schedule the pull at hold end minus 30 min; Reel/Post: plays/reach). Store `ViewSnapshot`. If the media is gone → `REJECTED` `DELETED_EARLY`.
 - Paid Partnership label: read if exposed by the API for that media type; otherwise disclosure text in caption is the check.
@@ -23,18 +25,27 @@ Interface:
 ```ts
 interface SocialProvider {
   authUrl(state): string
-  exchangeCode(code): Promise<{ platformUserId, handle, accountType, isPrivate, token, expiresAt }>
+  exchangeCode(code): Promise<{ platformUserId, handle, accountType, isPrivate, token, refreshToken?, expiresAt }>
   profile(token): Promise<{ followers, avgViews30d, categories? }>
   recentMedia(token, since): Promise<Media[]>
   insights(token, mediaId): Promise<{ views, reach }>
-  refresh(token): Promise<Token>
+  refresh(token, refreshToken?): Promise<Token>
 }
 ```
+`lib/integrations/social.ts` is the registry: `providerFor(platform)` returns the real provider when its env vars exist, otherwise the platform-specific `FakeSocialProvider` (`NOD_FAKE_PROVIDERS=1` forces the fake). Env: `META_APP_ID`, `META_APP_SECRET`, `META_REDIRECT_URI`.
+
 Pilot fallback implementation: `ManualSocialProvider` where ops enters followers/avg views from a screenshot and view counts at hold end.
 
-## 2. TikTok — read-only, screenshot tier in pilot
+## 2. TikTok — read-only via Login Kit + Display API
 
-TikTok's public APIs are more restrictive on per-video insights. Pilot: connect via TikTok Login Kit for identity + handle only; all verification via URL + screenshot. Revisit when there's volume.
+**Purpose:** connect account, read profile stats + public video list, derive the 30-day view average, pull a video's public view count at hold end.
+
+- Use **Login Kit v2** (`https://www.tiktok.com/v2/auth/authorize/`) with scopes `user.info.basic`, `user.info.profile`, `user.info.stats`, `video.list`. **Never `video.publish` / `video.upload`** — CLAUDE.md rule 6; `lib/integrations/tiktok.ts` asserts this at import time.
+- Tokens: access tokens last 24h, refresh tokens 365 days and **rotate on every refresh** — store both encrypted (`refreshToken` column). The pipeline calls `freshToken()` (`lib/social-sync.ts`) before any read so a stale token is refreshed on demand; the nightly `token-refresh` job covers the rest.
+- Analytics: Display API has no per-video insights endpoint; `view_count` on `video.list` / `video.query` is the public count, so `profile()` averages `view_count` over videos created in the last 30 days (max 20 newest) and `insights()` returns `{ views, reach: null }`. Good enough for the floor and for view-based payout in the pilot; ops can still require a screenshot per campaign.
+- Private accounts: the API returns no videos → `isPrivate` → `CONNECTED_SCREENSHOT` tier, same as Instagram personal accounts.
+- App review: sandbox mode only lets the app's listed test users connect. **Submit the TikTok app for audit** (Login Kit + Display API, read scopes) before opening to the public — allow 1–2 weeks.
+- Env: `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`, `TIKTOK_REDIRECT_URI` (`https://www.joinbooga.se/api/auth/tiktok/callback`). Without them the TikTok fake is served.
 
 ## 3. BankID — via broker
 

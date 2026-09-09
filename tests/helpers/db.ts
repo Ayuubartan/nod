@@ -19,7 +19,7 @@ export const db = prisma
 
 /** Tables truncated between tests, children first. */
 const TABLES = [
-  'LedgerEntry', 'ViewSnapshot', 'Verification', 'Dispute', 'PlacementEvent',
+  'LedgerEntry', 'ViewSnapshot', 'SocialAccountSnapshot', 'Verification', 'Dispute', 'PlacementEvent',
   'PlacementVersion', 'Placement', 'CampaignAsset', 'PayoutTemplate', 'Campaign',
   'BrandUser', 'Brand', 'PayoutBatch', 'Wallet', 'Strike', 'Referral', 'Identity',
   'SocialAccount', 'User', 'AuditLog', 'Flag', 'WaitlistEntry', 'BrandEnquiry',

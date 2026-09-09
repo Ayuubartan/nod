@@ -89,11 +89,27 @@ model SocialAccount {
   avgViews30d    Int @default(0)
   categories     String[]
   accessToken    String?                          // encrypted
+  refreshToken   String?                          // encrypted; TikTok only (rotates on refresh)
   tokenExpiresAt DateTime?
   lastSyncedAt   DateTime?
+  disconnectedAt DateTime?
   user           User @relation(fields: [userId], references: [id])
   placements     Placement[]
+  snapshots      SocialAccountSnapshot[]
   @@unique([platform, platformUserId])
+}
+
+// Daily analytics history per connected account — aggregates only (followers, 30-day
+// view average, post count). Never per-video rows, never audience demographics.
+model SocialAccountSnapshot {
+  id          String @id @default(cuid())
+  accountId   String
+  followers   Int
+  avgViews30d Int
+  posts30d    Int @default(0)
+  capturedAt  DateTime @default(now())
+  account     SocialAccount @relation(fields: [accountId], references: [id])
+  @@index([accountId, capturedAt])
 }
 
 model Brand {
@@ -262,3 +278,4 @@ Implement these as SQL views or Prisma raw queries with tests; UI reads views on
 - `Verification.screenshotPath`: 30 days after decision
 - `AuditLog`, `LedgerEntry`: 7 years (bookkeeping)
 - `Identity.subjectHash`: retained after `REMOVED` to block re-registration; everything else erased on GDPR job
+- `SocialAccountSnapshot`: kept while the account is connected (it is the participant's own history); soft-deleted with the account by the erasure job

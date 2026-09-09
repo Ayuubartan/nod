@@ -261,20 +261,25 @@ export class FakeSocialProvider implements SocialProvider {
   private mediaStore = new Map<string, Media[]>()
   private viewStore = new Map<string, number>()
 
+  /** The platform decides the callback URL and, for TikTok, the account type. */
+  constructor(private readonly platform: 'instagram' | 'tiktok' = 'instagram') {}
+
   authUrl(state: string): string {
-    return `/api/auth/instagram/callback?code=fake_${state}&state=${state}`
+    return `/api/auth/${this.platform}/callback?code=fake_${state}&state=${state}`
   }
 
   async exchangeCode(code: string): Promise<ConnectedAccount> {
     const handle = code.replace(/^fake_/, '').slice(0, 20) || 'testuser'
     const seed = [...handle].reduce((acc, ch) => acc + ch.charCodeAt(0), 0)
     return {
-      platformUserId: `fake_${seed}`,
+      platformUserId: `fake_${this.platform === 'tiktok' ? 'tt_' : ''}${seed}`,
       handle,
-      // Deterministic split so tests can exercise both onboarding branches.
-      accountType: seed % 2 === 0 ? 'creator' : 'personal',
+      // Deterministic split so tests can exercise both onboarding branches. TikTok has
+      // no personal/creator split (lib/integrations/tiktok.ts DECISION).
+      accountType: this.platform === 'tiktok' || seed % 2 === 0 ? 'creator' : 'personal',
       isPrivate: seed % 5 === 0,
       token: `fake-token-${seed}`,
+      refreshToken: this.platform === 'tiktok' ? `fake-refresh-${seed}` : undefined,
       expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
     }
   }
@@ -294,8 +299,12 @@ export class FakeSocialProvider implements SocialProvider {
     return { views, reach: Math.round(views * 0.9) }
   }
 
-  async refresh(token: string): Promise<SocialToken> {
-    return { token, expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) }
+  async refresh(token: string, refreshToken?: string | null): Promise<SocialToken> {
+    return {
+      token,
+      refreshToken: refreshToken ?? undefined,
+      expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+    }
   }
 
   // --- test helpers
@@ -308,13 +317,19 @@ export class FakeSocialProvider implements SocialProvider {
   }
 }
 
-const shouldUseFakes = () => process.env.NOD_FAKE_PROVIDERS === '1' || !process.env.META_APP_ID
+/** True when the Instagram flow runs against the fake (no Meta app configured). */
+export const instagramUsesFake = () => process.env.NOD_FAKE_PROVIDERS === '1' || !process.env.META_APP_ID
 
 let cached: SocialProvider | null = null
 
+/**
+ * The Instagram provider. Code that has an account in hand should use
+ * `providerFor(account.platform)` from `./social` instead, so TikTok accounts get the
+ * TikTok provider.
+ */
 export function socialProvider(): SocialProvider {
   if (cached) return cached
-  cached = shouldUseFakes() ? new FakeSocialProvider() : new InstagramProvider()
+  cached = instagramUsesFake() ? new FakeSocialProvider('instagram') : new InstagramProvider()
   return cached
 }
 

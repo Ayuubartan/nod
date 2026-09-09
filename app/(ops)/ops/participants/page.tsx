@@ -89,8 +89,9 @@ export default async function OpsParticipantsPage({
                       <li key={account.id} className="text-xs">
                         <span className="font-medium">@{account.handle}</span>{' '}
                         <span className="text-[var(--color-ink-3)]">
-                          {account.tier} · {account.followers.toLocaleString('sv-SE')} ·{' '}
-                          {account.avgViews30d.toLocaleString('sv-SE')}
+                          {account.platform === 'TIKTOK' ? 'TikTok' : 'Instagram'} · {account.tier} ·{' '}
+                          {account.followers.toLocaleString('sv-SE')} · {account.avgViews30d.toLocaleString('sv-SE')}
+                          {account.lastSyncedAt && ` · ${account.lastSyncedAt.toLocaleDateString('sv-SE')}`}
                         </span>
                       </li>
                     ))}

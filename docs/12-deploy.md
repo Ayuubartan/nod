@@ -136,7 +136,13 @@ change; each provider then activates as soon as its own keys exist (docs/06).
   expire on their own. Free tier is enough for a pilot.
 - **Stripe** webhook: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, endpoint
   `https://<domain>/api/webhooks/stripe`.
-- **Meta**: `META_APP_ID`/`META_APP_SECRET`, redirect `https://<domain>/api/auth/instagram/callback`.
+- **Meta** (Instagram): `META_APP_ID`/`META_APP_SECRET`/`META_REDIRECT_URI`, redirect
+  `https://<domain>/api/auth/instagram/callback`. Product: Instagram API with Instagram
+  Login, scopes `instagram_business_basic` + `instagram_business_manage_insights`.
+- **TikTok**: `TIKTOK_CLIENT_KEY`/`TIKTOK_CLIENT_SECRET`/`TIKTOK_REDIRECT_URI`, redirect
+  `https://<domain>/api/auth/tiktok/callback`. Products: Login Kit + Display API (read
+  scopes only). Sandbox → audit before public use. Until the env vars exist the connect
+  buttons fall back to a handle prompt with fake numbers.
 - **Criipto** (BankID), **Swish**, **46elks/Twilio**: docs/06.
 - **Sentry / PostHog**: set the DSN/key and they are live; nothing else to do.
 

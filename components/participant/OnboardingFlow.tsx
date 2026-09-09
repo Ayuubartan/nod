@@ -10,6 +10,7 @@ import {
   savePushSubscription,
 } from '@/app/(participant)/actions'
 import { EVENTS, track } from '@/lib/analytics'
+import { ConnectAccountButton } from '@/components/participant/ConnectAccountButton'
 import { estimateParticipantOre, formatKrDown } from '@/lib/money/calc'
 import { ESTIMATOR_RANGE } from '@/lib/money/rates'
 
@@ -54,6 +55,8 @@ export function OnboardingFlow({
   existing,
   nextDrop,
   prefill = null,
+  oauth,
+  connectError = null,
 }: {
   authId: string
   /** The address the sign-in code was sent to; stored on the User for next time. */
@@ -62,6 +65,10 @@ export function OnboardingFlow({
   nextDrop: string
   /** Answers from the waitlist entry with the same address, if any. */
   prefill?: { city: string | null; ageBracket: string | null; handle: string | null; referredByCode: string | null } | null
+  /** Per platform: true when a real developer app is configured (OAuth redirect). */
+  oauth?: { INSTAGRAM: boolean; TIKTOK: boolean }
+  /** `?error=` from the OAuth callback, already mapped to a translation key. */
+  connectError?: string | null
 }) {
   const t = useTranslations('onboarding')
   const common = useTranslations('common')
@@ -69,7 +76,8 @@ export function OnboardingFlow({
 
   const [step, setStep] = useState(existing ? (existing.accounts.length > 0 ? 4 : 2) : 1)
   const [pending, setPending] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(connectError ?? null)
+  const anyOauth = Boolean(oauth?.INSTAGRAM || oauth?.TIKTOK)
 
   // step 1
   const [city, setCity] = useState(existing?.city ?? prefill?.city ?? 'stockholm')
@@ -133,6 +141,21 @@ export function OnboardingFlow({
     ])
     // A personal account gets the Creator-switch screen; a creator account skips it.
     go(result.data?.tier === 'CONNECTED_API' ? 4 : 3)
+  }
+
+  /** The fake-provider branch of ConnectAccountButton (one platform real, one not). */
+  function onConnectedFake({ tier, handle: connectedHandle }: { tier: string; handle: string }) {
+    setAccounts([
+      {
+        id: 'pending',
+        handle: connectedHandle,
+        tier,
+        followers: 0,
+        avgViews30d: 0,
+        accountType: tier === 'CONNECTED_API' ? 'creator' : 'personal',
+      },
+    ])
+    go(tier === 'CONNECTED_API' ? 4 : 3)
   }
 
   async function onFinish() {
@@ -255,18 +278,44 @@ export function OnboardingFlow({
             </div>
           </div>
 
-          <input
-            className="field"
-            placeholder="@handle"
-            value={handle}
-            onChange={(e) => setHandle(e.target.value)}
-          />
+          {anyOauth ? (
+            <div className="grid gap-2">
+              <ConnectAccountButton
+                platform="INSTAGRAM"
+                oauth={Boolean(oauth?.INSTAGRAM)}
+                label={t('connect.connect')}
+                returnTo="/onboarding"
+                onConnected={onConnectedFake}
+                onError={setError}
+              />
+              <p className="text-center text-xs text-[var(--color-ink-3)]">{t('connect.or')}</p>
+              <ConnectAccountButton
+                platform="TIKTOK"
+                oauth={Boolean(oauth?.TIKTOK)}
+                label={t('connect.connectTikTok')}
+                returnTo="/onboarding"
+                className="btn btn-secondary w-full"
+                onConnected={onConnectedFake}
+                onError={setError}
+              />
+              {error && <p className="error-text">{error}</p>}
+            </div>
+          ) : (
+            <>
+              <input
+                className="field"
+                placeholder="@handle"
+                value={handle}
+                onChange={(e) => setHandle(e.target.value)}
+              />
 
-          {error && <p className="error-text">{error}</p>}
+              {error && <p className="error-text">{error}</p>}
 
-          <button type="button" className="btn btn-primary w-full" disabled={pending} onClick={onConnect}>
-            {t('connect.connect')}
-          </button>
+              <button type="button" className="btn btn-primary w-full" disabled={pending} onClick={onConnect}>
+                {t('connect.connect')}
+              </button>
+            </>
+          )}
         </section>
       )}
 

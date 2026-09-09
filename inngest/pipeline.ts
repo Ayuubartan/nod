@@ -9,8 +9,8 @@
 
 import { prisma } from '@/lib/db'
 import { inngest } from '@/lib/events'
-import { tryDecrypt } from '@/lib/crypto'
-import { socialProvider } from '@/lib/integrations/instagram'
+import { providerFor } from '@/lib/integrations/social'
+import { freshToken } from '@/lib/social-sync'
 import { perceptualHash } from '@/lib/media'
 import { HOLD_MS, LIMITS, TIMEOUT_MS } from '@/lib/money/rates'
 import { holdDurationMs, holdEnded, publish, retryGeneration } from '@/lib/state/placement'
@@ -25,6 +25,17 @@ import {
   notifyQualified,
   notifyRejected,
 } from '@/lib/notify'
+
+/** What `freshToken` and the provider registry need from a placement's account. */
+const ACCOUNT_TOKEN_FIELDS = {
+  id: true,
+  platform: true,
+  tier: true,
+  accessToken: true,
+  refreshToken: true,
+  tokenExpiresAt: true,
+  platformUserId: true,
+} as const
 
 /**
  * API-tier post detection — docs/06 section 1: poll recent media every 2h for a caption
@@ -50,17 +61,17 @@ export const detectPost = inngest.createFunction(
             disclosureTextIssued: true,
             originalHash: true,
             publishedAt: true,
-            account: { select: { tier: true, accessToken: true, platformUserId: true } },
+            account: { select: ACCOUNT_TOKEN_FIELDS },
           },
         })
 
         if (!placement || placement.state !== 'APPROVED') return 'stop'
         if (placement.account.tier !== 'CONNECTED_API') return 'skip'
 
-        const token = tryDecrypt(placement.account.accessToken)
+        const token = await freshToken(placement.account)
         if (!token) return 'skip'
 
-        const provider = socialProvider()
+        const provider = providerFor(placement.account.platform)
         const since = new Date(Date.now() - TIMEOUT_MS.approvedToPublish)
         const media = await provider.recentMedia(token, since)
 
@@ -283,7 +294,7 @@ async function pullViews(placementId: string): Promise<ViewSnapshotResult> {
     where: { id: placementId },
     select: {
       postPlatformId: true,
-      account: { select: { tier: true, accessToken: true, platformUserId: true } },
+      account: { select: ACCOUNT_TOKEN_FIELDS },
     },
   })
 
@@ -300,7 +311,7 @@ async function pullViews(placementId: string): Promise<ViewSnapshotResult> {
     }
   }
 
-  const token = tryDecrypt(placement.account.accessToken)
+  const token = await freshToken(placement.account)
   if (!token) {
     return {
       observedPlatformUserId: null,
@@ -314,7 +325,7 @@ async function pullViews(placementId: string): Promise<ViewSnapshotResult> {
     }
   }
 
-  const provider = socialProvider()
+  const provider = providerFor(placement.account.platform)
 
   try {
     const { views } = await provider.insights(token, placement.postPlatformId)
@@ -352,17 +363,17 @@ async function isPostStillLive(placementId: string): Promise<boolean> {
     where: { id: placementId },
     select: {
       postPlatformId: true,
-      account: { select: { tier: true, accessToken: true } },
+      account: { select: ACCOUNT_TOKEN_FIELDS },
     },
   })
 
   if (placement.account.tier !== 'CONNECTED_API' || !placement.postPlatformId) return true
 
-  const token = tryDecrypt(placement.account.accessToken)
+  const token = await freshToken(placement.account)
   if (!token) return true
 
   try {
-    const media = await socialProvider().recentMedia(token, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
+    const media = await providerFor(placement.account.platform).recentMedia(token, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
     return media.some((m) => m.id === placement.postPlatformId)
   } catch {
     // An API failure must not cost a participant their payout — treat as still live and

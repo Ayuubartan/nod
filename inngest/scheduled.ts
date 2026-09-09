@@ -10,7 +10,8 @@ import { prisma } from '@/lib/db'
 import { inngest } from '@/lib/events'
 import { encrypt, tryDecrypt } from '@/lib/crypto'
 import { flag } from '@/lib/flags'
-import { socialProvider } from '@/lib/integrations/instagram'
+import { providerFor } from '@/lib/integrations/social'
+import { syncAccount } from '@/lib/social-sync'
 import { LIMITS, TIMEOUT_MS } from '@/lib/money/rates'
 import {
   allPlacementsTerminal,
@@ -46,12 +47,14 @@ export const campaignGoLive = inngest.createFunction(
 )
 
 /**
- * Instagram long-lived tokens last 60 days and must be refreshed while still valid.
- * On failure the account goes DISCONNECTED and open placements pause for up to 72h
- * before falling back to the screenshot tier (edge case 7).
+ * Instagram long-lived tokens last 60 days and must be refreshed while still valid;
+ * TikTok access tokens last 24 hours and are minted from a 365-day refresh token, so
+ * they show up here every night. On failure the account goes DISCONNECTED and open
+ * placements pause for up to 72h before falling back to the screenshot tier (edge
+ * case 7).
  */
 export const tokenRefresh = inngest.createFunction(
-  { id: 'token-refresh', name: 'Instagram token refresh' },
+  { id: 'token-refresh', name: 'Social token refresh' },
   { cron: '0 3 * * *' },
   async ({ step }) => {
     const soon = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
@@ -60,10 +63,11 @@ export const tokenRefresh = inngest.createFunction(
       prisma.socialAccount.findMany({
         where: {
           deletedAt: null,
-          tier: 'CONNECTED_API',
+          tier: { in: ['CONNECTED_API', 'CONNECTED_SCREENSHOT'] },
+          accessToken: { not: null },
           tokenExpiresAt: { lte: soon },
         },
-        select: { id: true, accessToken: true },
+        select: { id: true, platform: true, accessToken: true, refreshToken: true },
       }),
     )
 
@@ -75,13 +79,14 @@ export const tokenRefresh = inngest.createFunction(
         const token = tryDecrypt(account.accessToken)
         if (!token) return false
         try {
-          const next = await socialProvider().refresh(token)
+          const next = await providerFor(account.platform).refresh(token, tryDecrypt(account.refreshToken))
           await prisma.socialAccount.update({
             where: { id: account.id },
             data: {
               accessToken: encrypt(next.token),
+              // TikTok rotates the refresh token on every refresh; Instagram has none.
+              refreshToken: next.refreshToken ? encrypt(next.refreshToken) : account.refreshToken,
               tokenExpiresAt: next.expiresAt,
-              lastSyncedAt: new Date(),
             },
           })
           return true
@@ -98,6 +103,37 @@ export const tokenRefresh = inngest.createFunction(
     }
 
     return { refreshed, disconnected }
+  },
+)
+
+/**
+ * Daily analytics pull — docs/06 sections 1-2. Followers and the 30-day view average
+ * for every connected account, appended to `SocialAccountSnapshot` so participants see
+ * their history. Runs after the token refresh so nothing here hits an expired token.
+ */
+export const socialSync = inngest.createFunction(
+  { id: 'social-sync', name: 'Social account analytics sync' },
+  { cron: '0 5 * * *' },
+  async ({ step }) => {
+    const accounts = await step.run('find-connected', () =>
+      prisma.socialAccount.findMany({
+        where: {
+          deletedAt: null,
+          tier: { in: ['CONNECTED_API', 'CONNECTED_SCREENSHOT', 'BELOW_FLOOR'] },
+          accessToken: { not: null },
+        },
+        select: { id: true },
+      }),
+    )
+
+    let synced = 0
+    let failed = 0
+    for (const account of accounts) {
+      const result = await step.run(`sync-${account.id}`, () => syncAccount(account.id))
+      if (result.ok) synced += 1
+      else failed += 1
+    }
+    return { synced, failed }
   },
 )
 
@@ -444,6 +480,10 @@ export const gdprErasure = inngest.createFunction(
           await tx.socialAccount.updateMany({
             where: { userId: user.id },
             data: { accessToken: null, refreshToken: null, deletedAt: new Date() },
+          })
+          await tx.socialAccountSnapshot.updateMany({
+            where: { account: { userId: user.id } },
+            data: { deletedAt: new Date() },
           })
           await tx.placement.updateMany({
             where: { userId: user.id },

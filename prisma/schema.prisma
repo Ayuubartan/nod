@@ -210,8 +210,9 @@ model SocialAccount {
   lastSyncedAt   DateTime?
   disconnectedAt DateTime?
 
-  user       User        @relation(fields: [userId], references: [id])
+  user       User                    @relation(fields: [userId], references: [id])
   placements Placement[]
+  snapshots  SocialAccountSnapshot[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -219,6 +220,27 @@ model SocialAccount {
 
   @@unique([platform, platformUserId])
   @@index([userId])
+}
+
+/**
+ * One row per analytics sync — the follower / view history behind the "your accounts"
+ * page. Aggregates only (docs/07): no per-post rows, no audience demographics.
+ */
+model SocialAccountSnapshot {
+  id          String   @id @default(cuid())
+  accountId   String
+  followers   Int
+  avgViews30d Int
+  posts30d    Int      @default(0)
+  capturedAt  DateTime @default(now())
+
+  account SocialAccount @relation(fields: [accountId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([accountId, capturedAt])
 }
 
 model Strike {

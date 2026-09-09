@@ -5,6 +5,8 @@ import { readSession } from '@/lib/session'
 import { OnboardingFlow } from '@/components/participant/OnboardingFlow'
 import { nextDropLabel } from '@/lib/marketplace'
 import { prefillFromWaitlist } from '@/lib/waitlist'
+import { usesFake } from '@/lib/integrations/social'
+import { getTranslations } from 'next-intl/server'
 
 /**
  * Onboarding — docs/02 A1, five screens, target under three minutes.
@@ -19,7 +21,9 @@ import { prefillFromWaitlist } from '@/lib/waitlist'
  */
 export const dynamic = 'force-dynamic'
 
-export default async function OnboardingPage() {
+const CONNECT_ERRORS = ['denied', 'state', 'connectFailed', 'accountTaken'] as const
+
+export default async function OnboardingPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const authId = await currentAuthId()
   if (!authId) redirect('/sign-in?next=/onboarding')
   const email = (await readSession())?.email ?? null
@@ -35,6 +39,11 @@ export default async function OnboardingPage() {
   if (user && user.state !== 'SIGNED_UP') redirect('/campaigns')
 
   const prefill = user ? null : await prefillFromWaitlist(email)
+
+  // A cancelled or failed OAuth round-trip lands back here with `?error=`.
+  const { error } = await searchParams
+  const errorKey = CONNECT_ERRORS.find((k) => k === error)
+  const connectError = errorKey ? (await getTranslations('onboarding'))(`connect.error.${errorKey}`) : null
 
   return (
     <OnboardingFlow
@@ -60,6 +69,8 @@ export default async function OnboardingPage() {
       }
       nextDrop={nextDropLabel().toISOString()}
       prefill={prefill}
+      oauth={{ INSTAGRAM: !usesFake('INSTAGRAM'), TIKTOK: !usesFake('TIKTOK') }}
+      connectError={connectError}
     />
   )
 }

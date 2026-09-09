@@ -30,7 +30,8 @@ Compliance is a product feature: disclosed, consented, verified placements are w
 | Personnummer | **No** | — | — |
 | BankID subject hash, birth year, verified date | Yes | `Identity` | Hash retained after removal; rest erased on request |
 | Swish number | Yes, encrypted | `User` | Until account deletion |
-| Instagram token | Yes, encrypted | `SocialAccount` | Until disconnect |
+| Instagram / TikTok tokens | Yes, encrypted | `SocialAccount` | Cleared on disconnect; row soft-deleted on erasure |
+| Account analytics (followers, 30-day avg views, post count) | Yes, aggregates only | `SocialAccount`, `SocialAccountSnapshot` | Daily snapshot while connected; soft-deleted on erasure |
 | Original images | Yes | Supabase Storage | 90d after placement terminal, unless training consent |
 | Screenshots | Yes | Storage | 30d after verification decision |
 | View counts | Yes | `ViewSnapshot` | 7 years (bookkeeping support) |

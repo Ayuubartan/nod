@@ -254,15 +254,22 @@
       "under18": "Boogaa is only for people aged 18 and over."
     },
     "connect": {
-      "title": "Connect your Instagram",
-      "sub": "We only read your public profile, your posts and your view stats.",
+      "title": "Connect your accounts",
+      "sub": "Instagram or TikTok — both work. We only read your public profile, your posts and your view stats.",
       "weRead": "What we read",
       "weReadItems": "Profile and follower count · Your posts · View statistics",
       "weNever": "What we never do",
       "weNeverItems": "Post for you · Edit your posts · Send messages · Follow or like",
       "connect": "Connect Instagram",
       "connectTikTok": "Connect TikTok",
-      "skip": "Skip for now"
+      "skip": "Skip for now",
+      "or": "or",
+      "error": {
+        "denied": "You cancelled before we got access. Nothing was connected.",
+        "state": "That link had expired. Try connecting again.",
+        "connectFailed": "We could not read the account. Try again in a moment.",
+        "accountTaken": "That account is already connected to another profile."
+      }
     },
     "creator": {
       "title": "Switch to a Creator account",
@@ -517,16 +524,51 @@
   },
   "accounts": {
     "title": "Accounts",
+    "sub": "Connect Instagram and TikTok. We read your numbers — <brand></brand> never posts for you.",
     "add": "Add account",
+    "connectInstagram": "Connect Instagram",
+    "connectTiktok": "Connect TikTok",
     "reconnect": "Reconnect",
+    "disconnect": "Disconnect",
+    "disconnecting": "Disconnecting…",
+    "sync": "Update now",
+    "syncing": "Updating…",
+    "handlePlaceholder": "@handle",
+    "platform": {
+      "INSTAGRAM": "Instagram",
+      "TIKTOK": "TikTok"
+    },
     "tier": {
       "CONNECTED_API": "Automatic stats",
       "CONNECTED_SCREENSHOT": "Screenshots",
       "BELOW_FLOOR": "Below the floor",
       "DISCONNECTED": "Disconnected"
     },
+    "stats": {
+      "followers": "Followers",
+      "avgViews": "Avg. views, 30 days",
+      "posts30d": "Posts, 30 days",
+      "change30d": "Last 30 days",
+      "noHistory": "History builds up from the next update."
+    },
+    "lastSynced": "Updated {when}",
+    "neverSynced": "Not updated yet",
     "belowFloorHint": "We check again every month.",
-    "disconnectedHint": "Reconnect to keep getting campaigns."
+    "disconnectedHint": "Reconnect to keep getting campaigns.",
+    "privateHint": "Your videos are private, so we cannot read views — you send screenshots instead.",
+    "readOnly": "Read-only access. You can disconnect at any time; we delete the tokens straight away.",
+    "connected": "Connected — your numbers are in.",
+    "error": {
+      "denied": "You cancelled before we got access. Nothing was connected.",
+      "state": "That link had expired. Try connecting again.",
+      "invalidPlatform": "Unknown platform.",
+      "connectFailed": "We could not read the account. Try again in a moment.",
+      "accountTaken": "That account is already connected to another profile.",
+      "tooSoon": "Already updated within the last hour.",
+      "syncFailed": "We could not read your numbers right now. Try again later.",
+      "disconnected": "This account is disconnected. Reconnect it first.",
+      "notFound": "We could not find that account."
+    }
   },
   "invite": {
     "title": "Invite",
