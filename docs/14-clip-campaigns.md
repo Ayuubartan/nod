@@ -105,6 +105,9 @@ Reject reasons: `NOT_OWNER`, `NOT_FOUND`, `OUTSIDE_WINDOW`, `NO_DISCLOSURE`, `DE
   serious strike (placement edge case 5). A dead token pauses the account's submissions
   (`nextCheckAt += 6 h`) and notifies the creator; they resume on reconnect.
 - Failures back off: `consecutiveFailures` ≥ 3 doubles the delay, capped at 24 h.
+- Code: `lib/clips/tracking.ts` (`planTrackingBatches`, `trackBatch`) with the Inngest
+  wrappers in `inngest/clips.ts`; `tests/clips/tracking.db.test.ts` drives it with explicit
+  clocks.
 
 ## 5. Validation and settlement
 
@@ -121,7 +124,12 @@ At `validationEndsAt` (= `submittedAt + campaign.validationHours`, default 168):
    never exceeds the reservation; the remainder is released. Entries carry
    `submissionId`; `externalRef = "settle:submission:<id>"` makes the write idempotent.
 4. `budgetExhausted` submissions with `reservationOre = 0` qualify with a 0 kr payout and
-   the creator sees exactly that; no promise was made.
+   the creator sees exactly that; no promise was made. A post under the view floor also
+   settles at 0 kr, with its own message ("below the floor", not "budget ran out").
+5. `submission-validate` runs every 10 min over `TRACKING` rows past `validationEndsAt`
+   plus anything left in `VALIDATING` by an earlier failed pull, 200 per run, up to three
+   provider attempts per row per run. One "not returned" at the deadline is a retry, not
+   a settlement on stale numbers; the second one is `DELETED_EARLY`.
 
 ## 6. Ops
 
@@ -130,6 +138,9 @@ At `validationEndsAt` (= `submittedAt + campaign.validationHours`, default 168):
   Approving cannot bypass disclosure — a `NO_DISCLOSURE` reject is final.
 - Per-campaign controls: pause joins, pause submissions (flags on the Campaign row).
 - Ownership re-verification on `HELD` uses the same provider path as S-01.
+- Sweeps: `submission-stale-received` (hourly, `RECEIVED` > 24 h → ops alert) and
+  `submission-held-reminder` (08:00 daily, `HELD` > 7 days → ops alert). Neither auto-fails
+  a row: the reservation stays locked until a person decides.
 
 ## 7. Scale notes (20 k creators / 60 k submissions per campaign)
 

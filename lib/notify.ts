@@ -247,6 +247,91 @@ export async function notifyFraudFlag(placementId: string, score: number): Promi
   await notifyOps(`Fraud flag: placement ${placementId} scored ${score}`, { placementId, score })
 }
 
+// ---------------------------------------------------------------- clip submissions (docs/14)
+
+async function submissionContext(submissionId: string) {
+  return prisma.submission.findUniqueOrThrow({
+    where: { id: submissionId },
+    select: {
+      userId: true,
+      campaignId: true,
+      platform: true,
+      reservationOre: true,
+      campaign: { select: { validationHours: true, brand: { select: { name: true } }, payoutTemplate: { select: { viewFloor: true } } } },
+    },
+  })
+}
+
+/** "2 000" in sv, "2,000" in en — never a bare digit run in a push. */
+const formatViews = (views: number, locale: string) => views.toLocaleString(locale === 'sv' ? 'sv-SE' : 'en-GB')
+
+export async function notifyClipTracking(submissionId: string): Promise<void> {
+  const s = await submissionContext(submissionId)
+  const locale = await localeOf(s.userId)
+  await push(s.userId, {
+    title: t(locale, 'notify.clipTracking.title'),
+    body: t(locale, 'notify.clipTracking.body', { brand: s.campaign.brand.name, days: Math.round(s.campaign.validationHours / 24) }),
+    url: `/campaigns/${s.campaignId}`,
+  })
+}
+
+export async function notifyClipFixDisclosure(
+  submissionId: string,
+  detail: { disclosureOk: boolean; missingHashtags: string[]; missingMentions: string[] },
+): Promise<void> {
+  const s = await submissionContext(submissionId)
+  const locale = await localeOf(s.userId)
+  const missing = [
+    ...(detail.disclosureOk ? [] : [t(locale, 'submission.rejectReasons.NO_DISCLOSURE').toLowerCase()]),
+    ...detail.missingHashtags.map((h) => `#${h}`),
+    ...detail.missingMentions.map((m) => `@${m}`),
+  ].join(', ')
+  await push(s.userId, {
+    title: t(locale, 'notify.clipFixDisclosure.title'),
+    body: t(locale, 'notify.clipFixDisclosure.body', { brand: s.campaign.brand.name, missing }),
+    url: `/campaigns/${s.campaignId}`,
+  })
+}
+
+export async function notifyClipQualified(submissionId: string, amountOre: number, views: number): Promise<void> {
+  const s = await submissionContext(submissionId)
+  const locale = await localeOf(s.userId)
+  // A 0 kr result is either the budget-exhausted case (docs/14 D2: no reservation was
+  // ever held) or a post under the view floor. Say which, no dressing up.
+  const key = amountOre > 0 ? 'clipQualified' : s.reservationOre === 0 ? 'clipQualifiedZero' : 'clipQualifiedBelowFloor'
+  await push(s.userId, {
+    title: t(locale, `notify.${key}.title`),
+    body: t(locale, `notify.${key}.body`, {
+      amount: formatKrDown(amountOre, locale),
+      brand: s.campaign.brand.name,
+      views: formatViews(views, locale),
+      floor: formatViews(s.campaign.payoutTemplate?.viewFloor ?? 0, locale),
+    }),
+    url: amountOre > 0 ? '/wallet' : `/campaigns/${s.campaignId}`,
+  })
+}
+
+export async function notifyClipRejected(submissionId: string, reason: string): Promise<void> {
+  const s = await submissionContext(submissionId)
+  const locale = await localeOf(s.userId)
+  await push(s.userId, {
+    title: t(locale, 'notify.clipRejected.title'),
+    body: t(locale, 'notify.clipRejected.body', { reason: t(locale, `submission.rejectReasons.${reason}`) }),
+    url: `/campaigns/${s.campaignId}`,
+  })
+  log.info('submission rejected', { submissionId, reason })
+}
+
+/** The account's token stopped working while clips were tracking (docs/14 §4). */
+export async function notifyClipTokenPaused(userId: string, platform: string): Promise<void> {
+  const locale = await localeOf(userId)
+  await push(userId, {
+    title: t(locale, 'notify.clipTokenPaused.title'),
+    body: t(locale, 'notify.clipTokenPaused.body', { platform: platform === 'TIKTOK' ? 'TikTok' : 'Instagram' }),
+    url: '/accounts',
+  })
+}
+
 // ---------------------------------------------------------------- brand
 
 async function brandRecipients(campaignId: string): Promise<string[]> {

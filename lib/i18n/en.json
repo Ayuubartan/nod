@@ -629,6 +629,34 @@
     "payoutSent": {
       "title": "Payout sent",
       "body": "{amount} via Swish."
+    },
+    "clipTracking": {
+      "title": "Clip is being tracked",
+      "body": "We're counting views on your clip for {brand} for {days} days."
+    },
+    "clipFixDisclosure": {
+      "title": "Add the disclosure",
+      "body": "Your clip for {brand} is missing {missing}. You have 12 hours to update the caption."
+    },
+    "clipQualified": {
+      "title": "You got paid",
+      "body": "{amount} for your clip for {brand} ({views} views)."
+    },
+    "clipQualifiedZero": {
+      "title": "Clip approved",
+      "body": "{brand}'s budget ran out before your clip was validated, so no payout this time."
+    },
+    "clipQualifiedBelowFloor": {
+      "title": "Clip approved",
+      "body": "Your clip for {brand} reached {views} views, below the {floor} needed for a payout."
+    },
+    "clipRejected": {
+      "title": "Clip not approved",
+      "body": "{reason}"
+    },
+    "clipTokenPaused": {
+      "title": "Reconnect your account",
+      "body": "We can no longer read your views on {platform}. Reconnect the account and tracking continues."
     }
   },
   "brandApp": {
@@ -904,6 +932,18 @@
       "invalidEmail": "That doesn't look like an email address.",
       "notYet": "Not in the queue yet?",
       "join": "Join the queue"
+    }
+  },
+  "submission": {
+    "rejectReasons": {
+      "NOT_OWNER": "The post is not on your connected account",
+      "NOT_FOUND": "The post could not be found",
+      "OUTSIDE_WINDOW": "The post was published outside the campaign period",
+      "NO_DISCLOSURE": "No disclosure",
+      "DELETED_EARLY": "The post was removed before tracking finished",
+      "FRAUD": "Suspicious activity",
+      "OPS_REJECTED": "Rejected on review",
+      "DUPLICATE": "The post was already submitted"
     }
   }
 }

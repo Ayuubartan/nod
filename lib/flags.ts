@@ -59,6 +59,11 @@ export const FLAG_DEFAULTS = {
   // placement engine — off sends every render to the ops queue (the M2 pilot mode)
   'engine.autoRender': true,
 
+  // clip tracking circuit breakers (docs/14 §4) — off skips the platform in the scheduler;
+  // rows keep their nextCheckAt and catch up when re-enabled
+  'tracking.tiktok.enabled': true,
+  'tracking.instagram.enabled': true,
+
   // brand safety — prohibited regardless of what the brand asks for (docs/07 section 6)
   'safety.prohibitedCategories': [
     'gambling',

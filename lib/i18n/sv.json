@@ -629,6 +629,34 @@
     "payoutSent": {
       "title": "Utbetalning skickad",
       "body": "{amount} via Swish."
+    },
+    "clipTracking": {
+      "title": "Klippet spåras",
+      "body": "Vi räknar visningar på ditt klipp för {brand} i {days} dagar."
+    },
+    "clipFixDisclosure": {
+      "title": "Lägg till reklammärkning",
+      "body": "Ditt klipp för {brand} saknar {missing}. Du har 12 timmar på dig att uppdatera texten."
+    },
+    "clipQualified": {
+      "title": "Du fick betalt",
+      "body": "{amount} för ditt klipp för {brand} ({views} visningar)."
+    },
+    "clipQualifiedZero": {
+      "title": "Klippet godkänt",
+      "body": "Budgeten för {brand} tog slut innan ditt klipp validerades, så ingen ersättning den här gången."
+    },
+    "clipQualifiedBelowFloor": {
+      "title": "Klippet godkänt",
+      "body": "Ditt klipp för {brand} nådde {views} visningar, under gränsen på {floor} som krävs för ersättning."
+    },
+    "clipRejected": {
+      "title": "Klippet godkändes inte",
+      "body": "{reason}"
+    },
+    "clipTokenPaused": {
+      "title": "Koppla om ditt konto",
+      "body": "Vi kan inte längre läsa dina visningar på {platform}. Koppla om kontot så fortsätter spårningen."
     }
   },
   "brandApp": {
@@ -904,6 +932,18 @@
       "invalidEmail": "Det där ser inte ut som en e-postadress.",
       "notYet": "Inte i kön än?",
       "join": "Ställ dig i kön"
+    }
+  },
+  "submission": {
+    "rejectReasons": {
+      "NOT_OWNER": "Inlägget finns inte på ditt kopplade konto",
+      "NOT_FOUND": "Inlägget hittades inte",
+      "OUTSIDE_WINDOW": "Inlägget publicerades utanför kampanjperioden",
+      "NO_DISCLOSURE": "Ingen reklammärkning",
+      "DELETED_EARLY": "Inlägget togs bort innan spårningen var klar",
+      "FRAUD": "Misstänkt aktivitet",
+      "OPS_REJECTED": "Nekad vid granskning",
+      "DUPLICATE": "Inlägget var redan inskickat"
     }
   }
 }

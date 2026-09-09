@@ -152,6 +152,7 @@ describe('verifySubmission — disclosure fix window (rule 5)', () => {
 
     expect(await verifySubmission(s.id, now)).toEqual({
       outcome: 'fix_disclosure',
+      entered: true,
       disclosureOk: false,
       missingHashtags: ['kaffeklubben'],
       missingMentions: [],
@@ -172,7 +173,7 @@ describe('verifySubmission — disclosure fix window (rule 5)', () => {
 
     // Still missing an hour later: the window keeps running, nothing changes.
     const later = new Date(Date.now() + HOUR)
-    expect((await verifySubmission(s.id, later)).outcome).toBe('fix_disclosure')
+    expect(await verifySubmission(s.id, later)).toMatchObject({ outcome: 'fix_disclosure', entered: false })
     expect((await db.submission.findUniqueOrThrow({ where: { id: s.id } })).state).toBe('FIX_DISCLOSURE')
 
     fake.setPost(TOKEN, { postId: s.postId, caption: GOOD_CAPTION, publishedAt: new Date() })

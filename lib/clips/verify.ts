@@ -26,7 +26,8 @@ import {
 
 export type VerifyOutcome =
   | { outcome: 'tracking' }
-  | { outcome: 'fix_disclosure'; missingHashtags: string[]; missingMentions: string[]; disclosureOk: boolean }
+  /** `entered` is true the first time the row moves into FIX_DISCLOSURE, false on a re-check inside the window. */
+  | { outcome: 'fix_disclosure'; entered: boolean; missingHashtags: string[]; missingMentions: string[]; disclosureOk: boolean }
   | { outcome: 'rejected'; reason: 'NOT_OWNER' | 'OUTSIDE_WINDOW' | 'NO_DISCLOSURE' }
   | { outcome: 'retry'; why: 'no_token' | 'rate_limited' | 'transient' | 'unauthorized'; retryAfterMs?: number }
   | { outcome: 'skipped'; state: string }
@@ -132,11 +133,11 @@ export async function verifySubmission(submissionId: string, now: Date = new Dat
 
   if (submission.state === 'RECEIVED') {
     await needsDisclosureFix(submissionId, detail, undefined, now)
-    return { outcome: 'fix_disclosure', ...detail }
+    return { outcome: 'fix_disclosure', entered: true, ...detail }
   }
   if (windowOpen) {
     // Re-checked early (creator pressed "I fixed it") but still missing; window keeps running.
-    return { outcome: 'fix_disclosure', ...detail }
+    return { outcome: 'fix_disclosure', entered: false, ...detail }
   }
 
   await rejectSubmission({ submissionId, reason: 'NO_DISCLOSURE', note: describeMissing(detail) })

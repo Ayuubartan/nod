@@ -41,6 +41,15 @@ describe('inngest registration', () => {
     expect(ids).toContain('gdpr-erasure')
     // Training export (docs/06 section 6).
     expect(ids).toContain('training-export')
+    // Clip campaigns (docs/14): every timed submission state has an owner.
+    expect(ids).toContain('submission-verify') // RECEIVED
+    expect(ids).toContain('submission-fix-window') // FIX_DISCLOSURE
+    expect(ids).toContain('submission-track-scheduler') // TRACKING cadence
+    expect(ids).toContain('submission-track-tiktok')
+    expect(ids).toContain('submission-track-instagram')
+    expect(ids).toContain('submission-validate') // TRACKING → VALIDATING → settled
+    expect(ids).toContain('submission-stale-received')
+    expect(ids).toContain('submission-held-reminder') // HELD
   })
 
   it('gives every state that can EXPIRE a timeout owner', () => {
