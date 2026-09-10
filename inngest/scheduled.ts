@@ -514,6 +514,7 @@ export const gdprErasure = inngest.createFunction(
             data: {
               state: 'REMOVED',
               email: null,
+              name: null,
               swishNumber: null,
               city: null,
               ageBracket: null,

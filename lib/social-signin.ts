@@ -1,37 +1,38 @@
 /**
- * Social sign-in (Google, Apple) — docs/08 "Auth: Supabase Auth (phone OTP, Apple,
- * Google, magic link)", the one method docs/11 still listed as unwired.
+ * Social sign-in (Google, Facebook) — docs/08 "Auth: ... Apple, Google".
  *
  * The shape is deliberately the same as the email code flow rather than a second
- * identity system beside it. Supabase proves the address; everything after that is
+ * identity system beside it. A provider proves the address; everything after that is
  * `resolveIdentity` from lib/login.ts — the same function the code flow calls — so the
  * waitlist gate, the OPS_EMAIL rule, the brand allowlist and the onboarding hand-off
  * behave identically whichever button the person pressed. The result is NOD's own
- * signed cookie (lib/session.ts), and the Supabase session is ended immediately: two
- * live sessions for one person is a signing-out bug waiting to happen.
+ * signed cookie (lib/session.ts).
  *
  * Linking is by verified address. Someone who signed up with a code and later presses
  * "Continue with Google" on the same address lands on the same User row, because
- * `resolveIdentity` looks the address up before minting anything.
+ * `resolveIdentity` looks the address up before minting anything. That is only safe
+ * because of the check beside it: an address is trusted only when the provider says it
+ * is verified. Without it, a provider that lets an account assert an unverified address
+ * would be a way into someone else's NOD account.
  *
- * Routes: /api/sign-in/{provider}/start and /api/sign-in/callback. The connect-an-
- * account OAuth (Instagram/TikTok, lib/social-oauth.ts) lives under /api/auth/* and is
- * a different thing entirely — that one attaches a platform to a session, this one
- * creates the session.
+ * Routes: /api/sign-in/{provider}/start and /api/sign-in/{provider}/callback. The
+ * connect-an-account OAuth (Instagram/TikTok, lib/social-oauth.ts) lives under
+ * /api/auth/* and is a different thing entirely — that one attaches a platform to a
+ * session, this one creates the session.
  */
 
 import { cookies, headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { LoginAudience } from '@prisma/client'
-import type { LoginError } from './login'
-import { supabaseServer } from './auth'
 import { randomToken, safeEqual } from './crypto'
+import type { LoginError } from './login'
 import { normaliseEmail, resolveIdentity, safeNext } from './login'
 import { rateLimit } from './rate-limit'
 import { setSession } from './session'
+import { adapterFor, type SignInProvider } from './signin-providers'
 
-export const SOCIAL_PROVIDERS = ['google', 'apple'] as const
-export type SocialProvider = (typeof SOCIAL_PROVIDERS)[number]
+export const SOCIAL_PROVIDERS = ['google', 'facebook'] as const
+export type SocialProvider = SignInProvider
 
 export function isSocialProvider(value: string): value is SocialProvider {
   return (SOCIAL_PROVIDERS as readonly string[]).includes(value)
@@ -76,28 +77,39 @@ export function signInErrorFrom(raw: string | null | undefined): SignInError | n
 
 const STATE_COOKIE = 'NOD_SOCIAL_STATE'
 const STATE_TTL_S = 10 * 60
-const CALLBACK_PATH = '/api/sign-in/callback'
 
 /**
- * Which buttons to show.
+ * Which buttons to show: listed in `NOD_SOCIAL_PROVIDERS` **and** actually holding both
+ * halves of its credential pair.
  *
- * DECISION: an explicit `NOD_SOCIAL_PROVIDERS` list rather than "Supabase is configured,
- * so show both". Google and Apple are enabled one at a time in the Supabase dashboard,
- * and Apple in particular needs a paid developer account; a button that leads to a
- * provider error is worse than no button. Unset means email code only, which is what
- * every environment does today.
+ * Both conditions, because either alone produces a dead button. The list is explicit so
+ * that setting `META_APP_ID` for the Instagram connection does not silently put a
+ * "Continue with Facebook" button on the sign-in page before Facebook Login has been
+ * added as a product on that app — exactly the case a credential check alone misses.
+ *
+ * `NOD_FAKE_PROVIDERS` is deliberately not consulted. It simulates *connecting an
+ * account*; a simulated way to become any user is not a thing sign-in should have. The
+ * /dev persona cookie already covers local work.
  */
 export function enabledSocialProviders(): SocialProvider[] {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return []
   const configured = (process.env.NOD_SOCIAL_PROVIDERS ?? '')
     .split(',')
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean)
-  return SOCIAL_PROVIDERS.filter((p) => configured.includes(p))
+  return SOCIAL_PROVIDERS.filter((p) => configured.includes(p) && adapterFor(p).configured())
 }
 
 function siteUrl(request: Request): string {
   return process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin
+}
+
+/**
+ * Each provider gets its own callback path, mirroring /api/auth/[platform]/callback.
+ * Providers match redirect URIs exactly, so one path per provider is one registered URI
+ * per provider — and no way for a code issued for one to be presented as the other.
+ */
+export function callbackPath(provider: SocialProvider): string {
+  return `/api/sign-in/${provider}/callback`
 }
 
 function signInPath(audience: LoginAudience): string {
@@ -120,9 +132,8 @@ async function clientIp(): Promise<string> {
 /**
  * Step one: park the state and send the person to the provider.
  *
- * The state cookie carries the audience and the post-login destination as well as the
- * random nonce, so the callback needs no query parameters it did not itself set — a
- * callback URL someone else forged has nothing to match against.
+ * The cookie carries the provider, the audience and the destination as well as the
+ * random nonce, so the callback needs no query parameter it did not itself set.
  */
 export async function startSocialSignIn(request: Request, provider: string): Promise<Response> {
   const base = siteUrl(request)
@@ -139,7 +150,7 @@ export async function startSocialSignIn(request: Request, provider: string): Pro
 
   const state = randomToken(18)
   const store = await cookies()
-  store.set(STATE_COOKIE, JSON.stringify({ state, audience, next: next ?? null }), {
+  store.set(STATE_COOKIE, JSON.stringify({ state, provider, audience, next: next ?? null }), {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
@@ -147,34 +158,16 @@ export async function startSocialSignIn(request: Request, provider: string): Pro
     maxAge: STATE_TTL_S,
   })
 
-  try {
-    const supabase = await supabaseServer()
-    // skipBrowserRedirect: this is a route handler, so we do the redirecting. The
-    // client writes the PKCE verifier into its own cookie as a side effect, which is
-    // why the exchange in the callback works without us handling the verifier.
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${base}${CALLBACK_PATH}`,
-        skipBrowserRedirect: true,
-      },
-    })
-    if (error || !data?.url) return backToForm(base, audience, 'socialUnavailable', next)
-    return NextResponse.redirect(data.url)
-  } catch {
-    return backToForm(base, audience, 'socialUnavailable', next)
-  }
+  return NextResponse.redirect(
+    adapterFor(provider).authUrl({ state, redirectUri: `${base}${callbackPath(provider)}` }),
+  )
 }
 
 /**
  * Step two: prove the address, then hand over to the same identity resolution the code
  * flow uses.
- *
- * An address is only trusted when the provider says it is verified. Without that check
- * a provider that lets an account claim an unverified address would be a way into
- * someone else's NOD account, since linking is by address.
  */
-export async function finishSocialSignIn(request: Request): Promise<Response> {
+export async function finishSocialSignIn(request: Request, provider: string): Promise<Response> {
   const base = siteUrl(request)
   const store = await cookies()
   const raw = store.get(STATE_COOKIE)?.value
@@ -186,15 +179,17 @@ export async function finishSocialSignIn(request: Request): Promise<Response> {
   const { audience, next } = parsed
   const back = (error: string) => backToForm(base, audience, error, next)
 
+  // The code was issued for whichever provider started the flow; a callback for a
+  // different one means the cookie and the URL disagree, so neither is trusted.
+  if (!isSocialProvider(provider) || provider !== parsed.provider) return back('socialState')
+
   const params = new URL(request.url).searchParams
-  // The provider sends `error` when the person cancelled on the consent screen.
+  // Providers send `error` when the person pressed cancel on the consent screen.
   if (params.get('error')) return back('socialDenied')
 
-  const state = params.get('state')
-  // Supabase's PKCE flow does not round-trip our state, so it is absent here and the
-  // cookie alone is the proof that this browser started a sign-in. When a state does
-  // come back it must match.
-  if (state && !safeEqual(parsed.state, state)) return back('socialState')
+  // Direct OAuth always round-trips `state`, so its absence is a defect, not a variant.
+  const state = params.get('state') ?? ''
+  if (!state || !safeEqual(parsed.state, state)) return back('socialState')
 
   const code = params.get('code')
   if (!code) return back('socialDenied')
@@ -204,61 +199,47 @@ export async function finishSocialSignIn(request: Request): Promise<Response> {
   }
 
   let email: string
+  let name: string | null
   try {
-    const supabase = await supabaseServer()
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-    if (error || !data?.user) return back('socialFailed')
-
-    const user = data.user
+    const profile = await adapterFor(provider).exchange({
+      code,
+      redirectUri: `${base}${callbackPath(provider)}`,
+    })
     // The same normalisation verifyCode applies before resolveIdentity, so an address
     // links to exactly the same row whichever way it was proved.
-    const normalised = normaliseEmail(user.email ?? '')
-    // End the provider session at once: NOD's cookie is the session from here on, and
-    // signOutEverywhere should not have to end two of them. Local scope only — there is
-    // no other Supabase session of ours to revoke.
-    await supabase.auth.signOut({ scope: 'local' })
-
+    const normalised = normaliseEmail(profile.email)
     if (!normalised) return back('socialNoEmail')
-    if (!emailIsVerified(user)) return back('socialUnverified')
+    if (!profile.emailVerified) return back('socialUnverified')
     email = normalised
+    name = profile.name
   } catch {
+    // Provider outage, revoked app, expired code — never a reason to blame the person.
     return back('socialFailed')
   }
 
   const identity = await resolveIdentity(email, audience)
   if (!identity.ok) return back(identity.error)
 
-  await setSession(identity.authId, identity.email)
+  await setSession(identity.authId, identity.email, name)
   return NextResponse.redirect(`${base}${safeNext(next, identity.next)}`)
 }
 
 /** Exported for tests: a tampered or truncated cookie must read as no state at all. */
-export function parseState(raw: string | undefined): { state: string; audience: LoginAudience; next: string | null } | null {
+export function parseState(
+  raw: string | undefined,
+): { state: string; provider: SocialProvider; audience: LoginAudience; next: string | null } | null {
   if (!raw) return null
   try {
-    const parsed = JSON.parse(raw) as { state?: unknown; audience?: unknown; next?: unknown }
+    const parsed = JSON.parse(raw) as { state?: unknown; provider?: unknown; audience?: unknown; next?: unknown }
     if (typeof parsed.state !== 'string' || !parsed.state) return null
+    if (typeof parsed.provider !== 'string' || !isSocialProvider(parsed.provider)) return null
     return {
       state: parsed.state,
+      provider: parsed.provider,
       audience: parsed.audience === 'BRAND' ? 'BRAND' : 'PARTICIPANT',
       next: typeof parsed.next === 'string' ? parsed.next : null,
     }
   } catch {
     return null
   }
-}
-
-/**
- * Supabase confirms the address itself for OAuth providers that assert it, and mirrors
- * the provider's own claim into the identity metadata. Apple only returns an address on
- * the first authorization, so `email_confirmed_at` is what carries the fact afterwards.
- */
-export function emailIsVerified(user: {
-  email_confirmed_at?: string | null
-  confirmed_at?: string | null
-  user_metadata?: Record<string, unknown> | null
-}): boolean {
-  if (user.email_confirmed_at || user.confirmed_at) return true
-  const claim = user.user_metadata?.email_verified
-  return claim === true || claim === 'true'
 }

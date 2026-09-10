@@ -29,6 +29,7 @@ Compliance is a product feature: disclosed, consented, verified placements are w
 |---|---|---|---|
 | Personnummer | **No** | — | — |
 | BankID subject hash, birth year, verified date | Yes | `Identity` | Hash retained after removal; rest erased on request |
+| Display name | Yes, when a social sign-in supplies it | `User.name` | Never asked for in a form; never shown to brands; cleared by the erasure job |
 | Swish number | Yes, encrypted | `User` | Until account deletion |
 | Instagram / TikTok tokens | Yes, encrypted | `SocialAccount` | Cleared on disconnect; row soft-deleted on erasure |
 | Account analytics (followers, 30-day avg views, post count) | Yes, aggregates only | `SocialAccount`, `SocialAccountSnapshot` | Daily snapshot while connected; soft-deleted on erasure |
@@ -39,7 +40,7 @@ Compliance is a product feature: disclosed, consented, verified placements are w
 
 - Brand-facing data: aggregated only. Brands see handles and post links (public information) on placements, never email, phone, Swish, age, or identity data.
 - Rights: `/settings` → download my data (JSON export job) and delete account (30-day grace, then erasure job; ledger and audit retained under bookkeeping exemption; `subjectHash` retained to block re-registration — **[LAWYER]** confirm this retention basis).
-- Processors: Supabase, Vercel, Stripe, Resend, PostHog, Sentry, BankID broker, Meta. DPA with each; list them in the privacy policy.
+- Processors: Supabase, Vercel, Stripe, Resend, PostHog, Sentry, BankID broker, Meta, Google (sign-in only). DPA with each; list them in the privacy policy.
 - DPIA: **[LAWYER]** decide whether one is required given BankID + image processing at scale; draft it regardless — it's a good spec.
 
 ## 4. Platform terms

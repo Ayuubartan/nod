@@ -357,6 +357,7 @@ export async function suspendedLongerThan(days: number, now: Date = new Date()):
 export type SignUpInput = {
   authId: string
   email?: string | null
+  name?: string | null
   locale?: string
   city?: string | null
   ageBracket?: string | null
@@ -379,6 +380,7 @@ export async function signUp(input: SignUpInput, referralCodeFactory: () => stri
       data: {
         authId: input.authId,
         email: input.email ?? null,
+        name: input.name ?? null,
         locale: input.locale ?? 'sv',
         city: input.city ?? null,
         ageBracket: input.ageBracket ?? null,

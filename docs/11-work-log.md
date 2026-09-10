@@ -5,6 +5,90 @@ what it unlocked. Newest entry first. Each entry names the commit it describes.
 
 ---
 
+## 2026-09-10 (later) — Social sign-in, done directly instead of through Supabase
+
+**Ask:** make the logins actually work, and get the profile back from Google and
+Facebook.
+
+**This supersedes the entry below it, which shipped the same morning in `ab9cd78`.** That
+version brokered Google and Apple through Supabase Auth. It was not wrong, but it was
+carrying a whole service for one feature: **this project's database is Neon**, so
+Supabase would have existed on the account solely to pass an email address along — and
+with it a second redirect hop and a second exact-match allowlist to get wrong. The entry
+stays as written; a decision that lasted eight hours is still worth being able to read.
+
+### Direct OAuth — `lib/signin-providers.ts`
+
+Two adapters behind one small interface (`authUrl`, `exchange`, `configured`), the same
+shape `lib/integrations/social.ts` already uses for Instagram and TikTok:
+
+- **Google** — `openid email profile`, `access_type=online` (NOD has no reason to act
+  for someone while they are away, so it never asks for a refresh token) and
+  `prompt=select_account`, because someone with several Google accounts needs to pick
+  and silent reuse of the last one is a support ticket. The profile is read from the
+  userinfo endpoint rather than by decoding the `id_token`: the token came from Google's
+  own token endpoint over TLS in a request we made, so a signature check adds a JWT
+  dependency and a key-rotation concern without adding a fact.
+- **Facebook** — `public_profile,email` on the **same Meta app as the Instagram
+  connection**. It is a second product on that app, not a second app, so
+  `META_APP_ID`/`META_APP_SECRET` are reused and Google is the only provider that adds
+  new credentials. Facebook omits the address entirely when it has not confirmed one, so
+  a returned address *is* a verified one — and an absent one falls through to
+  `socialNoEmail`, which says "use an email code instead" instead of failing obscurely.
+
+**Apple is dropped from this phase**, on purpose: a paid developer account and a client
+secret that is an ES256 JWT to be regenerated every six months. It is a third adapter
+whenever that is worth doing.
+
+### What stayed, and one thing that got stricter
+
+The shell from the morning is unchanged and was the right shell: state cookie,
+`resolveIdentity`, NOD's own session cookie, the `?error=` allowlist, the form, the i18n.
+Only the middle — "get a verified address from a provider" — was swapped.
+
+One rule got stricter. The Supabase version tolerated a missing `state` on the callback,
+because its PKCE flow does not round-trip ours. Direct OAuth always does, so a missing
+`state` is now a defect rather than a variant. The cookie also carries **which** provider
+started the flow, and a callback under a different provider's path is refused — a code
+issued by one provider can never be presented as the other.
+
+`enabledSocialProviders()` now requires the provider to be **listed and credentialled**.
+Either condition alone yields a dead button, and the list is what stops `META_APP_ID` —
+set for the Instagram connection, quite possibly months earlier — from silently putting a
+"Continue with Facebook" button on the page before Facebook Login exists on that app.
+`NOD_FAKE_PROVIDERS` is deliberately never consulted here: it simulates *connecting an
+account*, and a simulated way to become any user is not something sign-in should own.
+
+### The profile — `User.name`
+
+`name` is the only field added, and only because a provider hands it over; there is no
+form for it anywhere and onboarding still asks only for city and age. No avatar: nothing
+in the product displays one, and storing a picture URL with no consumer is exactly what
+CLAUDE.md rule 7 forbids.
+
+It rides in the session cookie as an optional field, because a first-time social sign-in
+has no `User` row yet — onboarding creates that row and takes the name from the session.
+Older cookies have no `name` and still decode. Its consumer is ops: searchable next to
+handle and email, and shown on the participants list, which is what support actually
+needs when someone writes in under a name rather than a handle.
+
+`docs/07`'s minimisation table carries the field, and the GDPR erasure job clears it
+alongside `email` and `city`.
+
+### Tests and verification
+
+30 tests across `tests/social-signin.test.ts` (24) and the two added to
+`tests/session.test.ts`: the both-conditions env matrix, each adapter's authorize URL and
+its parsing of a mocked exchange, the Facebook no-email path, `parseState` against
+tampered and provider-less cookies, and the `?error=` allowlist.
+
+**The OAuth round-trip is not verified and cannot be from here** — it needs OAuth clients
+registered at Google and Meta, which only the account owner can create. What is verified
+is typecheck, lint, `next build`, the non-database suite, and the authorize URLs the
+adapters construct. The migration is one nullable column with no backfill.
+
+---
+
 ## 2026-09-10 — Social sign-in (Google, Apple)
 
 **Ask:** wire the social sign-in that `docs/08` has named since day one and this log has

@@ -23,6 +23,7 @@ export default async function OpsParticipantsPage({
         ? {
             OR: [
               { email: { contains: q, mode: 'insensitive' } },
+              { name: { contains: q, mode: 'insensitive' } },
               { city: { contains: q, mode: 'insensitive' } },
               { referralCode: { equals: q.toUpperCase() } },
               { accounts: { some: { handle: { contains: q, mode: 'insensitive' } } } },
@@ -53,7 +54,7 @@ export default async function OpsParticipantsPage({
       <h1 className="text-xl mb-4">Participants</h1>
 
       <form className="flex flex-wrap gap-2 mb-4" action="/ops/participants">
-        <input name="q" defaultValue={q ?? ''} placeholder="handle, email, city, code" className="field max-w-xs" />
+        <input name="q" defaultValue={q ?? ''} placeholder="name, handle, email, city, code" className="field max-w-xs" />
         <select name="state" defaultValue={state ?? ''} className="field max-w-40">
           <option value="">All states</option>
           {states.map((s) => (
@@ -84,6 +85,8 @@ export default async function OpsParticipantsPage({
             {users.map((user) => (
               <tr key={user.id} className="border-b border-[var(--color-line)] last:border-0 align-top">
                 <td className="px-4 py-3">
+                  {/* Only present when they signed in with a provider that gave one. */}
+                  {user.name && <p className="text-xs font-medium mb-1">{user.name}</p>}
                   <ul className="grid gap-1">
                     {user.accounts.map((account) => (
                       <li key={account.id} className="text-xs">

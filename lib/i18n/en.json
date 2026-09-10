@@ -853,7 +853,7 @@
     "switchToParticipant": "Are you a creator? Sign in here.",
     "continueWith": {
       "google": "Continue with Google",
-      "apple": "Continue with Apple"
+      "facebook": "Continue with Facebook"
     },
     "orEmail": "or with email",
     "signOut": "Sign out",

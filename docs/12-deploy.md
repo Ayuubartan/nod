@@ -113,7 +113,8 @@ Variables. The full list for **Production**:
 | `BANKID_SUBJECT_SALT` | a long random string; **never change it** once participants are verified, or every subject hash stops matching |
 | `NOD_MARKET` | `SE` |
 | `NOD_FAKE_PROVIDERS` | `1` for a demo deploy (see below); **unset** for a real pilot |
-| `NOD_SOCIAL_PROVIDERS` | `google` (or `google,apple`) turns on the social sign-in buttons. Unset means email code only — see below; the buttons stay hidden until this **and** the Supabase Auth variables exist. |
+| `NOD_SOCIAL_PROVIDERS` | `google` (or `google,facebook`) turns on the social sign-in buttons. Unset means email code only. A provider appears only when it is listed here **and** holds both its credentials — see below. |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google sign-in only; from the Google Cloud OAuth client (see below) |
 | `NOD_DEMO_LOGIN_CODE` | `1` shows the sign-in code on the page while no mail provider is set, so a demo without Resend can be entered — by anyone with the URL. Remove it the moment `RESEND_API_KEY` exists. |
 
 Push to `main`. Vercel builds, migrates, and deploys. The domain `joinbooga.se` is on
@@ -135,30 +136,43 @@ change; each provider then activates as soon as its own keys exist (docs/06).
   integration from the Vercel Marketplace; it sets `INNGEST_EVENT_KEY` and
   `INNGEST_SIGNING_KEY` and registers `/api/inngest`. Until then, timed states do not
   expire on their own. Free tier is enough for a pilot.
-- **Social sign-in** (Google/Apple, `lib/social-signin.ts`). The code is in place and
-  inert until four things are true, in this order:
-  1. A Supabase project exists and `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-     are set in Vercel. **A Neon-only deploy has neither**, which is why the buttons do
-     not appear on joinbooga.se today. Auth is all that is used here — the database
-     stays where it is.
-  2. The provider is enabled in Supabase → Authentication → Providers. Google needs an
-     OAuth client in Google Cloud (`https://<project>.supabase.co/auth/v1/callback` as
-     the authorised redirect URI); Apple needs a **paid** Apple Developer account, so
-     start with Google alone.
-  3. `https://<domain>/api/sign-in/callback` is on Supabase's **Redirect URLs**
-     allowlist (Authentication → URL Configuration). Without it Supabase silently sends
-     the browser to the Site URL with a `?code=` nobody handles, and the sign-in appears
-     to do nothing. The redirect NOD sends is built from `NEXT_PUBLIC_SITE_URL`, and the
-     apex 308-redirects to `www` (verified 2026-09-10) — so either set
-     `NEXT_PUBLIC_SITE_URL=https://www.joinbooga.se`, or put **both** the apex and the
-     `www` callback URLs on the allowlist. Allowlists are exact-match; one host being
-     right is not enough.
-  4. `NOD_SOCIAL_PROVIDERS` lists the enabled providers.
+- **Social sign-in** (Google, Facebook — `lib/signin-providers.ts`). The code is in
+  place and inert until a provider is both credentialled and listed. No Supabase project
+  is involved: NOD talks to each provider directly, the way it already does for
+  Instagram and TikTok.
 
-  Accounts link by verified address, so the same person gets the same account whether
-  they use a code or Google. One caveat worth knowing before support hears it: Apple's
-  **Hide My Email** returns a `@privaterelay.appleid.com` address, which will not match
-  an existing code-flow account and therefore opens a second one.
+  **Google** (start here — Facebook needs app review, Google does not):
+  1. Google Cloud Console → APIs & Services → Credentials → **Create OAuth client ID**,
+     type *Web application*.
+  2. Authorised redirect URI: `https://www.joinbooga.se/api/sign-in/google/callback`.
+     Exact match, so the host must be the one in `NEXT_PUBLIC_SITE_URL` — and the apex
+     308-redirects to `www` (verified 2026-09-10), so set that variable to the `www`
+     host or register both URIs.
+  3. OAuth consent screen → **publish to Production**. Left in *Testing*, only accounts
+     you added by hand can sign in, and everyone else gets a Google error page with no
+     hint that this is the cause.
+  4. In Vercel: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and add `google` to
+     `NOD_SOCIAL_PROVIDERS`.
+
+  **Facebook** — the *same Meta app* as the Instagram connection, so there is nothing
+  new to create if that already exists:
+  1. On that app add the **Facebook Login** product (Instagram uses *Instagram API with
+     Instagram Login*; they coexist).
+  2. Valid OAuth Redirect URI: `https://www.joinbooga.se/api/sign-in/facebook/callback`.
+  3. The app must be **Live**, with a Privacy Policy URL (`/privacy`) and a Data
+     Deletion URL. `public_profile` and `email` are the only permissions needed; `email`
+     is granted without review, so no App Review is required for sign-in alone.
+  4. `META_APP_ID` and `META_APP_SECRET` are already the Instagram ones — just add
+     `facebook` to `NOD_SOCIAL_PROVIDERS`.
+
+  A person who signed up with an email code and later presses a provider button on the
+  same address lands on the **same account**: linking is by verified address. Facebook
+  omits the address entirely when someone registered by phone or declined the
+  permission; they get "use an email code instead" rather than a broken sign-in.
+
+  **Apple is not implemented.** It needs a paid developer account and a client secret
+  that is an ES256 JWT regenerated every six months. Adding it means a third adapter in
+  `lib/signin-providers.ts`, nothing more.
 - **Stripe** webhook: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, endpoint
   `https://<domain>/api/webhooks/stripe`.
 - **Meta** (Instagram): `META_APP_ID`/`META_APP_SECRET`/`META_REDIRECT_URI`, redirect

@@ -96,7 +96,7 @@ ENCRYPTION_KEY   # for swishNumber, tokens (AES-GCM, key from env, never in DB)
 | Item | Where |
 |---|---|
 | RLS | `prisma/migrations/20260907120000_rls/` — 51 policies. `Identity` deliberately has **none**, so only the service role can read the BankID hash; `LedgerEntry` has no UPDATE or DELETE policy for any role, making append-only a database guarantee rather than only an application rule |
-| Sign-in | Email one-time code (`lib/login.ts`) is always available. Google/Apple via Supabase Auth (`lib/social-signin.ts`) appear when `NOD_SOCIAL_PROVIDERS` and the Supabase keys are set; both paths end in `resolveIdentity` and NOD's own session cookie, so they link by verified address to one account (docs/12) |
+| Sign-in | Email one-time code (`lib/login.ts`) is always available. Google and Facebook talk OAuth **directly** (`lib/signin-providers.ts`), not through Supabase Auth — the database is Neon, so a broker would be a service carried for one feature. Buttons appear only when `NOD_SOCIAL_PROVIDERS` lists a provider **and** its credentials exist. Both paths end in `resolveIdentity` and NOD's own session cookie, so they link by verified address to one account (docs/12) |
 | Role checks | `lib/auth.ts`; every Server Action begins with `requireParticipant` / `requireBrandUser(brandId)` / `requireOps` |
 | Webhook signatures | `app/api/webhooks/stripe` (Stripe SDK), `app/api/webhooks/meta` (HMAC-SHA256, `timingSafeEqual`). Idempotency by `LedgerEntry.externalRef`, which is unique |
 | Rate limits | `lib/rate-limit.ts` on waitlist, brand enquiry, sign-up, BankID start, claim and upload |

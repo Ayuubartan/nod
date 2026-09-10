@@ -48,6 +48,9 @@ const fail = (error: string): ActionResult<never> => ({ ok: false, error })
 const signUpSchema = z.object({
   authId: z.string().min(1),
   email: z.string().email().optional().nullable(),
+  // Only ever arrives from a social sign-in, via the session cookie. There is no field
+  // for it in onboarding — NOD does not ask people to type a name it does not need.
+  name: z.string().max(100).optional().nullable(),
   city: z.enum(['stockholm', 'goteborg', 'malmo', 'uppsala', 'other']),
   // 18 is the floor. There is no under-18 option anywhere in NOD (docs/07 section 6).
   ageBracket: z.enum(['18-20', '21-25', '26-30', '31+']),

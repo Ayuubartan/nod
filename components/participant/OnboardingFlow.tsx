@@ -52,6 +52,7 @@ const DONE = 6
 export function OnboardingFlow({
   authId,
   email,
+  name = null,
   existing,
   nextDrop,
   prefill = null,
@@ -61,6 +62,12 @@ export function OnboardingFlow({
   authId: string
   /** The address the sign-in code was sent to; stored on the User for next time. */
   email: string | null
+  /**
+   * Display name, present only when the person signed in with a social provider. There
+   * is no screen for it — it rides through so the row carries what the provider already
+   * told us instead of asking again.
+   */
+  name?: string | null
   existing: Existing
   nextDrop: string
   /** Answers from the waitlist entry with the same address, if any. */
@@ -106,6 +113,7 @@ export function OnboardingFlow({
     const result = await createParticipant({
       authId,
       email,
+      name,
       city,
       ageBracket,
       locale: 'sv',

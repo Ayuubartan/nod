@@ -22,6 +22,13 @@ const MAX_AGE_S = 60 * 60 * 24 * 30
 export type SessionPayload = {
   authId: string
   email: string
+  /**
+   * Display name, when a social provider supplied one. Optional and absent from every
+   * cookie the email-code flow issues, so an older cookie still decodes — it rides here
+   * because a first-time social sign-in has no User row yet to put it on; onboarding
+   * creates that row and takes the name from the session (docs/07 data table).
+   */
+  name?: string
   /** Unix seconds. */
   exp: number
 }
@@ -64,16 +71,18 @@ export function decodeSession(value: string | undefined | null, now = Date.now()
     const parsed = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')) as Partial<SessionPayload>
     if (typeof parsed.authId !== 'string' || typeof parsed.email !== 'string' || typeof parsed.exp !== 'number') return null
     if (parsed.exp * 1000 <= now) return null
-    return { authId: parsed.authId, email: parsed.email, exp: parsed.exp }
+    const name = typeof parsed.name === 'string' && parsed.name ? parsed.name.slice(0, 100) : undefined
+    return { authId: parsed.authId, email: parsed.email, exp: parsed.exp, ...(name ? { name } : {}) }
   } catch {
     return null
   }
 }
 
-export async function setSession(authId: string, email: string): Promise<void> {
+export async function setSession(authId: string, email: string, name?: string | null): Promise<void> {
   const store = await cookies()
   const exp = Math.floor(Date.now() / 1000) + MAX_AGE_S
-  store.set(SESSION_COOKIE, encodeSession({ authId, email, exp }), {
+  const trimmed = name?.trim().slice(0, 100)
+  store.set(SESSION_COOKIE, encodeSession({ authId, email, exp, ...(trimmed ? { name: trimmed } : {}) }), {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',

@@ -26,7 +26,9 @@ const CONNECT_ERRORS = ['denied', 'state', 'connectFailed', 'accountTaken'] as c
 export default async function OnboardingPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const authId = await currentAuthId()
   if (!authId) redirect('/sign-in?next=/onboarding')
-  const email = (await readSession())?.email ?? null
+  const session = await readSession()
+  const email = session?.email ?? null
+  const name = session?.name ?? null
 
   const user = authId
     ? await prisma.user.findUnique({
@@ -49,6 +51,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
     <OnboardingFlow
       authId={authId}
       email={email}
+      name={name}
       existing={
         user
           ? {
