@@ -851,6 +851,11 @@
     "devCode": "Ingen mejlleverantör är konfigurerad, så koden visas här: {code}",
     "switchToBrand": "Är du ett varumärke? Logga in här.",
     "switchToParticipant": "Är du kreatör? Logga in här.",
+    "continueWith": {
+      "google": "Fortsätt med Google",
+      "apple": "Fortsätt med Apple"
+    },
+    "orEmail": "eller med e-post",
     "signOut": "Logga ut",
     "errors": {
       "invalidEmail": "Det där ser inte ut som en e-postadress.",
@@ -859,7 +864,13 @@
       "wrongCode": "Fel kod. Kontrollera mejlet och försök igen.",
       "tooManyAttempts": "För många felaktiga försök. Be om en ny kod.",
       "noBrandAccount": "Den adressen hör inte till något varumärkeskonto. Kontakta hello@joinbooga.se så hjälper vi dig.",
-      "waitlistOnly": "Kön är inte öppen än för din adress. Ställ dig i kön eller bjud in vänner för att komma fram."
+      "waitlistOnly": "Kön är inte öppen än för din adress. Ställ dig i kön eller bjud in vänner för att komma fram.",
+      "socialUnavailable": "Den inloggningen är inte tillgänglig just nu. Använd e-postkod så länge.",
+      "socialDenied": "Inloggningen avbröts. Försök igen eller använd e-postkod.",
+      "socialState": "Inloggningen tog för lång tid eller startade i en annan flik. Börja om.",
+      "socialNoEmail": "Vi fick ingen e-postadress från den tjänsten. Använd e-postkod i stället.",
+      "socialUnverified": "Den e-postadressen är inte verifierad hos tjänsten. Verifiera den där, eller använd e-postkod.",
+      "socialFailed": "Inloggningen gick inte att slutföra. Försök igen eller använd e-postkod."
     },
     "toQueue": "Se din plats i kön"
   },

@@ -5,6 +5,74 @@ what it unlocked. Newest entry first. Each entry names the commit it describes.
 
 ---
 
+## 2026-09-10 — Social sign-in (Google, Apple)
+
+**Ask:** wire the social sign-in that `docs/08` has named since day one and this log has
+carried under "Still open" ever since — the email code was the only live method.
+
+### Sign-in with a provider — `lib/social-signin.ts`, `app/api/sign-in/`
+
+The temptation was a second identity system beside the code flow. It is not one. Supabase
+proves an address; from there the path is **`resolveIdentity`**, the same function
+`verifyCode` calls, so the waitlist gate, the `OPS_EMAIL` rule, the brand allowlist and
+the onboarding hand-off cannot drift between the two ways in. What comes out is NOD's own
+signed cookie (`lib/session.ts`), and the Supabase session is ended (`scope: 'local'`) in
+the same breath — one person with two live sessions is a signing-out bug waiting to
+happen, and `signOutEverywhere` should only have one thing to end.
+
+**Linking is by verified address.** Sign up with a code today, press "Continue with
+Google" tomorrow, and it is the same `User` row, because `resolveIdentity` looks the
+address up before it mints anything. That is only safe because of the check next to it:
+an address is trusted only when Supabase confirmed it or the provider claims
+`email_verified`. Without that, a provider that lets an account assert an unverified
+address is a way into someone else's account — the linking rule and the verification
+rule are one decision, not two.
+
+- Routes are `/api/sign-in/{provider}/start` and `/api/sign-in/callback`, deliberately
+  **not** under `/api/auth/*`. That prefix is `lib/social-oauth.ts`, which attaches a
+  TikTok or Instagram account to a session that already exists. This one creates the
+  session. Same word, opposite direction; separate paths so nobody wires them together
+  by accident.
+- The state cookie carries the nonce, the audience and the destination, so the callback
+  trusts nothing the query string alone asserts. Supabase's PKCE flow does not round-trip
+  our `state`, so the cookie is the proof this browser started the sign-in; when a state
+  *is* returned it still has to match.
+- `?error=` reaches the form as a translation key, and the address bar can put anything
+  there. `signInErrorFrom` allowlists the thirteen codes this app actually produces —
+  an unknown key would otherwise render as itself.
+- The buttons are `<a href>` to a route handler. No client SDK, no token anywhere near
+  the browser, and the waitlist's embedded variant does not get them: the address is
+  already known there and a provider button would drop the person out of a queue flow
+  they are halfway through.
+
+### What decides whether a button appears
+
+`NOD_SOCIAL_PROVIDERS` is an explicit list, not "Supabase is configured, so show both".
+Providers are enabled one at a time in the Supabase dashboard and Apple needs a paid
+developer account; a button that leads to a provider error is worse than no button.
+
+**This is off in production and the reason is not a missing list.** joinbooga.se runs on
+Neon, so `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` do not exist
+there at all (`vercel env ls production`, 2026-09-10). The four steps to turn it on are
+in `docs/12`, in order, including the one that fails silently if skipped: the callback
+URL must be on Supabase's Redirect URLs allowlist.
+
+**Apple's Hide My Email** hands back a `@privaterelay.appleid.com` address. It will not
+match an existing code-flow account, so it opens a second one. Recorded here so it is a
+known property and not a support mystery.
+
+### Tests
+
+16 unit tests in `tests/social-signin.test.ts` over the surface that decides whether a
+button appears, whether a callback is trusted and whether an address may be linked:
+the `enabledSocialProviders` env matrix (including both half-configured states),
+`emailIsVerified`, `parseState` against truncated and non-object cookies, and
+`signInErrorFrom` against injected values. The OAuth round-trip itself needs a Supabase
+project and a browser and is **not** asserted — what is verified locally is typecheck,
+lint, the full suite and `next build`.
+
+---
+
 ## 2026-09-07 — Direct placement, creative as a distribution layer, brand dashboard
 
 **Ask:** make the AI placement happen directly for everyone (no waiting on the ops queue),
@@ -294,8 +362,9 @@ the Marketplace, migrations in the build command, production database seeded.
 
 ### Still open
 
-- Social sign-in (Google/Apple via Supabase, docs/08) is still unwired; the email code
-  is the only live method. Both can coexist: `currentAuthId()` already reads either.
+- ~~Social sign-in (Google/Apple via Supabase) is still unwired~~ — done 2026-09-10, see
+  the entry at the top of this file. Off in production until the Supabase Auth variables
+  exist there (docs/12).
 - The live demo's seeded placement images live in a local `.storage/`; they show once
   `pnpm storage:push` has run with the Blob token (docs/12). New uploads on the live
   site go straight to the store.

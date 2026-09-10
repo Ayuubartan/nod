@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { requestLoginCode, verifyLoginCode } from '@/app/(auth)/actions'
-import type { LoginError } from '@/lib/login'
+import type { SignInError, SocialProvider } from '@/lib/social-signin'
 
 type Audience = 'PARTICIPANT' | 'BRAND'
 
@@ -15,24 +15,34 @@ type Audience = 'PARTICIPANT' | 'BRAND'
  * Embedded (`initialEmail` + `embedded`) it is the second half of the waitlist form:
  * the address is already known, the code is requested at once, and only the code
  * screen is shown — joining the waitlist and opening the account are one motion.
+ *
+ * `providers` is whatever social sign-in is configured (lib/social-signin.ts). It is a
+ * prop rather than a hook because the answer lives in a server-only env var, and the
+ * list is empty in every environment that has not set one up — so the page below looks
+ * exactly as it did before. The buttons are plain links to a route handler: no client
+ * SDK, no token ever reaching this component.
  */
 export function LoginForm({
   audience,
   next,
   initialEmail = '',
   embedded = false,
+  providers = [],
+  initialError = null,
 }: {
   audience: Audience
   next: string | null
   initialEmail?: string
   embedded?: boolean
+  providers?: SocialProvider[]
+  initialError?: SignInError | null
 }) {
   const t = useTranslations('auth')
   const [email, setEmail] = useState(initialEmail)
   const [code, setCode] = useState('')
   const [sent, setSent] = useState(false)
   const [devCode, setDevCode] = useState<string | null>(null)
-  const [error, setError] = useState<LoginError | null>(null)
+  const [error, setError] = useState<SignInError | null>(initialError)
   const [pending, start] = useTransition()
 
   const brand = audience === 'BRAND'
@@ -73,6 +83,14 @@ export function LoginForm({
     })
   }
 
+  // Not in the waitlist variant: the address is already known there, and a social
+  // button would drop the person out of the queue flow they are halfway through.
+  const showSocial = !embedded && !sent && providers.length > 0
+  const socialQuery = new URLSearchParams({
+    audience,
+    ...(next ? { next } : {}),
+  }).toString()
+
   return (
     <div className={embedded ? '' : 'max-w-sm mx-auto'}>
       {!embedded && (
@@ -85,6 +103,25 @@ export function LoginForm({
             {brand ? t('brandHint') : t('participantHint')}
           </p>
         </>
+      )}
+
+      {showSocial && (
+        <div className="flex flex-col gap-3 mb-4">
+          {providers.map((provider) => (
+            <a
+              key={provider}
+              className="btn btn-secondary w-full"
+              href={`/api/sign-in/${provider}/start?${socialQuery}`}
+            >
+              {t(`continueWith.${provider}`)}
+            </a>
+          ))}
+          <div className="flex items-center gap-3 text-xs text-[var(--color-ink-3)]">
+            <span className="h-px flex-1 bg-[var(--color-line)]" />
+            {t('orEmail')}
+            <span className="h-px flex-1 bg-[var(--color-line)]" />
+          </div>
+        </div>
       )}
 
       {!sent ? (

@@ -851,6 +851,11 @@
     "devCode": "No mail provider is configured, so the code is shown here: {code}",
     "switchToBrand": "Are you a brand? Sign in here.",
     "switchToParticipant": "Are you a creator? Sign in here.",
+    "continueWith": {
+      "google": "Continue with Google",
+      "apple": "Continue with Apple"
+    },
+    "orEmail": "or with email",
     "signOut": "Sign out",
     "errors": {
       "invalidEmail": "That doesn't look like an email address.",
@@ -859,7 +864,13 @@
       "wrongCode": "Wrong code. Check the email and try again.",
       "tooManyAttempts": "Too many wrong attempts. Request a new code.",
       "noBrandAccount": "That address doesn't belong to a brand account. Contact hello@joinbooga.se and we'll help.",
-      "waitlistOnly": "The queue is not open for your address yet. Join the queue or invite friends to move up."
+      "waitlistOnly": "The queue is not open for your address yet. Join the queue or invite friends to move up.",
+      "socialUnavailable": "That sign-in method is unavailable right now. Use an email code instead.",
+      "socialDenied": "Sign-in was cancelled. Try again or use an email code.",
+      "socialState": "The sign-in took too long or was started in another tab. Start again.",
+      "socialNoEmail": "That service did not give us an email address. Use an email code instead.",
+      "socialUnverified": "That email address is not verified with the provider. Verify it there, or use an email code.",
+      "socialFailed": "We could not complete that sign-in. Try again or use an email code."
     },
     "toQueue": "See your place in the queue"
   },
