@@ -59,6 +59,12 @@ set for the Instagram connection, quite possibly months earlier — from silentl
 `NOD_FAKE_PROVIDERS` is deliberately never consulted here: it simulates *connecting an
 account*, and a simulated way to become any user is not something sign-in should own.
 
+One honest caveat to "no Supabase project is involved": `lib/auth.ts` and `middleware.ts`
+still construct a Supabase client and fall back to a Supabase session. Nothing issues one
+any more, and `supabaseServer()` throws when unconfigured — which `currentAuthId` catches
+— so it costs nothing and breaks nothing. Removing it is a separate cleanup, not part of
+this change.
+
 ### The profile — `User.name`
 
 `name` is the only field added, and only because a provider hands it over; there is no

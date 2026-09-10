@@ -617,7 +617,7 @@ export async function exportMyData(): Promise<ActionResult<Record<string, unknow
     prisma.user.findUniqueOrThrow({
       where: { id: userId },
       select: {
-        id: true, email: true, locale: true, city: true, ageBracket: true,
+        id: true, email: true, name: true, locale: true, city: true, ageBracket: true,
         trainingConsent: true, termsAcceptedAt: true, disclosureQuizAt: true,
         referralCode: true, reputation: true, createdAt: true,
       },
