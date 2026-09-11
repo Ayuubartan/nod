@@ -64,7 +64,8 @@ export function WaitlistForm() {
         referred: Boolean(ref),
         sms: formData.get('smsConsent') === 'on',
       })
-      router.push('/queue')
+      // ?joined=1 asks /queue for the one-time welcome; it strips it again on mount.
+      router.push('/queue?joined=1')
       return
     }
     setPending(false)

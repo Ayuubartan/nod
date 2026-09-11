@@ -23,8 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t('metaTitle') }
 }
 
-export default async function QueuePage({ searchParams }: { searchParams: Promise<{ t?: string }> }) {
-  const { t: token } = await searchParams
+export default async function QueuePage({ searchParams }: { searchParams: Promise<{ t?: string; joined?: string }> }) {
+  const { t: token, joined } = await searchParams
   if (token) redirect(`/queue/open?t=${encodeURIComponent(token)}`)
 
   const entryId = await readQueueCookie()
@@ -89,5 +89,5 @@ export default async function QueuePage({ searchParams }: { searchParams: Promis
     converted: Boolean(entry.convertedUserId),
   }
 
-  return <QueueStatus view={view} />
+  return <QueueStatus view={view} justJoined={joined === '1'} />
 }

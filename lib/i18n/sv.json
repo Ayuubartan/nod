@@ -878,6 +878,14 @@
     "metaTitle": "Din plats i kön",
     "youreIn": "Du är med.",
     "almostIn": "Nästan inne",
+    "welcome": {
+      "kicker": "Tack – du är med!",
+      "title": "Du är nummer #{position} i kön",
+      "mailed": "Vi har mejlat din länk till {email}. Bekräfta din e-post där så räknas du – och varje vän du bjuder in flyttar dig framåt.",
+      "mailedVerified": "Din plats är sparad. Varje vän som går med via din länk flyttar dig framåt.",
+      "cta": "Kopiera din inbjudningslänk",
+      "copied": "Kopierad – skicka den till en vän"
+    },
     "topPercent": "Topp {percent} %",
     "points": "{points} poäng",
     "ofTotal": "{total} i kön just nu",

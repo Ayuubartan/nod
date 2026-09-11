@@ -12,6 +12,7 @@ import {
 } from '@/app/(marketing)/queue/actions'
 import { EVENTS, track } from '@/lib/analytics'
 import { LoginForm } from '@/components/LoginForm'
+import { QueueWelcome } from '@/components/marketing/QueueWelcome'
 
 /**
  * Page two of the waitlist game (docs/13): "YOU'RE IN — #14 821 — Stockholm — TOP 15%",
@@ -61,7 +62,7 @@ const CATEGORIES = ['gym', 'food', 'study', 'travel', 'fashion', 'gaming', 'nigh
 
 const fmt = (n: number) => n.toLocaleString('sv-SE')
 
-export function QueueStatus({ view }: { view: QueueView }) {
+export function QueueStatus({ view, justJoined = false }: { view: QueueView; justJoined?: boolean }) {
   const t = useTranslations('queue')
   const levels = useTranslations('queue.levels')
   const common = useTranslations('common')
@@ -79,6 +80,9 @@ export function QueueStatus({ view }: { view: QueueView }) {
   return (
     <section className="section">
       <div className="wrap max-w-xl grid gap-4">
+        {justJoined && (
+          <QueueWelcome position={view.position} email={view.email} emailVerified={view.emailVerified} shareUrl={view.shareUrl} />
+        )}
         {/* Identity */}
         <div className="card p-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-[var(--color-red)] mb-3">

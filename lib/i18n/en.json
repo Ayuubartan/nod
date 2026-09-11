@@ -878,6 +878,14 @@
     "metaTitle": "Your place in the queue",
     "youreIn": "You're in.",
     "almostIn": "Almost in",
+    "welcome": {
+      "kicker": "Thanks – you're in!",
+      "title": "You're number #{position} in the queue",
+      "mailed": "We've mailed your link to {email}. Confirm your email there to count – and every friend you invite moves you up.",
+      "mailedVerified": "Your place is saved. Every friend who joins through your link moves you up.",
+      "cta": "Copy your invite link",
+      "copied": "Copied – send it to a friend"
+    },
     "topPercent": "Top {percent}%",
     "points": "{points} points",
     "ofTotal": "{total} in the queue right now",
