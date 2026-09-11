@@ -43,7 +43,18 @@ export default async function OpsSignupsPage() {
 
   return (
     <div>
-      <h1 className="text-xl mb-4">Signups</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <h1 className="text-xl">Signups</h1>
+        {/* Route handlers, not actions: a download is a navigation. Every export is audited. */}
+        <div className="flex gap-2">
+          <a href="/ops/signups/export?kind=waitlist" className="btn btn-secondary text-sm">
+            Download waitlist CSV
+          </a>
+          <a href="/ops/signups/export?kind=enquiries" className="btn btn-secondary text-sm">
+            Download enquiries CSV
+          </a>
+        </div>
+      </div>
 
       <ul className="grid gap-3 sm:grid-cols-3 mb-8">
         {totals.map((total) => (
