@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { joinWaitlist } from '@/app/(marketing)/actions'
@@ -39,10 +39,23 @@ export function WaitlistForm() {
     track(EVENTS.waitlistViewed, {})
   }, [])
 
+  // Where feedback appears — scrolled into view on phones, where the button sits below
+  // the fold and a message above it would otherwise go unseen.
+  const feedback = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (error || already) feedback.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [error, already])
+
   async function onSubmit(formData: FormData) {
-    setPending(true)
     setError(null)
     setAlready(false)
+    // Checked here rather than with `required`: the browser's bubble is gone in a
+    // second on iOS and reads as "nothing happened". The server checks it again.
+    if (formData.get('consent') !== 'on') {
+      setError('consent')
+      return
+    }
+    setPending(true)
 
     const result = await joinWaitlist({
       city: formData.get('city'),
@@ -123,7 +136,7 @@ export function WaitlistForm() {
           )}
 
           <label className="flex items-start gap-3 text-sm">
-            <input type="checkbox" name="consent" required className="mt-1" />
+            <input type="checkbox" name="consent" className="mt-1" />
             <span>
               {t('consent')}{' '}
               <Link href="/privacy" className="underline" target="_blank">
@@ -139,15 +152,24 @@ export function WaitlistForm() {
             </span>
           </label>
 
-          {already && (
-            <p className="text-sm text-[var(--color-ink-2)]">
-              {t('already')}{' '}
-              <Link href="/queue" className="underline">
-                {t('alreadyLink')}
-              </Link>
-            </p>
-          )}
-          {error && <p className="error-text">{t(`errors.${error}`)}</p>}
+          <div ref={feedback}>
+            {already && (
+              <div className="card p-4 border-[var(--color-teal)]" role="status" aria-live="polite">
+                <p className="font-semibold mb-1">{t('alreadyTitle')}</p>
+                <p className="text-sm text-[var(--color-ink-2)]">
+                  {t('already')}{' '}
+                  <Link href="/queue" className="underline">
+                    {t('alreadyLink')}
+                  </Link>
+                </p>
+              </div>
+            )}
+            {error && (
+              <p className="error-text" role="alert">
+                {t(`errors.${error}`)}
+              </p>
+            )}
+          </div>
 
           <button type="submit" className="btn btn-primary w-full" disabled={pending}>
             {pending ? t('submitting') : t('submit')}

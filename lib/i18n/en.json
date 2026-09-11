@@ -169,6 +169,7 @@
       "phoneHint": "Optional. Verify it on the next page for points – and get a text when something happens, if you want.",
       "smsConsent": "Yes, text me when my place changes or when it is my turn.",
       "smsConsentHint": "At most one text every six hours, never at night. Reply STOP any time.",
+      "alreadyTitle": "You're already in the queue",
       "already": "That email is already in the queue – we have mailed you a link to your place.",
       "alreadyLink": "Already have the link? Go to your place."
     },

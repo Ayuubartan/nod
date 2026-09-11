@@ -169,6 +169,7 @@
       "phoneHint": "Valfritt. Verifiera numret på nästa sida så får du poäng – och sms när något händer, om du vill.",
       "smsConsent": "Ja, skicka sms när min plats ändras eller när det är min tur.",
       "smsConsentHint": "Max ett sms per sex timmar, aldrig nattetid. Svara STOPP när du vill.",
+      "alreadyTitle": "Du står redan i kön",
       "already": "Den e-posten står redan i kön – vi har mejlat dig en länk till din plats.",
       "alreadyLink": "Har du redan länken? Gå till din plats."
     },
