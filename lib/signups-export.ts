@@ -23,7 +23,7 @@ export function isExportKind(value: string | null | undefined): value is ExportK
  * Excel opens a bare UTF-8 file as Latin-1 and mangles å/ä/ö. The byte-order mark is the
  * only thing it reliably honours, and every other reader ignores it.
  */
-export const BOM = '﻿'
+export const BOM = '\uFEFF'
 
 /**
  * Quote a single cell. Always quoted, so a reader never has to guess; a leading `=`,
