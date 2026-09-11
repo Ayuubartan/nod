@@ -111,7 +111,7 @@ export async function sendWaitlistConfirmation(args: {
   const html =
     locale === 'sv'
       ? shell(
-          `<h1 style="font-size:22px;margin:0 0 12px">Du är med.</h1>
+          `<h1 style="font-size:22px;margin:0 0 12px">Tack – du är med.</h1>
            <p style="margin:0 0 16px;color:#4B5560">Du är nummer <strong style="color:#111820">${args.position}</strong> i kön. Bekräfta din e-post så räknas du – och se din plats, dina poäng och din inbjudningslänk.</p>
            ${button(args.queueUrl, 'Bekräfta och se din plats')}
            <p style="margin:24px 0 8px;color:#4B5560">Varje vän som går med via din länk och bekräftar sig flyttar dig framåt:</p>
@@ -119,7 +119,7 @@ export async function sendWaitlistConfirmation(args: {
           locale,
         )
       : shell(
-          `<h1 style="font-size:22px;margin:0 0 12px">You're in.</h1>
+          `<h1 style="font-size:22px;margin:0 0 12px">Thanks – you're in.</h1>
            <p style="margin:0 0 16px;color:#4B5560">You're number <strong style="color:#111820">${args.position}</strong> in the queue. Confirm your email to count – and see your place, your points and your invite link.</p>
            ${button(args.queueUrl, 'Confirm and see your place')}
            <p style="margin:24px 0 8px;color:#4B5560">Every friend who joins through your link and confirms moves you up:</p>

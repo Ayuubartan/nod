@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db'
 import { emit } from '@/lib/events'
 import { rateLimit } from '@/lib/rate-limit'
 import { sendWaitlistConfirmation, sendQueueLink, sendBrandEnquiryToOps } from '@/lib/email'
+import { getLocale } from 'next-intl/server'
+import type { Locale } from '@/lib/i18n/config'
 import { CITIES, joinQueue, normalisePhone } from '@/lib/queue'
 import { queueLink, setQueueCookie } from '@/lib/queue-session'
 import { REF_COOKIE } from '@/lib/referral-cookie'
@@ -101,11 +103,13 @@ export async function joinWaitlist(input: unknown): Promise<WaitlistResult> {
   const shareUrl = `${siteUrl}/r/${entry.referralCode}`
 
   await setQueueCookie(entry.id)
+  // In the language they signed up in — an English visitor was getting Swedish mail.
   await sendWaitlistConfirmation({
     email: entry.email,
     position: entry.position,
     queueUrl: queueLink(entry.id, 'email'),
     shareUrl,
+    locale: (await getLocale()) as Locale,
   })
   await emit({
     name: 'waitlist/joined',
