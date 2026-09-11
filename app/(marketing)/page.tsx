@@ -7,6 +7,7 @@ import { Faq } from '@/components/marketing/Faq'
 import { StepIcon } from '@/components/marketing/StepIcon'
 import { compact, landingStats } from '@/lib/landing-stats'
 import { log } from '@/lib/logger'
+import { flag } from '@/lib/flags'
 
 /**
  * Landing page — docs/01, in the Boogaa clothes of docs/10.
@@ -20,6 +21,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function LandingPage() {
   const t = await getTranslations('marketing')
+  const showSignIn = await flag('marketing.showSignIn')
   const locale = (await getLocale()) === 'sv' ? 'sv' : 'en'
 
   // DECISION: a database hiccup hides the stats row rather than failing the page.
@@ -75,12 +77,14 @@ export default async function LandingPage() {
                 {t('hero.ctaLearn')}
               </a>
             </div>
-            <p className="mt-4 text-sm text-[var(--color-ink-2)]">
-              {t('hero.already')}{' '}
-              <Link href="/sign-in" className="underline font-medium">
-                {t('hero.alreadyLink')}
-              </Link>
-            </p>
+            {showSignIn && (
+              <p className="mt-4 text-sm text-[var(--color-ink-2)]">
+                {t('hero.already')}{' '}
+                <Link href="/sign-in" className="underline font-medium">
+                  {t('hero.alreadyLink')}
+                </Link>
+              </p>
+            )}
             {statItems.length > 0 && (
               <p className="mt-8 text-sm font-semibold text-[var(--color-ink-2)] flex flex-wrap gap-x-3 gap-y-1">
                 {statItems.map((item, index) => (

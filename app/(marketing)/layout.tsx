@@ -4,10 +4,21 @@ import { getTranslations } from 'next-intl/server'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { AnalyticsProvider } from '@/components/AnalyticsProvider'
 import { Logo } from '@/components/Logo'
+import { flag } from '@/lib/flags'
+
+/**
+ * Rendered per request, not prerendered: the header reads a flag, and a flag that is
+ * frozen into a static page at build time is not a flag ops can flip. The landing page
+ * was already dynamic for the language cookie; this makes the legal pages match.
+ */
+export const dynamic = 'force-dynamic'
 
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
   const t = await getTranslations('marketing')
   const nav = await getTranslations('nav')
+  // Off until there are accounts to sign in to (ops flips it on /ops/flags). The page
+  // itself stays reachable at /sign-in; only the links go.
+  const showSignIn = await flag('marketing.showSignIn')
 
   // docs/10 nav: Home · Features · Community · For brands · [Join BOOGAA]
   const links = [
@@ -31,12 +42,14 @@ export default async function MarketingLayout({ children }: { children: React.Re
               ))}
             </nav>
             <div className="flex items-center gap-2 sm:gap-3 text-sm">
-              <Link
-                href="/sign-in"
-                className="text-[var(--color-ink-2)] hover:text-[var(--color-ink)] font-medium whitespace-nowrap"
-              >
-                {nav('signIn')}
-              </Link>
+              {showSignIn && (
+                <Link
+                  href="/sign-in"
+                  className="text-[var(--color-ink-2)] hover:text-[var(--color-ink)] font-medium whitespace-nowrap"
+                >
+                  {nav('signIn')}
+                </Link>
+              )}
               <LanguageToggle />
               {/* Phones: the hero CTA is one thumb away, so the header keeps Sign in instead. */}
               <Link href="/#waitlist" className="btn btn-teal min-h-9 px-4 py-1.5 text-sm whitespace-nowrap hidden sm:inline-flex">
@@ -61,8 +74,12 @@ export default async function MarketingLayout({ children }: { children: React.Re
               <Link href="/cookies">{t('footer.cookies')}</Link>
               <Link href="/brand-agreement">{t('footer.brandAgreement')}</Link>
               <Link href="/brands">{t('hero.ctaSecondary')}</Link>
-              <Link href="/sign-in">{t('footer.signIn')}</Link>
-              <Link href="/brand/sign-in">{t('footer.brandSignIn')}</Link>
+              {showSignIn && (
+                <>
+                  <Link href="/sign-in">{t('footer.signIn')}</Link>
+                  <Link href="/brand/sign-in">{t('footer.brandSignIn')}</Link>
+                </>
+              )}
               <LanguageToggle />
             </nav>
           </div>

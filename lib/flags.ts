@@ -53,6 +53,11 @@ export const FLAG_DEFAULTS = {
   // the waitlist game (docs/13) — SMS costs money and the gate changes who can sign in
   'waitlist.smsEnabled': false,
   'waitlist.gate': false,
+  // Public sign-in links (header, footer, hero "already have an account?"). Off until
+  // there are accounts to sign in to; /sign-in itself stays reachable by URL for ops.
+  // The waitlist's own "you're in — sign in" step is not governed by this: that is the
+  // door the queue opens, not a nav link.
+  'marketing.showSignIn': false,
   'waitlist.boostMultiplier': 1,
   'waitlist.dailyBoostCount': 0,
 
